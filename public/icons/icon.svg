@@ -1,30 +1,61 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#059669" />
-      <stop offset="100%" stop-color="#047857" />
-    </linearGradient>
-    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
-      <stop offset="100%" stop-color="#ecfdf5" stop-opacity="0.9" />
-    </linearGradient>
+    <!-- Paper Shadow -->
+    <filter id="paperShadow" x="-15%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    <!-- Fold Shadow -->
+    <filter id="foldShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="-2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18" />
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
-  <!-- Document Sheet -->
-  <path d="M160 120 C160 106.745 170.745 96 184 96 L296 96 L352 152 L352 392 C352 405.255 341.255 416 328 416 L184 416 C170.745 416 160 405.255 160 392 Z" fill="#ffffff" filter="drop-shadow(0 16px 24px rgba(0,0,0,0.15))"/>
-  <path d="M296 96 L352 152 L296 152 Z" fill="#d1fae5"/>
-  <!-- Text lines on Document -->
-  <rect x="192" y="180" width="128" height="12" rx="6" fill="#a7f3d0"/>
-  <rect x="192" y="208" width="96" height="12" rx="6" fill="#a7f3d0"/>
-  <!-- Watermark Stamp Overlay -->
-  <g transform="rotate(-25 256 280)">
-    <rect x="140" y="250" width="232" height="60" rx="12" fill="none" stroke="#059669" stroke-width="8" stroke-dasharray="14 8"/>
-    <text x="256" y="290" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="900" fill="#059669" text-anchor="middle" letter-spacing="4">TANDAIN</text>
+
+  <!-- App Canvas Squircle (Dark Ink Slate) -->
+  <rect width="512" height="512" rx="116" fill="#14161C"/>
+  <rect x="4" y="4" width="504" height="504" rx="112" fill="none" stroke="#262A36" stroke-width="4"/>
+
+  <!-- Document Sheet (Warm Paper) with Folded Corner -->
+  <g filter="url(#paperShadow)">
+    <!-- Base Document Path with chamfered top-right corner -->
+    <path d="M 124 96 C 124 82.7 134.7 72 148 72 L 316 72 L 388 144 L 388 416 C 388 429.3 377.3 440 364 440 L 148 440 C 134.7 440 124 429.3 124 416 Z" fill="#F6F2EA"/>
+    
+    <!-- Folded Corner Flap -->
+    <path d="M 316 72 L 388 144 L 328 144 C 321.4 144 316 138.6 316 132 Z" fill="#E2DBD0" filter="url(#foldShadow)"/>
   </g>
-  <!-- Shield Badge (bottom right) -->
-  <g transform="translate(300, 290)">
-    <circle cx="60" cy="60" r="54" fill="#047857" stroke="#ffffff" stroke-width="6"/>
-    <!-- Checkmark & Lock inside shield -->
-    <path d="M42 60 L54 72 L78 48" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Sensitive Document Text Lines (Simulasi Dokumen KTP/Ijazah) -->
+  <g fill="#D8D0C4">
+    <!-- Header lines -->
+    <rect x="156" y="112" width="116" height="12" rx="6"/>
+    <rect x="156" y="134" width="84" height="10" rx="5" fill="#E3DDD3"/>
+    
+    <!-- Body lines -->
+    <rect x="156" y="176" width="198" height="9" rx="4.5" fill="#E8E2D8"/>
+    <rect x="156" y="196" width="168" height="9" rx="4.5" fill="#E8E2D8"/>
+    <rect x="156" y="216" width="186" height="9" rx="4.5" fill="#E8E2D8"/>
+    <rect x="156" y="236" width="144" height="9" rx="4.5" fill="#E8E2D8"/>
+  </g>
+
+  <!-- Official Stamp Seal (Cap Segel Merah Tandain dengan Monogram T) -->
+  <!-- Angled by -9 degrees for authentic stamped look -->
+  <g transform="translate(256, 324) rotate(-9)">
+    <!-- Stamp Fill & Outer Solid Border -->
+    <rect x="-106" y="-54" width="212" height="108" rx="14" fill="#C8372D" fill-opacity="0.08" stroke="#C8372D" stroke-width="6"/>
+    
+    <!-- Stamp Inner Dashed Security Border -->
+    <rect x="-95" y="-43" width="190" height="86" rx="9" fill="none" stroke="#C8372D" stroke-width="2.5" stroke-dasharray="7 5"/>
+    
+    <!-- Top & Bottom Micro-Header -->
+    <text x="0" y="-27" font-family="'JetBrains Mono', monospace, sans-serif" font-size="11" font-weight="700" fill="#C8372D" text-anchor="middle" letter-spacing="3.5">DOKUMEN TERVERIFIKASI</text>
+    
+    <!-- Decorative Stars -->
+    <path d="M -56 5 L -54 0 L -49 0 L -53 -3 L -51 -8 L -56 -5 L -61 -8 L -59 -3 L -63 0 L -58 0 Z" fill="#C8372D" transform="scale(0.8)"/>
+    <path d="M 56 5 L 58 0 L 63 0 L 59 -3 L 61 -8 L 56 -5 L 51 -8 L 53 -3 L 49 0 L 54 0 Z" fill="#C8372D" transform="scale(0.8)"/>
+    
+    <!-- Bold Stamp Monogram "T" -->
+    <path d="M -22 -12 H 22 V -4 H 5 V 23 H -5 V -4 H -22 Z" fill="#C8372D"/>
+    
+    <!-- Bottom Micro-Caption -->
+    <text x="0" y="32" font-family="'JetBrains Mono', monospace, sans-serif" font-size="9" font-weight="700" fill="#C8372D" text-anchor="middle" letter-spacing="3">100% OFFLINE</text>
   </g>
 </svg>
