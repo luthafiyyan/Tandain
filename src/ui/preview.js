@@ -325,8 +325,8 @@ export class DocumentPreview {
 
       if (this.creatingBox) {
         ctx.save();
-        ctx.fillStyle = 'rgba(20, 22, 28, 0.85)';
-        ctx.strokeStyle = '#C8372D';
+        ctx.fillStyle = 'rgba(0, 122, 255, 0.16)';
+        ctx.strokeStyle = '#007AFF';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([4, 4]);
         const bx = Math.round(this.creatingBox.x * renderW);
@@ -344,7 +344,7 @@ export class DocumentPreview {
       renderWatermark(ctx, renderW, renderH, this.watermarkSettings);
     }
 
-    // 5. Mode split pembanding
+    // 5. Mode split pembanding (Gaya Apple: pembagi presisi tanpa emoji)
     if (this.viewMode === 'split') {
       const splitX = Math.round(renderW * this.splitRatio);
 
@@ -356,48 +356,60 @@ export class DocumentPreview {
       ctx.drawImage(this.activePage.bitmap, 0, 0, renderW, renderH);
       ctx.restore();
 
-      // Garis pemisah merah cap
+      // Garis pemisah tipis presisi
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(splitX, 0);
       ctx.lineTo(splitX, renderH);
-      ctx.strokeStyle = '#C8372D';
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+      ctx.shadowBlur = 4;
       ctx.stroke();
 
-      // Tombol handle stempel bundar di tengah
-      ctx.fillStyle = '#C8372D';
+      // Handle bulat putih ala iOS Slider
       ctx.beginPath();
       ctx.arc(splitX, renderH / 2, 14, 0, Math.PI * 2);
-      ctx.fill();
-
       ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(splitX, renderH / 2, 11, 0, Math.PI * 2);
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 2;
       ctx.fill();
 
-      ctx.fillStyle = '#C8372D';
-      ctx.font = 'bold 9px monospace';
+      // Garis tepi halus handle
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Dua garis grip vertikal minimalis di dalam thumb
+      ctx.strokeStyle = '#8E8E93';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(splitX - 3, renderH / 2 - 5);
+      ctx.lineTo(splitX - 3, renderH / 2 + 5);
+      ctx.moveTo(splitX + 3, renderH / 2 - 5);
+      ctx.lineTo(splitX + 3, renderH / 2 + 5);
+      ctx.stroke();
+
+      // Label teks Asli vs Hasil (Apple Callout Pill)
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+      ctx.beginPath();
+      ctx.roundRect(12, 12, 46, 22, 6);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '600 11px -apple-system, BlinkMacSystemFont, "Inter", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('◀▶', splitX, renderH / 2);
+      ctx.fillText('Asli', 35, 23);
 
-      // Label teks Asli vs Ber-cap
-      ctx.fillStyle = 'rgba(23, 25, 34, 0.85)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
       ctx.beginPath();
-      ctx.roundRect(10, 10, 52, 22, 4);
+      ctx.roundRect(renderW - 58, 12, 46, 22, 6);
       ctx.fill();
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '700 9px monospace';
-      ctx.fillText('ASLI', 36, 21);
-
-      ctx.fillStyle = 'rgba(23, 25, 34, 0.85)';
-      ctx.beginPath();
-      ctx.roundRect(renderW - 74, 10, 64, 22, 4);
-      ctx.fill();
-      ctx.fillStyle = '#F87171';
-      ctx.font = '700 9px monospace';
-      ctx.fillText('BER-CAP', renderW - 42, 21);
+      ctx.font = '600 11px -apple-system, BlinkMacSystemFont, "Inter", sans-serif';
+      ctx.fillText('Hasil', renderW - 35, 23);
 
       ctx.restore();
     }

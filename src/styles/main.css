@@ -1,1226 +1,1470 @@
-@import '@fontsource/fraunces/600.css';
-@import '@fontsource/fraunces/700.css';
+/**
+ * main.css — Apple Human Interface Guidelines Design System
+ * Bersih, tenang, presisi, beraksen biru sistem (#007AFF / #0A84FF).
+ */
+
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
-@import '@fontsource/jetbrains-mono/400.css';
-@import '@fontsource/jetbrains-mono/500.css';
-@import '@fontsource/jetbrains-mono/700.css';
 
+/* ===================================================
+   1. DESIGN TOKENS (LIGHT & DARK MODES)
+   =================================================== */
 :root {
-  /* Tipografi */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Tipografi Apple */
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Palet Cap & Tinta (Light Mode: Kertas Off-White Hangat) */
-  --bg-page: #F6F2EA;
-  --bg-card: #FFFFFF;
-  --bg-subtle: #EFE9DE;
-  --bg-input: #FCFAF6;
-  --bg-viewport: #EAE4D7;
+  /* Warna Aksen Tunggal: Biru Sistem */
+  --accent: #007AFF;
+  --accent-hover: #0062CC;
+  --accent-subtle: rgba(0, 122, 255, 0.1);
+  --accent-border: rgba(0, 122, 255, 0.25);
+  --destructive: #FF3B30;
+  --destructive-hover: #D72E24;
 
-  --border: #DCD5C6;
-  --border-subtle: #E8E2D5;
-  --border-focus: #C8372D;
+  /* Latar & Permukaan Terang (iOS / macOS Light) */
+  --bg-window: #F5F5F7;
+  --bg-surface: #FFFFFF;
+  --bg-secondary: #EFEFF4;
+  --bg-tertiary: #E5E5EA;
+  --bg-sidebar: rgba(245, 245, 247, 0.85);
+  --bg-toolbar: rgba(245, 245, 247, 0.85);
+  --bg-stage: #EBEBF0;
 
-  --text-main: #171922;
-  --text-secondary: #484C5B;
-  --text-muted: #797F93;
-  --text-inverse: #FFFFFF;
+  /* Pemisah & Garis Tepi */
+  --separator: rgba(0, 0, 0, 0.08);
+  --separator-subtle: rgba(0, 0, 0, 0.04);
+  --card-border: rgba(0, 0, 0, 0.08);
 
-  /* Aksen Tunggal: Merah Cap Resmi */
-  --stamp-red: #C8372D;
-  --stamp-red-hover: #B02E25;
-  --stamp-red-subtle: #FDF2F1;
-  --stamp-red-border: #F3BCB8;
+  /* Teks Netral */
+  --text-primary: #1D1D1F;
+  --text-secondary: #6E6E73;
+  --text-tertiary: #8E8E93;
+  --text-on-accent: #FFFFFF;
 
-  --shadow-sm: 0 1px 3px rgba(35, 30, 20, 0.06);
-  --shadow-md: 0 4px 12px rgba(35, 30, 20, 0.08);
+  /* Kontrol UI */
+  --slider-track: rgba(120, 120, 128, 0.2);
+  --segmented-bg: rgba(118, 118, 128, 0.12);
+  --segmented-active: #FFFFFF;
+  --toast-bg: rgba(30, 30, 32, 0.85);
+  --toast-text: #FFFFFF;
 
+  /* Radius Konsisten Apple */
   --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-full: 9999px;
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+
+  /* Bayangan Halus Satu Tingkat */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-popover: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
+/* Otomatis Mengikuti prefers-color-scheme: dark */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent: #0A84FF;
+    --accent-hover: #409CFF;
+    --accent-subtle: rgba(10, 132, 255, 0.15);
+    --accent-border: rgba(10, 132, 255, 0.3);
+    --destructive: #FF453A;
+    --destructive-hover: #FF6961;
+
+    --bg-window: #000000;
+    --bg-surface: #2C2C2E;
+    --bg-secondary: #3A3A3C;
+    --bg-tertiary: #48484A;
+    --bg-sidebar: rgba(28, 28, 30, 0.85);
+    --bg-toolbar: rgba(28, 28, 30, 0.85);
+    --bg-stage: #111215;
+
+    --separator: rgba(255, 255, 255, 0.12);
+    --separator-subtle: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.1);
+
+    --text-primary: #F5F5F7;
+    --text-secondary: #98989D;
+    --text-tertiary: #636366;
+
+    --slider-track: rgba(120, 120, 128, 0.35);
+    --segmented-bg: rgba(118, 118, 128, 0.24);
+    --segmented-active: #636366;
+    --toast-bg: rgba(50, 50, 54, 0.85);
+
+    --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-popover: 0 12px 28px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* Override Manual Gelap via data-theme="dark" */
 [data-theme="dark"] {
-  /* Palet Cap & Tinta (Dark Mode: Tinta Gelap Kebiruan) */
-  --bg-page: #14161C;
-  --bg-card: #1B1E26;
-  --bg-subtle: #242833;
-  --bg-input: #181A22;
-  --bg-viewport: #0F1116;
+  --accent: #0A84FF;
+  --accent-hover: #409CFF;
+  --accent-subtle: rgba(10, 132, 255, 0.15);
+  --accent-border: rgba(10, 132, 255, 0.3);
+  --destructive: #FF453A;
+  --destructive-hover: #FF6961;
 
-  --border: #2C313E;
-  --border-subtle: #242935;
-  --border-focus: #D94035;
+  --bg-window: #000000;
+  --bg-surface: #2C2C2E;
+  --bg-secondary: #3A3A3C;
+  --bg-tertiary: #48484A;
+  --bg-sidebar: rgba(28, 28, 30, 0.85);
+  --bg-toolbar: rgba(28, 28, 30, 0.85);
+  --bg-stage: #111215;
 
-  --text-main: #EDE8DF;
-  --text-secondary: #B4B9C8;
-  --text-muted: #7B8196;
-  --text-inverse: #14161C;
+  --separator: rgba(255, 255, 255, 0.12);
+  --separator-subtle: rgba(255, 255, 255, 0.06);
+  --card-border: rgba(255, 255, 255, 0.1);
 
-  --stamp-red: #D94035;
-  --stamp-red-hover: #EA4C41;
-  --stamp-red-subtle: rgba(217, 64, 53, 0.16);
-  --stamp-red-border: #7A241E;
+  --text-primary: #F5F5F7;
+  --text-secondary: #98989D;
+  --text-tertiary: #636366;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --slider-track: rgba(120, 120, 128, 0.35);
+  --segmented-bg: rgba(118, 118, 128, 0.24);
+  --segmented-active: #636366;
+  --toast-bg: rgba(50, 50, 54, 0.85);
 }
 
-* {
+/* Override Manual Terang via data-theme="light" */
+[data-theme="light"] {
+  --accent: #007AFF;
+  --accent-hover: #0062CC;
+  --accent-subtle: rgba(0, 122, 255, 0.1);
+  --accent-border: rgba(0, 122, 255, 0.25);
+  --destructive: #FF3B30;
+  --destructive-hover: #D72E24;
+
+  --bg-window: #F5F5F7;
+  --bg-surface: #FFFFFF;
+  --bg-secondary: #EFEFF4;
+  --bg-tertiary: #E5E5EA;
+  --bg-sidebar: rgba(245, 245, 247, 0.85);
+  --bg-toolbar: rgba(245, 245, 247, 0.85);
+  --bg-stage: #EBEBF0;
+
+  --separator: rgba(0, 0, 0, 0.08);
+  --separator-subtle: rgba(0, 0, 0, 0.04);
+  --card-border: rgba(0, 0, 0, 0.08);
+
+  --text-primary: #1D1D1F;
+  --text-secondary: #6E6E73;
+  --text-tertiary: #8E8E93;
+
+  --slider-track: rgba(120, 120, 128, 0.2);
+  --segmented-bg: rgba(118, 118, 128, 0.12);
+  --segmented-active: #FFFFFF;
+  --toast-bg: rgba(30, 30, 32, 0.85);
+}
+
+/* ===================================================
+   2. RESET & BASE TYPOGRAPHY
+   =================================================== */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  font-family: var(--font-body);
-  background-color: var(--bg-page);
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  line-height: 1.5;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  overflow-x: hidden;
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-window);
+  color: var(--text-primary);
+  font-family: var(--font-system);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ========================================================
-   HEADER MINIMAL (Wordmark + Offline Chip + Reset)
-======================================================== */
-.app-header {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  padding: 0.75rem 1.25rem;
+button, input, textarea, select {
+  font-family: inherit;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Aksesibilitas: Fokus Cincin Biru Sistem */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Angka Tabular untuk Penomoran & Slider */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===================================================
+   3. TOOLBAR ATAS (macOS TRANSLUCENT TOOLBAR)
+   =================================================== */
+.app-toolbar {
+  height: 52px;
+  width: 100%;
+  background: var(--bg-toolbar);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--separator);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-}
-
-.brand-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
+  padding: 0 16px;
+  z-index: 50;
   position: relative;
 }
 
-.brand-stamp-icon {
-  color: var(--stamp-red);
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 240px;
+}
+
+.app-branding {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.app-logo-icon {
+  color: var(--accent);
   flex-shrink: 0;
 }
 
-.brand-title {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-main);
-  line-height: 1;
+.app-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
-/* Popover Wrapper */
-.popover-wrapper {
+/* Label Privasi Tunggal & Popover */
+.popover-anchor {
   position: relative;
-  display: inline-block;
 }
 
-.chip-offline {
+.privacy-label {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.22rem 0.55rem;
-  border-radius: var(--radius-full);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
+  gap: 6px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 600;
   cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: all 0.15s ease;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
 }
 
-.chip-offline:hover {
-  border-color: var(--text-muted);
-  color: var(--text-main);
+.privacy-label:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
-.dot-offline {
+.status-indicator {
   width: 6px;
   height: 6px;
-  background-color: var(--stamp-red);
   border-radius: 50%;
+  background-color: #34C759; /* Green active status */
 }
 
-.popover-card {
-  display: none;
+.ios-popover {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
   width: 280px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 0.85rem;
-  box-shadow: var(--shadow-md);
-  z-index: 50;
-  animation: fadeIn 0.15s ease;
+  background: var(--bg-surface);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-popover);
+  z-index: 100;
+  display: none;
+  animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.popover-card.visible {
+.ios-popover.visible {
   display: block;
 }
 
-.popover-text {
-  font-size: 0.8rem;
-  color: var(--text-main);
-  line-height: 1.45;
-  margin-bottom: 0.4rem;
+.popover-lead {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
 }
 
-.popover-hint {
-  font-size: 0.725rem;
-  color: var(--text-muted);
+.popover-detail {
+  font-size: 12px;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-header-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  cursor: pointer;
+/* Toolbar Tengah: Segmented Control Mode */
+.toolbar-center {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
 }
 
-.btn-header-icon:hover {
-  background: var(--bg-subtle);
-  color: var(--text-main);
-}
-
-.btn-header-reset {
-  height: 34px;
-  padding: 0 0.75rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: all 0.15s ease;
-}
-
-.btn-header-reset:hover {
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-/* ========================================================
-   WORKSPACE (TOOL-FIRST DUAL PANEL)
-======================================================== */
-.workspace-main {
-  flex: 1;
-  max-width: 1360px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 1.25rem;
-}
-
-.workspace-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-  align-items: start;
-}
-
-@media (min-width: 980px) {
-  .workspace-grid {
-    grid-template-columns: 1.25fr 0.85fr;
-  }
-}
-
-/* ========================================================
-   PANEL KIRI: STAGE & DROPZONE
-======================================================== */
-.stage-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-/* Batch Bar */
-.batch-bar {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 0.75rem;
-}
-
-.batch-label-row {
+/* Toolbar Kanan: Aksi & Tombol Unduh */
+.toolbar-right {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.35rem;
+  gap: 10px;
+  min-width: 240px;
+  justify-content: flex-end;
 }
 
-.batch-scroll {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-  scrollbar-width: thin;
-}
-
-.batch-chip-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-input);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.batch-chip-item.active {
-  border-color: var(--stamp-red);
-  background: var(--stamp-red-subtle);
-  color: var(--stamp-red);
-  font-weight: 700;
-}
-
-.btn-text-action {
-  background: transparent;
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--stamp-red);
-  cursor: pointer;
-}
-
-.btn-text-action:hover {
-  text-decoration: underline;
-}
-
-/* Stage Frame */
-.stage-frame {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
-  min-height: 480px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Keadaan Kosong (Dropzone Tactile) */
-.dropzone-tactile {
-  flex: 1;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius-md);
-  background: var(--bg-input);
-  padding: 3rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.dropzone-tactile:hover,
-.dropzone-tactile.drag-over {
-  border-color: var(--stamp-red);
-  background: var(--stamp-red-subtle);
-}
-
-.stamp-illustration {
-  color: var(--stamp-red);
-}
-
-.dropzone-heading {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 0.35rem;
-}
-
-.dropzone-sub {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
-.btn-stamp-cta {
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--stamp-red);
-  color: #FFFFFF;
-  font-size: 0.925rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.15s ease;
-}
-
-.btn-stamp-cta:hover {
-  background: var(--stamp-red-hover);
-}
-
-.format-tags-row {
-  display: flex;
-  gap: 0.35rem;
-}
-
-.tag-doc {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-}
-
-.btn-link-demo {
-  background: transparent;
-  border: none;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.btn-link-demo:hover {
-  color: var(--stamp-red);
-}
-
-/* Preview Workspace (State B) */
-.preview-workspace {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  flex: 1;
-}
-
-.stage-subtoolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.view-segmented {
-  display: inline-flex;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 2px;
-  gap: 2px;
-}
-
-.seg-btn {
-  padding: 0.35rem 0.65rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  border-radius: calc(var(--radius-sm) - 2px);
-  cursor: pointer;
-}
-
-.seg-btn.active {
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: var(--shadow-sm);
-}
-
-.tool-icons-row {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.btn-tool-rect {
-  height: 32px;
-  padding: 0 0.65rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: all 0.15s ease;
-}
-
-.btn-tool-rect.active {
-  background: var(--stamp-red);
-  color: #FFFFFF;
-  border-color: var(--stamp-red);
-}
-
-.btn-icon-sq {
+.toolbar-icon-btn {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-card);
+  border: none;
+  background: transparent;
   color: var(--text-secondary);
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.btn-icon-sq:hover:not(:disabled) {
-  background: var(--bg-subtle);
-  color: var(--text-main);
+.toolbar-icon-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
-.btn-icon-sq:disabled {
+.toolbar-text-btn {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolbar-text-btn.destructive {
+  color: var(--destructive);
+}
+
+.toolbar-text-btn.destructive:hover {
+  background: rgba(255, 59, 48, 0.08);
+}
+
+/* ===================================================
+   4. TAMPILAN 3 AREA (macOS 3-PANE WORKSPACE)
+   =================================================== */
+.app-workspace {
+  display: grid;
+  grid-template-columns: 240px 1fr 320px;
+  height: calc(100vh - 52px - 28px);
+  width: 100%;
+  overflow: hidden;
+}
+
+/* PANE 1: SIDEBAR DOKUMEN (~240px, Finder Style) */
+.app-sidebar {
+  background: var(--bg-sidebar);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--separator);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sidebar-badge {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+}
+
+.doc-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.doc-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: background-color 0.12s ease;
+}
+
+.doc-list-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.doc-list-item.active {
+  background-color: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.doc-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.doc-format-pill {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.doc-list-item.active .doc-format-pill {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.doc-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-doc-remove {
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.btn-doc-remove:hover {
+  opacity: 1;
+  color: var(--destructive);
+}
+
+.sidebar-footer {
+  padding: 12px 14px;
+  border-top: 1px solid var(--separator);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* PANE 2: AREA TENGAH (STAGE DOKUMEN) */
+.app-stage {
+  background: var(--bg-stage);
+  position: relative;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Keadaan Kosong (Dropzone Polos ala Apple) */
+.empty-dropzone {
+  width: 100%;
+  max-width: 460px;
+  border: 1px dashed var(--separator);
+  border-radius: var(--radius-card);
+  padding: 48px 32px;
+  text-align: center;
+  background: var(--bg-surface);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.empty-dropzone:hover, .empty-dropzone.drag-over {
+  border-color: var(--accent);
+  background: var(--bg-window);
+}
+
+.dropzone-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dropzone-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.dropzone-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+.dropzone-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Stage Pratinjau Dokumen */
+.stage-viewport {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Floating Subtoolbar Pratinjau */
+.stage-floating-bar {
+  position: absolute;
+  top: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--card-border);
+}
+
+.stage-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+}
+
+.bar-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--separator);
+  margin: 0 4px;
+}
+
+.btn-icon-subtle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.btn-icon-subtle:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn-icon-subtle:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-/* Canvas Box */
-.canvas-box {
-  width: 100%;
-  min-height: 320px;
-  flex: 1;
-  background: var(--bg-viewport);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+/* Canvas Stage Wrapper */
+.canvas-stage-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: auto;
-  padding: 0.75rem;
-  touch-action: none;
+  max-width: 100%;
+  max-height: 100%;
 }
 
-.canvas-box canvas {
+#previewCanvas {
   display: block;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  max-width: 100%;
-  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  touch-action: none;
   user-select: none;
 }
 
-/* Animasi Cap Menempel */
-@keyframes stampPress {
-  0% { transform: scale(1.025) rotate(-0.4deg); opacity: 0.95; }
-  50% { transform: scale(0.985) rotate(0.2deg); }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-
-canvas.stamp-applied {
-  animation: stampPress 0.32s cubic-bezier(0.2, 0.8, 0.4, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  canvas.stamp-applied {
-    animation: none;
-  }
-}
-
-/* Floating Bar Kotak Sensor Terpilih */
-.float-action-pill {
-  display: none;
+/* Callout Kotak Sensor Terpilih */
+.selection-callout {
   position: absolute;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text-main);
-  color: var(--bg-card);
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: var(--shadow-md);
-  align-items: center;
-  gap: 0.6rem;
-  z-index: 10;
-}
-
-.float-action-pill.visible {
-  display: flex;
-}
-
-.btn-mini-trash {
-  background: #EF4444;
-  color: #FFFFFF;
-  border: none;
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-full);
-  font-size: 0.7rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-/* PDF Navigation */
-.pdf-pager {
+  top: 16px;
+  background: var(--bg-surface);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-popover);
+  border: 1px solid var(--card-border);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding-top: 0.35rem;
-}
-
-.btn-pager {
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-card);
+  gap: 8px;
+  font-size: 12px;
   color: var(--text-secondary);
-  font-size: 0.75rem;
+  z-index: 25;
+}
+
+.btn-callout-delete {
+  background: transparent;
+  border: none;
+  color: var(--destructive);
   font-weight: 600;
   cursor: pointer;
 }
 
-.btn-pager:disabled {
-  opacity: 0.3;
+/* Floating Pager PDF */
+.pdf-floating-pager {
+  position: absolute;
+  bottom: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 20;
+}
+
+.pager-btn {
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.pager-btn:disabled {
+  color: var(--text-tertiary);
   cursor: not-allowed;
 }
 
-/* Sensor Chips List */
-.sensor-chips-list {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  padding-top: 0.25rem;
-}
-
-.sensor-chips-row {
-  display: flex;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-}
-
-.sensor-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: var(--radius-sm);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  cursor: pointer;
-}
-
-.sensor-chip.active {
-  border-color: var(--stamp-red);
-  background: var(--stamp-red-subtle);
-  color: var(--stamp-red);
-}
-
-/* ========================================================
-   PANEL KANAN: KONTROL SEDERHANA (CAP & TINTA)
-======================================================== */
-.control-panel-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-/* Stepper Tipis */
-.stepper-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.step-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.step-num {
-  font-family: var(--font-mono);
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.65rem;
-}
-
-.step-item.active {
-  color: var(--stamp-red);
-  font-weight: 700;
-}
-
-.step-item.active .step-num {
-  background: var(--stamp-red);
-  color: #FFFFFF;
-  border-color: var(--stamp-red);
-}
-
-.step-separator {
-  color: var(--border);
-}
-
-/* Control Card */
-.control-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.quick-mode-group {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.form-row-sm {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.label-with-action {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.input-label {
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.input-sublabel {
-  font-size: 0.78rem;
-  font-weight: 600;
+.pager-text {
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
-.mono-badge {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.1rem 0.4rem;
-  border-radius: var(--radius-sm);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  color: var(--text-main);
-}
-
-.mono-sub {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.mono-label {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-/* Chip Presets */
-.preset-chips-flow {
+/* PANE 3: INSPECTOR KANAN (~300px, Inset Grouped ala Pengaturan iOS) */
+.app-inspector {
+  background: var(--bg-window);
+  border-left: 1px solid var(--separator);
   display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.preset-chip-btn {
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-input);
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
+.inspector-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.preset-chip-btn:hover {
-  border-color: var(--stamp-red);
-  color: var(--text-main);
+.mobile-drawer-handle, .mobile-tab-switch {
+  display: none;
 }
 
-.preset-chip-btn.active {
-  border-color: var(--stamp-red);
-  background: var(--stamp-red-subtle);
-  color: var(--stamp-red);
-  font-weight: 700;
+/* ===================================================
+   5. KOMPONEN INSET GROUPED (GAYA PENGATURAN iOS)
+   =================================================== */
+.inset-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* Watermark Text Input */
-.btn-subtle-pill {
-  background: transparent;
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--stamp-red);
-  cursor: pointer;
-}
-
-.btn-subtle-pill:hover {
-  text-decoration: underline;
-}
-
-.field-textarea {
-  width: 100%;
-  padding: 0.65rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-input);
-  color: var(--text-main);
-  font-family: inherit;
-  font-size: 0.875rem;
+.inset-header {
+  font-size: 11px;
   font-weight: 500;
-  resize: vertical;
-  min-height: 64px;
-  line-height: 1.4;
-  transition: border-color 0.15s ease;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  padding-left: 14px;
 }
 
-.field-textarea:focus {
-  outline: none;
-  border-color: var(--border-focus);
+.inset-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
 }
 
-/* Slider Ketebalan Cap (Tipis ↔ Tebal) */
-.intensity-slider-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.slider-end-label {
-  font-size: 0.725rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-input[type="range"].tactile-range {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 5px;
-  background: var(--bg-subtle);
-  border-radius: var(--radius-full);
-  outline: none;
-  cursor: pointer;
-}
-
-input[type="range"].tactile-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 2px solid var(--stamp-red);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: transform 0.1s ease;
-}
-
-input[type="range"].tactile-range::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* Mobile Touch Target */
-@media (pointer: coarse) {
-  input[type="range"].tactile-range {
-    height: 8px;
-    margin: 8px 0;
-  }
-  input[type="range"].tactile-range::-webkit-slider-thumb {
-    width: 22px;
-    height: 22px;
-  }
-}
-
-/* Pola Switch */
-.pattern-switch {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 2px;
-  gap: 2px;
-}
-
-.pattern-toggle-btn {
-  padding: 0.4rem 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  border-radius: calc(var(--radius-sm) - 2px);
-  cursor: pointer;
-  text-align: center;
-}
-
-.pattern-toggle-btn.active {
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: var(--shadow-sm);
-}
-
-/* Accordion Pengaturan Lanjutan */
-.advanced-accordion {
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 0.85rem;
-}
-
-.accordion-header {
-  width: 100%;
-  background: transparent;
-  border: none;
+.list-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
-  padding: 0.25rem 0;
+  padding: 11px 14px;
+  min-height: 44px;
+  position: relative;
 }
 
-.accordion-title {
-  display: inline-flex;
+.list-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 0;
+  bottom: 0;
+  height: 0.5px;
+  background-color: var(--separator);
+}
+
+.row-label {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.row-label-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.row-value {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.text-field-row {
+  padding: 8px 14px;
+}
+
+.list-row-slider {
+  padding: 4px 14px 12px;
+  position: relative;
+}
+
+.list-row-slider::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 0;
+  bottom: 0;
+  height: 0.5px;
+  background-color: var(--separator);
+}
+
+.action-row {
+  justify-content: flex-start;
+}
+
+.list-hint-box {
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  background: var(--bg-secondary);
+}
+
+/* Textarea iOS Style */
+.ios-textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 48px;
+  outline: none;
+}
+
+.ios-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Disclosure (Accordion) Lanjutan */
+.disclosure-header {
+  width: 100%;
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: var(--text-main);
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
 }
 
-.icon-arrow {
-  transition: transform 0.2s ease;
+.disclosure-chevron {
+  color: var(--text-tertiary);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.icon-arrow.open {
+.disclosure-chevron.open {
   transform: rotate(90deg);
 }
 
-.accordion-body {
+.disclosure-content {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  margin-top: 0.85rem;
-  padding-top: 0.5rem;
 }
 
-.grid-2-col {
+.sub-row {
+  padding: 9px 14px;
+}
+
+/* ===================================================
+   6. ATOM KOMPONEN (SEGMENTED, SLIDER, SWITCH, BUTTONS)
+   =================================================== */
+
+/* SEGMENTED CONTROL */
+.segmented-control {
+  display: flex;
+  background: var(--segmented-bg);
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  user-select: none;
+}
+
+.segmented-control.sm {
+  border-radius: var(--radius-sm);
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.seg-btn:hover:not(.active) {
+  color: var(--text-primary);
+}
+
+.seg-btn.active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* PRESET SEGMENTED GRID */
+.preset-segmented-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
+  gap: 1px;
+  background: var(--separator);
 }
 
-.color-inks-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-top: 0.2rem;
-}
-
-.ink-circle {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid transparent;
+.preset-chip-btn {
+  background: var(--bg-surface);
+  border: none;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: transform 0.15s ease;
+  text-align: left;
+  transition: all 0.12s ease;
 }
 
-.ink-circle:hover {
-  transform: scale(1.15);
+.preset-chip-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
-.ink-circle.active {
-  border-color: var(--text-main);
+.preset-chip-btn.active {
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--accent-subtle);
+}
+
+/* SLIDER iOS STYLE */
+.ios-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--slider-track);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.ios-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 1px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.ios-slider::-webkit-slider-thumb:active {
   transform: scale(1.1);
 }
 
-.custom-ink-input {
-  width: 26px;
-  height: 26px;
+.ios-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: transparent;
+  background: #FFFFFF;
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 1px rgba(0, 0, 0, 0.25);
   cursor: pointer;
+}
+
+/* TOGGLE SWITCH iOS STYLE */
+.ios-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.ios-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background-color: var(--slider-track);
+  border-radius: 26px;
+  transition: background-color 0.25s ease;
+}
+
+.switch-slider::before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ios-switch input:checked + .switch-slider {
+  background-color: var(--accent);
+}
+
+.ios-switch input:checked + .switch-slider::before {
+  transform: translateX(18px);
+}
+
+/* PALET WARNA TEKS */
+.color-palette-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.color-dot.active::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+}
+
+.custom-color-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--separator);
+  cursor: pointer;
+  background: transparent;
   padding: 0;
 }
 
-.check-row {
+/* TOMBOL BUTTON STYLES */
+.btn-filled {
+  height: 36px;
+  padding: 0 20px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: var(--radius-control);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  cursor: pointer;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.15s ease;
 }
 
-.tactile-checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--stamp-red);
+.btn-filled:hover {
+  background: var(--accent-hover);
 }
 
-.btn-outline-sm {
-  padding: 0.45rem 0.75rem;
+.btn-filled-sm {
+  height: 30px;
+  padding: 0 12px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: none;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  text-align: center;
-}
-
-.btn-outline-sm:hover {
-  border-color: var(--stamp-red);
-  color: var(--stamp-red);
-}
-
-/* ========================================================
-   BAGIAN UNDUH
-======================================================== */
-.download-section {
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.format-segmented {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 2px;
-  gap: 2px;
-}
-
-.format-btn {
-  padding: 0.45rem 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  border-radius: calc(var(--radius-sm) - 2px);
-  cursor: pointer;
-  text-align: center;
-}
-
-.format-btn.active {
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-stamp-primary {
-  width: 100%;
-  padding: 0.85rem 1.25rem;
-  border-radius: var(--radius-sm);
-  background: var(--stamp-red);
-  color: #FFFFFF;
-  font-size: 0.95rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 6px rgba(200, 55, 45, 0.25);
-  transition: all 0.15s ease;
+  gap: 5px;
+  transition: opacity 0.15s ease;
 }
 
-.btn-stamp-primary:hover:not(:disabled) {
-  background: var(--stamp-red-hover);
-}
-
-.btn-stamp-primary:disabled {
-  opacity: 0.4;
+.btn-filled-sm:disabled {
+  opacity: 0.35;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
-.btn-stamp-secondary {
+.btn-filled-lg {
   width: 100%;
-  padding: 0.65rem 1rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-subtle);
-  color: var(--text-main);
-  font-size: 0.825rem;
+  height: 42px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: var(--radius-control);
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  transition: background-color 0.15s ease;
 }
 
-.btn-stamp-secondary:hover {
-  border-color: var(--text-main);
+.btn-filled-lg:hover:not(:disabled) {
+  background: var(--accent-hover);
 }
 
-.progress-box {
+.btn-filled-lg:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-tinted-full {
+  width: 100%;
+  height: 34px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border: none;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.12s ease;
+}
+
+.btn-tinted-full:hover {
+  background: rgba(0, 122, 255, 0.16);
+}
+
+.btn-plain {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-plain:hover {
+  text-decoration: underline;
+}
+
+.btn-plain-sm {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.download-btn-wrap {
+  padding: 12px 14px;
+}
+
+/* PROGRESS BAR PDF/ZIP */
+.export-progress {
+  padding: 0 14px 12px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
 }
 
 .progress-track {
-  width: 100%;
-  height: 5px;
-  background: var(--bg-subtle);
-  border-radius: var(--radius-full);
+  height: 4px;
+  background: var(--slider-track);
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-fill {
-  width: 0%;
   height: 100%;
-  background: var(--stamp-red);
-  transition: width 0.2s ease;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.15s linear;
 }
 
-/* ========================================================
-   TOAST & FOOTER
-======================================================== */
-.toast-stack {
-  position: fixed;
-  bottom: 1.25rem;
-  right: 1.25rem;
-  z-index: 100;
+/* ===================================================
+   7. SENSOR LIST TABLE (INSET GROUPED)
+   =================================================== */
+.sensor-list-table {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+}
+
+.sensor-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 13px;
+  position: relative;
+  cursor: pointer;
+}
+
+.sensor-row-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 0;
+  bottom: 0;
+  height: 0.5px;
+  background: var(--separator);
+}
+
+.sensor-row-item.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.btn-row-del {
+  border: none;
+  background: transparent;
+  color: var(--destructive);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ===================================================
+   8. MODAL ALERT (iOS STYLE ALERT DIALOG)
+   =================================================== */
+.ios-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: modalFadeIn 0.18s ease-out;
+}
+
+.ios-alert {
+  width: 270px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: alertPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.alert-content {
+  padding: 20px 16px 16px;
+}
+
+.alert-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.alert-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.alert-actions {
+  display: flex;
+  border-top: 0.5px solid var(--separator);
+}
+
+.alert-btn {
+  flex: 1;
+  height: 44px;
+  background: transparent;
+  border: none;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.alert-btn.cancel {
+  color: var(--accent);
+  font-weight: 400;
+  border-right: 0.5px solid var(--separator);
+}
+
+.alert-btn.destructive {
+  color: var(--destructive);
+  font-weight: 600;
+}
+
+/* ===================================================
+   9. TOAST NOTIFIKASI
+   =================================================== */
+.toast-stack {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 999;
   pointer-events: none;
 }
 
 .toast {
-  background: var(--text-main);
-  color: var(--bg-card);
-  padding: 0.65rem 1rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  padding: 8px 18px;
+  background: var(--toast-bg);
+  color: var(--toast-text);
+  font-size: 13px;
   font-weight: 500;
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  animation: toastSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===================================================
+   10. FOOTER SATU BARIS KECIL
+   =================================================== */
+.app-footer {
+  height: 28px;
+  background: var(--bg-window);
+  border-top: 1px solid var(--separator);
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  box-shadow: var(--shadow-md);
-  pointer-events: auto;
+  justify-content: center;
+  padding: 0 16px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  user-select: none;
 }
 
-.app-footer {
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  background: var(--bg-card);
+/* ===================================================
+   11. ANIMASI & TRANSISI
+   =================================================== */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* ========================================================
-   RESPONSIVITAS MOBILE (< 768px & < 480px)
-======================================================== */
+@keyframes alertPopIn {
+  from { opacity: 0; transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===================================================
+   12. RESPONSIVE LAYOUT (TABLET & MOBILE iOS)
+   =================================================== */
+
+/* Tablet (Lebar <= 1024px) */
+@media (max-width: 1024px) {
+  .app-workspace {
+    grid-template-columns: 200px 1fr 280px;
+  }
+}
+
+/* Mobile & Small Tablet (Lebar <= 768px) */
 @media (max-width: 768px) {
-  .workspace-main {
-    padding: 0.75rem;
+  html, body {
+    overflow: auto;
   }
 
-  .stage-frame {
-    min-height: 380px;
+  .app-toolbar {
+    padding: 0 12px;
   }
 
-  /* Target sentuh minimal 44px di mobile */
-  .btn-stamp-cta,
-  .btn-stamp-primary,
-  .btn-stamp-secondary,
-  .btn-tool-rect,
-  .seg-btn,
-  .format-btn,
-  .preset-chip-btn {
-    min-height: 44px;
+  .toolbar-left {
+    min-width: auto;
   }
 
-  .dropzone-heading {
-    font-size: 1.15rem;
+  .toolbar-center {
+    display: none; /* Pindah ke tab bar bawah */
+  }
+
+  .toolbar-right {
+    min-width: auto;
+  }
+
+  #btnDownloadActiveTop {
+    display: none;
+  }
+
+  .app-workspace {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 52px);
+    overflow: visible;
+  }
+
+  /* Sembunyikan sidebar di mobile, berkas bisa ditambah langsung */
+  .app-sidebar {
+    display: none;
+  }
+
+  .app-stage {
+    min-height: 52vh;
+    padding: 16px;
+  }
+
+  /* Bottom Sheet Drawer iOS Mobile */
+  .app-inspector {
+    border-left: none;
+    border-top: 1px solid var(--separator);
+    border-top-left-radius: var(--radius-card);
+    border-top-right-radius: var(--radius-card);
+    background: var(--bg-surface);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-drawer-handle {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 4px;
+    cursor: grab;
+  }
+
+  .drawer-pill {
+    width: 36px;
+    height: 5px;
+    border-radius: 2.5px;
+    background: var(--slider-track);
+  }
+
+  .mobile-tab-switch {
+    display: block;
+    padding: 6px 16px 12px;
+  }
+
+  .btn-filled, .btn-filled-lg, .seg-btn {
+    min-height: 44px; /* Target sentuh minimal 44px */
+  }
+
+  .list-row {
+    min-height: 48px;
   }
 }

@@ -1,12 +1,12 @@
 /**
  * main.js
- * Titik masuk utama aplikasi Tandain dengan konsep "Cap & Tinta".
- * Menghubungkan seluruh modul core tanpa mengubah logika inti.
+ * Titik masuk utama aplikasi Tandain dengan desain iOS / macOS modern:
+ * Bersih, tenang, presisi, dan mengikuti prinsip Apple Human Interface Guidelines.
  */
 
 import './styles/main.css';
 import { initTheme, toggleTheme } from './ui/theme.js';
-import { getSavedPresets, saveCustomPreset, deleteCustomPreset, BUILTIN_PRESETS } from './ui/presets.js';
+import { getSavedPresets, saveCustomPreset, BUILTIN_PRESETS } from './ui/presets.js';
 import { DEFAULT_WATERMARK_SETTINGS, getTodayFormatted } from './core/watermark.js';
 import { RedactionManager } from './core/redact.js';
 import { DocumentPreview } from './ui/preview.js';
@@ -21,14 +21,14 @@ let loadedDocuments = [];
 let activeDocIndex = 0;
 let watermarkSettings = {
   ...DEFAULT_WATERMARK_SETTINGS,
-  color: '#C8372D' // Bawaan: Merah Cap
+  color: '#C8372D'
 };
 let redactionManager = new RedactionManager();
 let exportFormat = 'png';
 let preview = null;
 let currentZoom = 1.0;
 
-// Mapping Intensitas "Tipis ↔ Tebal"
+// Mapping Intensitas Apple (1..5)
 const INTENSITY_LEVELS = {
   1: { opacity: 0.16, fontSizePercent: 2.4, label: 'Sangat Tipis' },
   2: { opacity: 0.24, fontSizePercent: 2.8, label: 'Tipis' },
@@ -38,9 +38,9 @@ const INTENSITY_LEVELS = {
 };
 
 // ==========================================
-// TOAST NOTIFIKASI
+// TOAST NOTIFIKASI (Apple Floating Pill)
 // ==========================================
-function showToast(message, duration = 2800) {
+function showToast(message, duration = 2600) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
 
@@ -51,15 +51,15 @@ function showToast(message, duration = 2800) {
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.25s ease';
+    toast.style.transition = 'opacity 0.2s ease';
     setTimeout(() => {
       if (toast.parentNode) toast.parentNode.removeChild(toast);
-    }, 250);
+    }, 200);
   }, duration);
 }
 
 // ==========================================
-// DUMMY KTP GENERATOR (Untuk pengujian cepat)
+// DUMMY KTP GENERATOR (Pengujian Cepat)
 // ==========================================
 async function createDummyKtpBitmap() {
   const canvas = document.createElement('canvas');
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   document.getElementById('btnToggleTheme')?.addEventListener('click', toggleTheme);
 
-  // Setup Popover Offline
+  // Setup Popover Privasi
   setupOfflinePopover();
 
   // Setup Canvas Preview
@@ -174,19 +174,18 @@ document.addEventListener('DOMContentLoaded', () => {
   preview.onSelectionChange = (selectedBox) => {
     const floatBar = document.getElementById('redactFloatBar');
     if (floatBar) {
-      if (selectedBox) floatBar.classList.add('visible');
-      else floatBar.classList.remove('visible');
+      floatBar.style.display = selectedBox ? 'flex' : 'none';
     }
-    updateSensorChipsList();
+    updateSensorList();
     updateUndoRedoButtons();
   };
 
   setupFileInputs();
   setupStageToolbar();
   setupControlPanel();
+  setupToolbarModes();
+  setupResetModal();
   setupKeyboardShortcuts();
-
-  document.getElementById('btnResetApp')?.addEventListener('click', resetAll);
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -196,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// POPOVER OFFLINE
+// POPOVER PRIVASI TUNGGAL
 // ==========================================
 function setupOfflinePopover() {
   const chip = document.getElementById('btnOfflineChip');
@@ -218,18 +217,30 @@ function setupOfflinePopover() {
 }
 
 // ==========================================
-// STEPPER UPDATE
+// MODAL ALERT KONFIRMASI ATUR ULANG (RESET)
 // ==========================================
-function updateStepper(step) {
-  const s1 = document.querySelector('.step-item.step-1');
-  const s2 = document.querySelector('.step-item.step-2');
-  const s3 = document.querySelector('.step-item.step-3');
+function setupResetModal() {
+  const modal = document.getElementById('resetModal');
+  const btnTrigger = document.getElementById('btnResetApp');
+  const btnCancel = document.getElementById('btnCancelReset');
+  const btnConfirm = document.getElementById('btnConfirmReset');
 
-  [s1, s2, s3].forEach(el => el?.classList.remove('active'));
+  btnTrigger?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'flex';
+  });
 
-  if (step === 1) s1?.classList.add('active');
-  else if (step === 2) s2?.classList.add('active');
-  else if (step === 3) s3?.classList.add('active');
+  btnCancel?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  btnConfirm?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+    resetAll();
+  });
 }
 
 // ==========================================
@@ -293,7 +304,7 @@ function setupFileInputs() {
   btnSample?.addEventListener('click', async (e) => {
     e.stopPropagation();
     try {
-      showToast('Memuat contoh KTP dummy...');
+      showToast('Memuat contoh dokumen...');
       const sampleBitmap = await createDummyKtpBitmap();
       const sampleDoc = {
         id: 'doc_sample_ktp',
@@ -311,7 +322,7 @@ function setupFileInputs() {
       loadedDocuments = [sampleDoc];
       activeDocIndex = 0;
       showWorkspaceView();
-      showToast('Contoh KTP siap.');
+      showToast('Contoh dokumen siap.');
     } catch (err) {
       console.error(err);
       showToast('Gagal membuat contoh dokumen.');
@@ -345,57 +356,64 @@ function showWorkspaceView() {
   const dropzoneCard = document.getElementById('dropzoneCard');
   const previewArea = document.getElementById('previewArea');
   const btnDownload = document.getElementById('btnDownloadActive');
+  const btnDownloadTop = document.getElementById('btnDownloadActiveTop');
 
   if (dropzoneCard) dropzoneCard.style.display = 'none';
   if (previewArea) previewArea.style.display = 'flex';
   if (btnDownload) btnDownload.disabled = false;
+  if (btnDownloadTop) btnDownloadTop.disabled = false;
 
-  updateStepper(2);
-  updateBatchBar();
+  updateSidebarList();
   updateActiveDocView();
 }
 
-function updateBatchBar() {
-  const batchContainer = document.getElementById('batchContainer');
+// ==========================================
+// SIDEBAR DAFTAR DOKUMEN (FINDER STYLE)
+// ==========================================
+function updateSidebarList() {
   const batchStrip = document.getElementById('batchStrip');
   const batchCountBadge = document.getElementById('batchCountBadge');
   const btnBatchZip = document.getElementById('btnDownloadBatchZip');
 
-  if (!batchContainer || !batchStrip) return;
+  if (!batchStrip) return;
+
+  if (batchCountBadge) batchCountBadge.textContent = String(loadedDocuments.length);
 
   if (loadedDocuments.length > 1) {
-    batchContainer.style.display = 'block';
-    if (btnBatchZip) btnBatchZip.style.display = 'flex';
-    if (batchCountBadge) batchCountBadge.textContent = String(loadedDocuments.length);
-
-    batchStrip.innerHTML = '';
-    loadedDocuments.forEach((doc, idx) => {
-      const chip = document.createElement('div');
-      chip.className = `batch-chip-item ${idx === activeDocIndex ? 'active' : ''}`;
-      chip.innerHTML = `
-        <span>${doc.isPdf ? 'PDF' : 'IMG'}</span>
-        <span style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;">${doc.name}</span>
-        <button class="btn-del-file" title="Hapus" style="border:none; background:transparent; color:#EF4444; cursor:pointer; font-weight:bold; padding:0 2px;">✕</button>
-      `;
-
-      chip.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-del-file')) return;
-        activeDocIndex = idx;
-        updateBatchBar();
-        updateActiveDocView();
-      });
-
-      chip.querySelector('.btn-del-file')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        removeDocAt(idx);
-      });
-
-      batchStrip.appendChild(chip);
-    });
+    if (btnBatchZip) btnBatchZip.style.display = 'block';
   } else {
-    batchContainer.style.display = 'none';
     if (btnBatchZip) btnBatchZip.style.display = 'none';
   }
+
+  batchStrip.innerHTML = '';
+  loadedDocuments.forEach((doc, idx) => {
+    const item = document.createElement('div');
+    item.className = `doc-list-item ${idx === activeDocIndex ? 'active' : ''}`;
+    
+    item.innerHTML = `
+      <div class="doc-item-left">
+        <span class="doc-format-pill">${doc.isPdf ? 'PDF' : 'IMG'}</span>
+        <span class="doc-title-text" title="${doc.name}">${doc.name}</span>
+      </div>
+      <button class="btn-doc-remove" title="Hapus dokumen" aria-label="Hapus dokumen">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    `;
+
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-doc-remove')) return;
+      activeDocIndex = idx;
+      updateSidebarList();
+      updateActiveDocView();
+    });
+
+    item.querySelector('.btn-doc-remove')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeDocAt(idx);
+    });
+
+    batchStrip.appendChild(item);
+  });
 }
 
 function removeDocAt(idx) {
@@ -412,7 +430,7 @@ function removeDocAt(idx) {
   if (activeDocIndex >= loadedDocuments.length) {
     activeDocIndex = loadedDocuments.length - 1;
   }
-  updateBatchBar();
+  updateSidebarList();
   updateActiveDocView();
 }
 
@@ -435,7 +453,7 @@ function updateActiveDocView() {
 
   if (doc.pages.length > 1) {
     if (pdfPageNav) pdfPageNav.style.display = 'flex';
-    if (pageNavIndicator) pageNavIndicator.textContent = `Hal ${doc.activePageIndex + 1} / ${doc.pages.length}`;
+    if (pageNavIndicator) pageNavIndicator.textContent = `Hal ${doc.activePageIndex + 1} dari ${doc.pages.length}`;
     if (btnPrevPage) btnPrevPage.disabled = doc.activePageIndex <= 0;
     if (btnNextPage) btnNextPage.disabled = doc.activePageIndex >= doc.pages.length - 1;
   } else {
@@ -443,18 +461,77 @@ function updateActiveDocView() {
   }
 
   preview.setDocumentPage(page, fileKey, redactionManager, watermarkSettings);
-  updateSensorChipsList();
+  updateSensorList();
   updateUndoRedoButtons();
 }
 
 // ==========================================
-// STAGE TOOLBAR (VIEW, SENSOR, UNDO, ZOOM)
+// TOOLBAR ATAS: MODE WATERMARK VS SENSOR
+// ==========================================
+function setupToolbarModes() {
+  const tabWatermark = document.getElementById('tabModeWatermark');
+  const tabSensor = document.getElementById('tabModeSensor');
+  const watermarkGroup = document.getElementById('watermarkControlsGroup');
+  const sensorGroup = document.getElementById('sensorControlsGroup');
+  const exportGroup = document.getElementById('exportControlsGroup');
+  const checkSensor = document.getElementById('checkSensorMode');
+
+  // Mobile Tabs
+  const mTabWatermark = document.getElementById('mTabWatermark');
+  const mTabSensor = document.getElementById('mTabSensor');
+  const mTabUnduh = document.getElementById('mTabUnduh');
+
+  function activateMode(mode) {
+    const isWatermark = mode === 'watermark';
+    const isSensor = mode === 'sensor';
+    const isUnduh = mode === 'unduh';
+
+    [tabWatermark, tabSensor].forEach(t => t?.classList.remove('active'));
+    [mTabWatermark, mTabSensor, mTabUnduh].forEach(t => t?.classList.remove('active'));
+
+    if (isWatermark) {
+      tabWatermark?.classList.add('active');
+      mTabWatermark?.classList.add('active');
+      if (watermarkGroup) watermarkGroup.style.display = 'block';
+      if (sensorGroup) sensorGroup.style.display = 'none';
+      if (exportGroup) exportGroup.style.display = 'block';
+      preview?.setRedactionMode(false);
+      if (checkSensor) checkSensor.checked = false;
+    } else if (isSensor) {
+      tabSensor?.classList.add('active');
+      mTabSensor?.classList.add('active');
+      if (watermarkGroup) watermarkGroup.style.display = 'none';
+      if (sensorGroup) sensorGroup.style.display = 'block';
+      if (exportGroup) exportGroup.style.display = 'block';
+      preview?.setRedactionMode(true);
+      if (checkSensor) checkSensor.checked = true;
+    } else if (isUnduh) {
+      mTabUnduh?.classList.add('active');
+      if (watermarkGroup) watermarkGroup.style.display = 'none';
+      if (sensorGroup) sensorGroup.style.display = 'none';
+      if (exportGroup) exportGroup.style.display = 'block';
+    }
+  }
+
+  tabWatermark?.addEventListener('click', () => activateMode('watermark'));
+  tabSensor?.addEventListener('click', () => activateMode('sensor'));
+
+  mTabWatermark?.addEventListener('click', () => activateMode('watermark'));
+  mTabSensor?.addEventListener('click', () => activateMode('sensor'));
+  mTabUnduh?.addEventListener('click', () => activateMode('unduh'));
+
+  checkSensor?.addEventListener('change', (e) => {
+    preview?.setRedactionMode(e.target.checked);
+  });
+}
+
+// ==========================================
+// STAGE TOOLBAR (VIEW, UNDO, ZOOM)
 // ==========================================
 function setupStageToolbar() {
   const btnAfter = document.getElementById('btnViewAfter');
   const btnBefore = document.getElementById('btnViewBefore');
   const btnSplit = document.getElementById('btnViewSplit');
-  const btnToggleRedact = document.getElementById('btnToggleRedact');
   const btnDeleteSelectedBox = document.getElementById('btnDeleteSelectedBox');
   const btnPrevPage = document.getElementById('btnPrevPage');
   const btnNextPage = document.getElementById('btnNextPage');
@@ -487,13 +564,6 @@ function setupStageToolbar() {
     preview.setViewMode('split');
   });
 
-  btnToggleRedact?.addEventListener('click', () => {
-    const isNow = !preview.isRedactionMode;
-    preview.setRedactionMode(isNow);
-    btnToggleRedact.classList.toggle('active', isNow);
-    showToast(isNow ? 'Mode sensor aktif. Seret di preview untuk membuat kotak.' : 'Mode sensor selesai.');
-  });
-
   btnDeleteSelectedBox?.addEventListener('click', deleteActiveRedactionBox);
 
   btnPrevPage?.addEventListener('click', () => {
@@ -518,7 +588,7 @@ function setupStageToolbar() {
       const fileKey = `${doc.id}_p${doc.activePageIndex}`;
       if (redactionManager.undo(fileKey)) {
         preview.render();
-        updateSensorChipsList();
+        updateSensorList();
         updateUndoRedoButtons();
       }
     }
@@ -530,7 +600,7 @@ function setupStageToolbar() {
       const fileKey = `${doc.id}_p${doc.activePageIndex}`;
       if (redactionManager.redo(fileKey)) {
         preview.render();
-        updateSensorChipsList();
+        updateSensorList();
         updateUndoRedoButtons();
       }
     }
@@ -555,9 +625,9 @@ function deleteActiveRedactionBox() {
     if (deleted) {
       preview.render();
       preview.onSelectionChange(null);
-      updateSensorChipsList();
+      updateSensorList();
       updateUndoRedoButtons();
-      showToast('Kotak sensor dihapus');
+      showToast('Kotak sensor dihapus.');
     }
   }
 }
@@ -573,51 +643,51 @@ function updateUndoRedoButtons() {
   if (btnRedo) btnRedo.disabled = !redactionManager.canRedo(fileKey);
 }
 
-function updateSensorChipsList() {
+function updateSensorList() {
   const doc = loadedDocuments[activeDocIndex];
-  const container = document.getElementById('sensorBoxListContainer');
-  const chipsRow = document.getElementById('sensorChips');
-  if (!doc || !container || !chipsRow) return;
+  const listTable = document.getElementById('sensorChips');
+  const emptyState = document.getElementById('sensorBoxListEmpty');
+  if (!doc || !listTable) return;
 
   const fileKey = `${doc.id}_p${doc.activePageIndex}`;
   const boxes = redactionManager.getBoxes(fileKey);
 
   if (boxes.length === 0) {
-    container.style.display = 'none';
-    chipsRow.innerHTML = '';
+    if (emptyState) emptyState.style.display = 'flex';
+    listTable.innerHTML = '';
     return;
   }
 
-  container.style.display = 'flex';
-  chipsRow.innerHTML = '';
+  if (emptyState) emptyState.style.display = 'none';
+  listTable.innerHTML = '';
 
   boxes.forEach((b, i) => {
     const isSel = b.id === redactionManager.selectedBoxId;
-    const chip = document.createElement('div');
-    chip.className = `sensor-chip ${isSel ? 'active' : ''}`;
-    chip.innerHTML = `
-      <span>Kotak #${i + 1}</span>
-      <span class="del-btn" style="color:#EF4444; font-weight:bold; margin-left:3px;">✕</span>
+    const row = document.createElement('div');
+    row.className = `sensor-row-item ${isSel ? 'active' : ''}`;
+    row.innerHTML = `
+      <span>Kotak ${i + 1}</span>
+      <button class="btn-row-del" title="Hapus kotak">Hapus</button>
     `;
 
-    chip.addEventListener('click', (e) => {
-      if (e.target.classList.contains('del-btn')) return;
+    row.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-row-del')) return;
       redactionManager.selectedBoxId = b.id;
       preview.render();
       preview.onSelectionChange(b);
     });
 
-    chip.querySelector('.del-btn')?.addEventListener('click', (e) => {
+    row.querySelector('.btn-row-del')?.addEventListener('click', (e) => {
       e.stopPropagation();
       redactionManager.selectedBoxId = b.id;
       redactionManager.deleteSelectedBox(fileKey);
       preview.render();
       preview.onSelectionChange(null);
-      updateSensorChipsList();
+      updateSensorList();
       updateUndoRedoButtons();
     });
 
-    chipsRow.appendChild(chip);
+    listTable.appendChild(row);
   });
 }
 
@@ -641,13 +711,13 @@ function setupKeyboardShortcuts() {
         if (e.shiftKey) {
           if (redactionManager.redo(fileKey)) {
             preview.render();
-            updateSensorChipsList();
+            updateSensorList();
             updateUndoRedoButtons();
           }
         } else {
           if (redactionManager.undo(fileKey)) {
             preview.render();
-            updateSensorChipsList();
+            updateSensorList();
             updateUndoRedoButtons();
           }
         }
@@ -657,7 +727,7 @@ function setupKeyboardShortcuts() {
 }
 
 // ==========================================
-// CONTROL PANEL (MODE CEPAT & LANJUTAN)
+// CONTROL PANEL (WATERMARK & LANJUTAN)
 // ==========================================
 function setupControlPanel() {
   const inputText = document.getElementById('inputWatermarkText');
@@ -667,7 +737,6 @@ function setupControlPanel() {
 
   renderPresetChips();
 
-  // Inisialisasi Teks
   if (inputText) inputText.value = watermarkSettings.text;
 
   inputText?.addEventListener('input', (e) => {
@@ -684,11 +753,10 @@ function setupControlPanel() {
       inputText.value = current ? `${current} - ${today}` : today;
       watermarkSettings.text = inputText.value;
       preview.setWatermarkSettings(watermarkSettings);
-      preview.triggerStampAnimation();
     }
   });
 
-  // Slider Tipis ↔ Tebal (Mengatur Opacity + Ukuran Bersamaan)
+  // Slider Intensitas
   sliderIntensity?.addEventListener('input', (e) => {
     const lvl = parseInt(e.target.value, 10) || 3;
     const config = INTENSITY_LEVELS[lvl] || INTENSITY_LEVELS[3];
@@ -700,7 +768,7 @@ function setupControlPanel() {
     preview.setWatermarkSettings(watermarkSettings);
   });
 
-  // Toggle Pola (Penuh / Cap Tengah)
+  // Toggle Pola (Penuh / Tengah)
   const patternBtns = document.querySelectorAll('.pattern-toggle-btn');
   patternBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -708,11 +776,10 @@ function setupControlPanel() {
       btn.classList.add('active');
       watermarkSettings.pattern = btn.getAttribute('data-pattern') || 'tiled';
       preview.setWatermarkSettings(watermarkSettings);
-      preview.triggerStampAnimation();
     });
   });
 
-  // Accordion Pengaturan Lanjutan
+  // Disclosure Pengaturan Lanjutan
   const btnAccordion = document.getElementById('btnToggleAccordion');
   const accordionContent = document.getElementById('accordionContent');
   const accordionArrow = document.getElementById('accordionArrow');
@@ -724,10 +791,7 @@ function setupControlPanel() {
     btnAccordion.setAttribute('aria-expanded', String(!isExpanded));
   });
 
-  // Slider Lanjutan
   setupAdvancedSliders();
-
-  // Format Unduhan
   setupDownloadControls();
 }
 
@@ -788,13 +852,12 @@ function applyPresetSettings(newSettings) {
     b.classList.toggle('active', b.getAttribute('data-pattern') === (watermarkSettings.pattern || 'tiled'));
   });
 
-  // Tinta warna
-  document.querySelectorAll('.ink-circle').forEach(d => {
+  // Warna Teks
+  document.querySelectorAll('.color-dot').forEach(d => {
     d.classList.toggle('active', d.getAttribute('data-color') === watermarkSettings.color);
   });
 
   preview.setWatermarkSettings(watermarkSettings);
-  preview.triggerStampAnimation();
 }
 
 function setupAdvancedSliders() {
@@ -835,29 +898,26 @@ function setupAdvancedSliders() {
     preview.setWatermarkSettings(watermarkSettings);
   });
 
-  // Warna Tinta
-  const inkCircles = document.querySelectorAll('.ink-circle');
-  inkCircles.forEach(circle => {
-    circle.addEventListener('click', () => {
-      inkCircles.forEach(c => c.classList.remove('active'));
-      circle.classList.add('active');
-      const c = circle.getAttribute('data-color') || '#C8372D';
+  const colorDots = document.querySelectorAll('.color-dot');
+  colorDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      colorDots.forEach(c => c.classList.remove('active'));
+      dot.classList.add('active');
+      const c = dot.getAttribute('data-color') || '#C8372D';
       watermarkSettings.color = c;
       if (customInk) customInk.value = c;
       preview.setWatermarkSettings(watermarkSettings);
-      preview.triggerStampAnimation();
     });
   });
 
   customInk?.addEventListener('input', (e) => {
-    inkCircles.forEach(c => c.classList.remove('active'));
+    colorDots.forEach(c => c.classList.remove('active'));
     watermarkSettings.color = e.target.value;
     preview.setWatermarkSettings(watermarkSettings);
   });
 
-  // Simpan Preset Kustom
   btnSavePreset?.addEventListener('click', () => {
-    const name = prompt('Nama preset kustom baru:');
+    const name = prompt('Nama preset baru:');
     if (!name || !name.trim()) return;
 
     const saved = saveCustomPreset(name.trim(), watermarkSettings);
@@ -869,12 +929,13 @@ function setupAdvancedSliders() {
 }
 
 // ==========================================
-// UNDUH & EKSPOR
+// UNDUH & EKSPOR DOKUMEN
 // ==========================================
 function setupDownloadControls() {
   const formatBtns = document.querySelectorAll('.format-btn');
   const formatLabel = document.getElementById('downloadFormatLabel');
   const btnDownload = document.getElementById('btnDownloadActive');
+  const btnDownloadTop = document.getElementById('btnDownloadActiveTop');
   const btnBatchZip = document.getElementById('btnDownloadBatchZip');
 
   formatBtns.forEach(btn => {
@@ -886,12 +947,12 @@ function setupDownloadControls() {
     });
   });
 
-  btnDownload?.addEventListener('click', async () => {
+  async function executeDownload() {
     const doc = loadedDocuments[activeDocIndex];
     if (!doc) return;
 
-    updateStepper(3);
-    btnDownload.disabled = true;
+    if (btnDownload) btnDownload.disabled = true;
+    if (btnDownloadTop) btnDownloadTop.disabled = true;
     showToast(`Memproses ${doc.name}...`);
 
     try {
@@ -902,14 +963,17 @@ function setupDownloadControls() {
       console.error(err);
       showToast('Gagal memproses dokumen.');
     } finally {
-      btnDownload.disabled = false;
+      if (btnDownload) btnDownload.disabled = false;
+      if (btnDownloadTop) btnDownloadTop.disabled = false;
     }
-  });
+  }
+
+  btnDownload?.addEventListener('click', executeDownload);
+  btnDownloadTop?.addEventListener('click', executeDownload);
 
   btnBatchZip?.addEventListener('click', async () => {
     if (loadedDocuments.length === 0) return;
 
-    updateStepper(3);
     btnBatchZip.disabled = true;
     const progressBox = document.getElementById('exportProgressBox');
     const progressBar = document.getElementById('exportProgressBar');
@@ -931,8 +995,8 @@ function setupDownloadControls() {
         }
       );
 
-      triggerDownload(zipBlob, `tandain_berkas_${Date.now()}.zip`);
-      showToast('Semua berkas berhasil diunduh dalam ZIP.');
+      triggerDownload(zipBlob, `tandain_dokumen_${Date.now()}.zip`);
+      showToast('Semua dokumen berhasil diunduh dalam ZIP.');
     } catch (err) {
       console.error(err);
       showToast('Gagal membuat arsip ZIP.');
@@ -946,7 +1010,7 @@ function setupDownloadControls() {
 }
 
 // ==========================================
-// RESET SEMUA DARI MEMORI
+// RESET MEMORI LENGKAP
 // ==========================================
 function resetAll() {
   const previewCanvas = document.getElementById('previewCanvas');
@@ -963,18 +1027,18 @@ function resetAll() {
 
   const dropzoneCard = document.getElementById('dropzoneCard');
   const previewArea = document.getElementById('previewArea');
-  const batchContainer = document.getElementById('batchContainer');
   const btnDownload = document.getElementById('btnDownloadActive');
+  const btnDownloadTop = document.getElementById('btnDownloadActiveTop');
   const docNameLabel = document.getElementById('activeDocName');
 
   if (dropzoneCard) dropzoneCard.style.display = 'flex';
   if (previewArea) previewArea.style.display = 'none';
-  if (batchContainer) batchContainer.style.display = 'none';
   if (btnDownload) btnDownload.disabled = true;
-  if (docNameLabel) docNameLabel.textContent = '';
+  if (btnDownloadTop) btnDownloadTop.disabled = true;
+  if (docNameLabel) docNameLabel.textContent = '-';
 
-  updateStepper(1);
+  updateSidebarList();
 
-  // Exact toast requested by user:
+  // Toast wajib:
   showToast('Semua data dihapus dari memori.');
 }
