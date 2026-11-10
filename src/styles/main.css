@@ -506,9 +506,7 @@ button, input, textarea, select {
   overflow: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  padding: 0;
 }
 
 /* Keadaan Kosong (Dropzone Polos ala Apple) */
@@ -522,6 +520,7 @@ button, input, textarea, select {
   background: var(--bg-surface);
   transition: all 0.2s ease;
   cursor: pointer;
+  margin: auto;
 }
 
 .empty-dropzone:hover, .empty-dropzone.drag-over {
@@ -560,13 +559,16 @@ button, input, textarea, select {
 
 /* Stage Pratinjau Dokumen */
 .stage-viewport {
-  width: 100%;
-  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
+  padding: 68px 24px 68px 24px;
+  box-sizing: border-box;
 }
 
 /* Floating Subtoolbar Pratinjau */
@@ -582,6 +584,19 @@ button, input, textarea, select {
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-card);
   border: 1px solid var(--card-border);
+}
+
+.stage-sensor-btn {
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+.stage-sensor-btn.active {
+  background: var(--accent);
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .stage-bar-actions {
@@ -628,8 +643,7 @@ button, input, textarea, select {
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 100%;
-  max-height: 100%;
+  margin: auto;
 }
 
 #previewCanvas {

@@ -37,6 +37,19 @@ const INTENSITY_LEVELS = {
   5: { opacity: 0.55, fontSizePercent: 5.0, label: 'Tebal' }
 };
 
+function findClosestIntensityLevel(opacity) {
+  let bestLevel = 3;
+  let minDiff = Infinity;
+  for (const [lvl, cfg] of Object.entries(INTENSITY_LEVELS)) {
+    const diff = Math.abs(cfg.opacity - opacity);
+    if (diff < minDiff) {
+      minDiff = diff;
+      bestLevel = parseInt(lvl, 10);
+    }
+  }
+  return bestLevel;
+}
+
 // ==========================================
 // TOAST NOTIFIKASI (Apple Floating Pill)
 // ==========================================
@@ -437,7 +450,9 @@ function removeDocAt(idx) {
     return;
   }
 
-  if (activeDocIndex >= loadedDocuments.length) {
+  if (idx < activeDocIndex) {
+    activeDocIndex--;
+  } else if (activeDocIndex >= loadedDocuments.length) {
     activeDocIndex = loadedDocuments.length - 1;
   }
   updateSidebarList();
@@ -485,6 +500,7 @@ function setupToolbarModes() {
   const sensorGroup = document.getElementById('sensorControlsGroup');
   const exportGroup = document.getElementById('exportControlsGroup');
   const checkSensor = document.getElementById('checkSensorMode');
+  const btnToggleStageSensor = document.getElementById('btnToggleStageSensor');
 
   // Mobile Tabs
   const mTabWatermark = document.getElementById('mTabWatermark');
@@ -498,6 +514,11 @@ function setupToolbarModes() {
 
     [tabWatermark, tabSensor].forEach(t => t?.classList.remove('active'));
     [mTabWatermark, mTabSensor, mTabUnduh].forEach(t => t?.classList.remove('active'));
+
+    if (btnToggleStageSensor) {
+      btnToggleStageSensor.classList.toggle('active', isSensor);
+      btnToggleStageSensor.setAttribute('aria-pressed', String(isSensor));
+    }
 
     if (isWatermark) {
       tabWatermark?.classList.add('active');
@@ -526,12 +547,17 @@ function setupToolbarModes() {
   tabWatermark?.addEventListener('click', () => activateMode('watermark'));
   tabSensor?.addEventListener('click', () => activateMode('sensor'));
 
+  btnToggleStageSensor?.addEventListener('click', () => {
+    const isCurrentlySensor = preview?.isRedactionMode;
+    activateMode(isCurrentlySensor ? 'watermark' : 'sensor');
+  });
+
   mTabWatermark?.addEventListener('click', () => activateMode('watermark'));
   mTabSensor?.addEventListener('click', () => activateMode('sensor'));
   mTabUnduh?.addEventListener('click', () => activateMode('unduh'));
 
   checkSensor?.addEventListener('change', (e) => {
-    preview?.setRedactionMode(e.target.checked);
+    activateMode(e.target.checked ? 'sensor' : 'watermark');
   });
 }
 
@@ -747,7 +773,13 @@ function setupControlPanel() {
 
   renderPresetChips();
 
-  if (inputText) inputText.value = watermarkSettings.text;
+  // Terapkan preset pertama secara default agar sinkron 100%
+  const presets = getSavedPresets();
+  if (presets.length > 0) {
+    applyPresetSettings(presets[0].settings);
+  } else {
+    if (inputText) inputText.value = watermarkSettings.text;
+  }
 
   inputText?.addEventListener('input', (e) => {
     watermarkSettings.text = e.target.value;
@@ -832,13 +864,23 @@ function applyPresetSettings(newSettings) {
   watermarkSettings = { ...watermarkSettings, ...newSettings };
 
   const inputText = document.getElementById('inputWatermarkText');
+  const sliderIntensity = document.getElementById('sliderIntensity');
+  const valIntensityLabel = document.getElementById('valIntensityLabel');
   const sliderAngle = document.getElementById('sliderAngle');
   const sliderSpacingX = document.getElementById('sliderSpacingX');
   const sliderSpacingY = document.getElementById('sliderSpacingY');
   const sliderJitter = document.getElementById('sliderJitter');
   const checkOutline = document.getElementById('checkOutline');
+  const customInk = document.getElementById('customColorPicker');
 
   if (inputText) inputText.value = watermarkSettings.text;
+
+  if (sliderIntensity && valIntensityLabel && watermarkSettings.opacity !== undefined) {
+    const lvl = findClosestIntensityLevel(watermarkSettings.opacity);
+    sliderIntensity.value = lvl;
+    valIntensityLabel.textContent = INTENSITY_LEVELS[lvl].label;
+  }
+
   if (sliderAngle) {
     sliderAngle.value = watermarkSettings.angle;
     document.getElementById('valAngle').textContent = `${watermarkSettings.angle}°`;
@@ -866,6 +908,7 @@ function applyPresetSettings(newSettings) {
   document.querySelectorAll('.color-dot').forEach(d => {
     d.classList.toggle('active', d.getAttribute('data-color') === watermarkSettings.color);
   });
+  if (customInk && watermarkSettings.color) customInk.value = watermarkSettings.color;
 
   preview.setWatermarkSettings(watermarkSettings);
 }
@@ -1034,6 +1077,7 @@ function resetAll() {
     color: '#C8372D'
   };
   currentZoom = 1.0;
+  preview?.clear();
 
   const dropzoneCard = document.getElementById('dropzoneCard');
   const previewArea = document.getElementById('previewArea');

@@ -114,12 +114,14 @@ export class DocumentPreview {
     const clientX = e.clientX;
     const clientY = e.clientY;
 
-    const normX = (clientX - rect.left) / rect.width;
-    const normY = (clientY - rect.top) / rect.height;
+    const w = rect.width || 1;
+    const h = rect.height || 1;
+    const normX = (clientX - rect.left) / w;
+    const normY = (clientY - rect.top) / h;
 
     return {
-      normX: Math.max(0, Math.min(1, normX)),
-      normY: Math.max(0, Math.min(1, normY))
+      normX: Math.max(0, Math.min(1, isNaN(normX) ? 0 : normX)),
+      normY: Math.max(0, Math.min(1, isNaN(normY) ? 0 : normY))
     };
   }
 
@@ -129,17 +131,23 @@ export class DocumentPreview {
 
     // 1. Cek garis pembatas Split
     if (this.viewMode === 'split') {
-      const splitTolerance = 0.05;
-      if (Math.abs(normX - this.splitRatio) <= splitTolerance) {
+      const rect = this.canvas.getBoundingClientRect();
+      const clickPixelX = e.clientX - rect.left;
+      const splitPixelX = this.splitRatio * rect.width;
+      if (Math.abs(clickPixelX - splitPixelX) <= 28) {
         this.isDraggingSplit = true;
-        this.canvas.setPointerCapture(e.pointerId);
+        try {
+          this.canvas.setPointerCapture(e.pointerId);
+        } catch (_) {}
         return;
       }
     }
 
     // 2. Interaksi Sensor
     if (this.isRedactionMode && this.redactionManager) {
-      this.canvas.setPointerCapture(e.pointerId);
+      try {
+        this.canvas.setPointerCapture(e.pointerId);
+      } catch (_) {}
       const hit = this.redactionManager.hitTest(this.fileKey, normX, normY, 0.035);
 
       if (hit.action === 'select') {
@@ -182,7 +190,10 @@ export class DocumentPreview {
     }
 
     if (this.viewMode === 'split' && !this.isRedactionMode) {
-      if (Math.abs(normX - this.splitRatio) <= 0.05) {
+      const rect = this.canvas.getBoundingClientRect();
+      const clickPixelX = e.clientX - rect.left;
+      const splitPixelX = this.splitRatio * rect.width;
+      if (Math.abs(clickPixelX - splitPixelX) <= 28) {
         this.canvas.style.cursor = 'ew-resize';
       } else {
         this.canvas.style.cursor = 'default';
@@ -249,7 +260,13 @@ export class DocumentPreview {
     }
   }
 
-  handlePointerUp() {
+  handlePointerUp(e) {
+    if (e?.pointerId) {
+      try {
+        this.canvas.releasePointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+
     if (this.isDraggingSplit) {
       this.isDraggingSplit = false;
     }
@@ -261,6 +278,11 @@ export class DocumentPreview {
           if (this.onSelectionChange) this.onSelectionChange(added);
         }
         this.creatingBox = null;
+      } else if (['move', 'nw', 'ne', 'se', 'sw'].includes(this.dragAction)) {
+        if (this.onSelectionChange) {
+          const selected = this.redactionManager.getBoxes(this.fileKey).find(b => b.id === this.redactionManager.selectedBoxId);
+          this.onSelectionChange(selected || null);
+        }
       }
       this.dragAction = null;
       this.dragStartPos = null;
@@ -269,10 +291,28 @@ export class DocumentPreview {
     }
   }
 
+  clear() {
+    this.activePage = null;
+    this.fileKey = null;
+    this.redactionManager = null;
+    this.watermarkSettings = null;
+    this.isDraggingSplit = false;
+    this.dragAction = null;
+    this.creatingBox = null;
+    if (this.canvas) {
+      this.canvas.width = 0;
+      this.canvas.height = 0;
+      this.canvas.style.width = '0px';
+      this.canvas.style.height = '0px';
+    }
+  }
+
   async render() {
     if (!this.activePage || !this.activePage.bitmap) {
       this.canvas.width = 0;
       this.canvas.height = 0;
+      this.canvas.style.width = '0px';
+      this.canvas.style.height = '0px';
       return;
     }
 
@@ -280,20 +320,25 @@ export class DocumentPreview {
       await document.fonts.ready;
     }
 
-    const containerWidth = (this.container.clientWidth || 600) - 16;
-    const maxHeight = Math.max(340, window.innerHeight * 0.62);
+    const stage = this.container.closest('.app-stage') || this.container.parentElement || document.body;
+    const stageW = stage.clientWidth || window.innerWidth;
+    const stageH = stage.clientHeight || window.innerHeight;
+
+    // Margin aman untuk stage padding dan floating toolbar
+    const maxAvailableW = Math.max(280, stageW - 48);
+    const maxAvailableH = Math.max(280, stageH - 120);
     const docAspect = this.activePage.width / this.activePage.height;
 
-    let displayWidth = containerWidth;
-    let displayHeight = displayWidth / docAspect;
+    let baseWidth = maxAvailableW;
+    let baseHeight = baseWidth / docAspect;
 
-    if (displayHeight > maxHeight) {
-      displayHeight = maxHeight;
-      displayWidth = displayHeight * docAspect;
+    if (baseHeight > maxAvailableH) {
+      baseHeight = maxAvailableH;
+      baseWidth = baseHeight * docAspect;
     }
 
-    displayWidth *= this.zoomScale;
-    displayHeight *= this.zoomScale;
+    const displayWidth = Math.round(baseWidth * this.zoomScale);
+    const displayHeight = Math.round(baseHeight * this.zoomScale);
 
     const dpr = window.devicePixelRatio || 1;
     this.canvas.width = Math.round(displayWidth * dpr);
