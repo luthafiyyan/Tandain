@@ -1,166 +1,184 @@
-# Tandain
+<div align="center">
+  <img src="./public/icons/icon.svg" width="96" height="96" alt="Tandain Logo" style="border-radius: 22px;" />
+  <h1>🛡️ Tandain</h1>
+  <p><strong>Watermark & Sensor Dokumen Kependudukan 100% Offline — <em>Tandain dokumenmu, tanpa upload</em></strong></p>
 
-Utilitas web client-side untuk pembubuhan watermark berulang dan sensor manual (redaction) pada dokumen identitas penting (KTP, KK, NPWP, ijazah, transkrip nilai, dan sertifikat) dengan jaminan privasi 100% luring (offline) tanpa backend.
-
----
-
-## Latar Belakang
-
-Pencurian identitas dan penyalahgunaan salinan dokumen kependudukan untuk pinjaman daring tanpa izin maupun penipuan finansial merupakan risiko nyata. Membubuhkan tanda air (*watermark*) bertuliskan tujuan spesifik dan tanggal penggunaan, serta menyensor sebagian digit nomor identitas (seperti NIK atau nomor rekening), merupakan langkah mitigasi standar yang disarankan oleh otoritas perlindungan data pribadi.
-
-Kebanyakan alat watermark daring yang tersedia saat ini mengharuskan pengguna mengunggah dokumen ke server pihak ketiga. Tandain dibangun dengan pendekatan **Zero-Network Architecture**: seluruh proses rendering, pembacaan, dan pembuatan berkas dilakukan langsung di memori perangkat pengguna melalui Web APIs standar.
-
----
-
-## Prinsip Keamanan & Privasi
-
-1. **Content Security Policy (CSP) Tanpa Koneksi Jaringan**
-   Aplikasi menerapkan kebijakan keamanan peramban yang sangat ketat melalui meta tag:
-   ```html
-   default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none';
-   ```
-   Direktif `connect-src 'none'` menjamin peramban memblokir seluruh upaya transmisi data melalui `fetch`, `XMLHttpRequest`, `WebSocket`, maupun `EventSource`.
-
-2. **Siklus Hidup Data Berbasis RAM (Zero Storage)**
-   - Berkas dokumen hanya didekode ke dalam memori kerja (RAM) sebagai objek `ImageBitmap`.
-   - Tidak ada data dokumen, thumbnail, maupun nama berkas yang disimpan di `localStorage`, `sessionStorage`, `IndexedDB`, atau `CacheStorage`.
-   - Penyimpanan lokal peramban hanya diizinkan untuk menyimpan preferensi konfigurasi watermark teks (tanpa keterkaitan dengan dokumen apa pun).
-
-3. **Sanitasi Metadata EXIF Otomatis**
-   Foto dokumen dari kamera telepon pintar sering kali memuat metadata sensitif seperti koordinat lokasi GPS, model perangkat, dan stempel waktu. Tandain membaca citra dengan orientasi EXIF yang tepat, lalu merender ulang dokumen secara utuh ke HTML5 Canvas baru sebelum ekspor, sehingga seluruh tag EXIF otomatis hilang dari berkas keluaran.
-
-4. **Perataan Piksel Permanen (Flattening)**
-   Tanda air dan kotak sensor hitam disatukan langsung ke matriks piksel citra. Untuk dokumen PDF, setiap halaman dirender ulang menjadi citra resolusi tinggi lalu disusun kembali menjadi berkas PDF baru melalui `pdf-lib`. Watermark dan sensor bukan merupakan lapisan teks atau vektor terpisah yang dapat dihapus menggunakan editor PDF standar.
-
-5. **Pembersihan Memori Lengkap (Cleanup)**
-   Saat tombol "Atur ulang" dikonfirmasi atau setelah dokumen ditutup, aplikasi memanggil `URL.revokeObjectURL()` pada seluruh URL blob, mengosongkan dimensi elemen canvas ke `0 × 0`, dan memutus semua referensi buffer memori untuk memfasilitasi pengumpulan sampah (*garbage collection*) oleh mesin JavaScript.
+  <p align="center">
+    <a href="#"><img src="https://img.shields.io/badge/STATUS-PRODUCTION_READY-34C759?style=for-the-badge" alt="Status" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/ARCHITECTURE-100%25_CLIENT--SIDE-007AFF?style=for-the-badge" alt="Client Side" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/NETWORK-CONNECT--SRC_'NONE'-1D1D1F?style=for-the-badge" alt="CSP Strict" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/VITE-6.X-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/PWA-100%25_OFFLINE-FF9500?style=for-the-badge" alt="PWA" /></a>
+  </p>
+  <p align="center">
+    <a href="#"><img src="https://img.shields.io/badge/STORAGE-ZERO_PERSISTENCE-5856D6?style=for-the-badge" alt="Storage" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/TESTED_WITH-NODE_TESTS-30D158?style=for-the-badge" alt="Tests" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/DESIGN-APPLE_HIG-007AFF?style=for-the-badge&logo=apple&logoColor=white" alt="Design Apple" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/LICENSE-MIT-8E8E93?style=for-the-badge" alt="License" /></a>
+  </p>
+</div>
 
 ---
 
-## Desain Antarmuka (Apple Human Interface Guidelines)
+## 📖 Tentang Tandain
 
-Antarmuka dirancang mengikuti estetika modern macOS dan iOS:
+**Tandain** adalah aplikasi web modern dan privat yang dirancang khusus untuk memfasilitasi pembubuhan tanda air (*watermark*) pengaman serta penyensoran manual (*redaction*) pada salinan dokumen kependudukan dan arsip penting (KTP, Kartu Keluarga, NPWP, ijazah, transkrip nilai, buku nikah, dan sertifikat).
 
-- **Tata Letak macOS 3-Pane (Desktop)**:
-  - **Toolbar Atas**: Menggunakan material transparan (*backdrop-filter blur*), memuat judul aplikasi, indikator status privasi, pengendali mode kerja, serta aksi cepat unduh dan atur ulang.
-  - **Sidebar Kiri (~240px)**: Navigasi daftar berkas dokumen aktif bergaya Finder, dilengkapi indikator jenis berkas dan tombol penambahan berkas.
-  - **Area Panggung (Tengah)**: Area pratinjau dokumen netral dengan pembagi belah (*interactive split slider*) untuk membandingkan dokumen sebelum dan sesudah secara presisi.
-  - **Inspector Kanan (~300px)**: Kartu pengaturan bertipe *Inset Grouped* ala Pengaturan iOS dengan baris-baris berpemisah tipis *hairline*.
-- **Tata Letak iOS (Mobile)**:
-  - Pratinjau dokumen di bagian atas dengan kontrol yang tersaji rapi dalam *Bottom Sheet Drawer* berfitur *grabber handle*.
-  - Target sentuh minimal 44 piksel pada seluruh kontrol dan mematuhi margin area aman (*safe-area-inset*).
-- **Palet Warna Netral & Presisi**:
-  - Aksen tunggal Biru Sistem (`#007AFF` pada mode terang, `#0A84FF` pada mode gelap).
-  - Permukaan netral (#F5F5F7 / #FFFFFF pada mode terang, #000000 / #2C2C2E pada mode gelap).
-  - Sinkronisasi otomatis dengan preferensi tema sistem operasi (`prefers-color-scheme`) disertai tombol pengalihan manual.
-- **Tipografi Sistem**:
-  - Menggunakan font stack sistem `-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif`.
-  - Font Inter di-bundle secara mandiri melalui `@fontsource/inter` untuk memastikan tampilan konsisten di peramban non-Apple tanpa ketergantungan CDN eksternal.
-  - Seluruh angka metrik dan nilai slider menggunakan `font-variant-numeric: tabular-nums`.
+Platform ini menggantikan kebiasaan menggunakan alat watermark daring konvensional yang mewajibkan pengguna mengunggah dokumen pribadi ke server pihak ketiga yang rentan terhadap kebocoran data (*data breach*) dan penyalahgunaan identitas untuk pinjaman daring ilegal. Dengan **Tandain**, seluruh siklus pemrosesan file berjalan **100% di memori perangkat pengguna (client-side)**. Dokumen Anda tidak pernah dikirim ke server mana pun, tidak memerlukan akun, dan sepenuhnya bebas dari pelacakan.
 
 ---
 
-## Fitur Utama
+## ✨ Fitur Utama
 
-- **Dukungan Format Lengkap**: Menerima berkas gambar (JPG, PNG, WEBP) dan dokumen PDF (termasuk navigasi halaman PDF multi-halaman).
-- **Pemrosesan Kolektif (Batch Processing)**: Pengguna dapat memilih banyak berkas sekaligus, beralih antar dokumen secara langsung, serta mengunduh seluruh hasil akhir dalam arsip `.ZIP` tunggal.
-- **Paritas Pratinjau vs Hasil Ekspor**: Menggunakan fungsi rendering tunggal `renderWatermark(ctx, width, height, settings)`. Seluruh proporsi ukuran huruf, spasi antarbaris, dan pergeseran acak (*jitter*) dihitung berbasis persentase relatif terhadap lebar dokumen (`% width`), bukan piksel statis.
-- **Preset Kebutuhan Umum**:
-  - Verifikasi Bank
-  - Melamar Kerja
-  - Pendaftaran
-  - Cap Tengah
-  - Kemampuan menyimpan preset kustom ke memori pengaturan lokal peramban.
-- **Sensor Manual (Redaction)**: Pembuatan kotak hitam pekat di atas area data rahasia dengan dukungan penggeseran, penyesuaian ukuran (*resize*), penghapusan, dan pembatalan (*Undo* `Ctrl+Z` / *Redo* `Ctrl+Y`).
-- **Progressive Web App (PWA)**: Terdaftar dengan Service Worker berbasis Workbox lokal untuk kemampuan instalasi dan operasional penuh saat perangkat berada dalam mode pesawat (*airplane mode*).
+- **Paritas Pratinjau 1:1 (Identik dengan Hasil Ekspor)**: Menggunakan satu mesin rendering unifikasi `renderWatermark`. Semua parameter ukuran huruf, jarak antar teks, dan variasi posisi (*jitter*) dihitung berbasis persentase relatif terhadap lebar dokumen (`% width`), bukan piksel tetap.
+- **Sensor Manual (Redaction)**: Pengguna dapat menggambar kotak hitam pekat di atas data rahasia (seperti NIK atau nomor rekening). Kotak dapat digeser, disesuaikan ukurannya, dihapus, serta dilengkapi fitur *Undo* (`Ctrl+Z` / `Cmd+Z`) dan *Redo* (`Ctrl+Y`).
+- **Penghapusan Metadata EXIF Otomatis**: Citra hasil foto kamera HP dirender ulang melalui canvas murni sebelum diekspor, sehingga data lokasi GPS, jenis perangkat, dan tanggal pemotretan otomatis terhapus secara permanen.
+- **Perataan Piksel Permanen (Flattening)**: Tanda air dan sensor menyatu langsung ke piksel citra. Pada berkas PDF, tiap halaman dirasterisasi ke canvas beresolusi tinggi lalu disusun menjadi PDF baru (`pdf-lib`), sehingga watermark bukan merupakan lapisan teks terpisah yang bisa dihapus.
+- **Preset Kebutuhan Standar**: Pilihan cepat sekali klik untuk berbagai keperluan:
+  - *Verifikasi Bank*
+  - *Melamar Kerja*
+  - *Pendaftaran*
+  - *Cap Tengah*
+  - Dukungan menyimpan preset kustom sendiri ke penyimpanan pengaturan browser.
+- **Dukungan Format Luas**: Menerima format citra JPG, PNG, WEBP, serta berkas dokumen PDF multi-halaman dengan pagination interaktif.
+- **Pemrosesan Kolektif (Batch)**: Pilih banyak berkas sekaligus dan unduh satu per satu atau secara serentak dalam arsip berformat `.ZIP` (`JSZip`).
+- **PWA & Beroperasi Penuh Tanpa Internet**: Aplikasi siap diinstal sebagai Progressive Web App di Android, iOS, Windows, dan macOS, serta tetap dapat digunakan saat perangkat berada dalam mode pesawat (*airplane mode*).
 
 ---
 
-## Struktur Direktori
+## 🔒 Arsitektur Keamanan & Zero-Network
 
+Tandain dibangun di atas prinsip privasi paling ketat untuk melindungi integritas dokumen kependudukan:
+
+### 1. Kebijakan Keamanan Konten (Content Security Policy)
+Aplikasi mengunci akses jaringan melalui meta tag CSP ketat:
+```html
+default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none';
 ```
-tandain/
-├── public/
-│   ├── icons/                  # Ikon aplikasi (SVG master, 192px, 512px)
-│   ├── manifest.webmanifest    # Manifest konfigurasi PWA
-│   └── sw.js                   # Service Worker precache offline
-├── src/
-│   ├── core/
-│   │   ├── cleanup.js          # Rutinitas sanitasi memori dan storage hygiene
-│   │   ├── exporter.js         # Generator ekspor PNG, JPG, PDF-lib, dan JSZip
-│   │   ├── loader.js           # Pengurai berkas citra dan pdfjs-dist
-│   │   ├── redact.js           # Manajemen koordinat sensor manual [0..1]
-│   │   └── watermark.js        # Mesin kalkulasi dan rendering watermark tunggal
-│   ├── styles/
-│   │   └── main.css            # Sistem token desain Apple HIG (macOS & iOS)
-│   ├── ui/
-│   │   ├── presets.js          # Pengelola preset bawaan dan kustom
-│   │   ├── preview.js          # Renderer canvas, interaksi sentuh, dan split handle
-│   │   └── theme.js            # Sinkronisasi tema terang/gelap otomatis
-│   ├── sw.js                   # Sumber injeksi Service Worker
-│   └── main.js                 # Integrasi logika antarmuka dan kontrol aplikasi
-├── test/
-│   ├── run-tests.js            # Pengujian unit, audit CSP, dan hygiene storage
-│   ├── test-aspect-ratio.js    # Pengujian konsistensi densitas pratinjau vs ekspor
-│   └── test-exif.js            # Pengujian pembersihan tag metadata EXIF
-├── index.html                  # Antarmuka utama dan deklarasi CSP ketat
-├── package.json
-└── vite.config.js
-```
+> **Catatan Teknis**: Direktif `connect-src 'none'` memastikan bahwa peramban Anda secara mutlak menolak setiap upaya pengiriman data melalui `fetch`, `XMLHttpRequest`, `WebSocket`, analitik pihak ketiga, maupun skrip eksternal.
+
+### 2. Siklus Hidup Memori Murni (Zero Storage)
+- Berkas dokumen hanya didekode ke dalam RAM sebagai objek `ImageBitmap`.
+- Aplikasi **tidak pernah** menyimpan dokumen, gambar, atau nama berkas di `localStorage`, `sessionStorage`, `IndexedDB`, maupun `CacheStorage`.
+- `localStorage` hanya dipakai untuk menyimpan preferensi teks konfigurasi watermark dan pilihan tema.
+
+### 3. Pembersihan Memori Total (Memory Hygiene)
+Saat tombol **Atur ulang** ditekan atau dokumen dihapus:
+- Memanggil `URL.revokeObjectURL()` pada seluruh objek blob yang pernah dibuat.
+- Mengosongkan dimensi elemen canvas ke `width = 0, height = 0`.
+- Memutus seluruh referensi array buffer untuk memfasilitasi *Garbage Collection* mesin JavaScript.
 
 ---
 
-## Panduan Pemasangan & Pengembangan
+## 🎨 Bahasa Desain (Apple Human Interface Guidelines)
+
+Antarmuka dirancang dengan estetika modern, tenang, dan presisi layaknya aplikasi bawaan macOS dan iOS:
+
+| Komponen | Implementasi Desain Apple |
+| :--- | :--- |
+| **Tata Letak Desktop** | Model jendela 3-pane macOS: Toolbar atas transparan, Sidebar daftar dokumen Finder-style, Stage pratinjau tengah, dan Inspector Inset Grouped di kanan. |
+| **Tata Letak Mobile** | Pratinjau responsif di atas dengan kontrol yang tersimpan rapi dalam *Bottom Sheet Drawer* ber-grabber, dengan target sentuh minimal 44 piksel. |
+| **Warna Aksen Tunggal** | Biru Sistem Apple (`#007AFF` pada mode terang, `#0A84FF` pada mode gelap) untuk kontrol aktif dan aksi primer. |
+| **Tipografi Sistem** | Font stack `-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter"` dengan penomoran tabular (`tabular-nums`) untuk keselarasan angka metrik. |
+| **Material & Efek** | Material transparan (*backdrop-filter blur*) hanya diterapkan pada bilah navigasi, sementara panel kontrol menggunakan permukaan solid dengan garis tepi 1px yang bersih. |
+
+---
+
+## 🚀 Panduan Memulai Cepat
 
 ### Prasyarat
-- Node.js versi 18 atau yang lebih baru
-- npm versi 9 atau yang lebih baru
+- [Node.js](https://nodejs.org/) (versi 18 ke atas disarankan)
+- Peramban web modern yang mendukung HTML5 Canvas dan Web Workers
 
-### Instalasi Dependensi
+### 1. Klon Repositori
+```bash
+git clone https://github.com/luthafiyyan/Tandain.git
+cd Tandain
+```
+
+### 2. Pasang Dependensi
 ```bash
 npm install
 ```
 
-### Menjalankan Server Pengembangan Lokal
+### 3. Jalankan Server Pengembangan Lokal
 ```bash
 npm run dev
 ```
+Buka tautan lokal yang tampil di terminal (biasanya `http://localhost:5173`) pada peramban Anda.
 
-### Membangun Berkas Distribusi Produksi
+### 4. Membangun Berkas Distribusi Produksi
 ```bash
 npm run build
 ```
-Hasil kompilasi akan tersimpan di dalam direktori `dist/` dengan seluruh dependensi ter-bundle secara mandiri.
+Hasil build produksi siap rilis akan disimpan di dalam direktori `dist/` dengan seluruh aset telah ter-bundle secara lokal.
 
-### Menjalankan Pratinjau Hasil Build
+### 5. Menjalankan Pratinjau Build Produksi
 ```bash
 npm run preview
 ```
 
 ---
 
-## Pengujian Otomatis
+## 🧪 Pengujian Otomatis
 
-Proyek ini dilengkapi dengan skrip pengujian berbasis Node.js untuk memvalidasi integritas fungsi dan aturan keamanan tanpa memerlukan peramban eksternal:
+Proyek ini dilengkapi rangkaian pengujian unit otomatis tanpa ketergantungan harness luar untuk memverifikasi fungsionalitas dan kepatuhan aturan keamanan:
 
 ```bash
-# Menjalankan rangkaian pengujian inti (Watermark, Redaction, PDF, ZIP, Storage, CSP)
+# 1. Rangkaian uji fungsionalitas inti, paritas watermark, storage hygiene, dan audit CSP
 node test/run-tests.js
 
-# Menjalankan pengujian konsistensi rasio aspek (Landscape & Portrait)
+# 2. Uji konsistensi densitas ubin watermark pada rasio landscape dan portrait
 node test/test-aspect-ratio.js
 
-# Menjalankan pengujian sanitasi metadata EXIF
+# 3. Uji pembersihan segmen metadata EXIF (GPS, kamera, waktu)
 node test/test-exif.js
 ```
 
-Rangkaian pengujian mencakup:
-- **Verifikasi Paritas Rendering**: Memastikan kerapatan ubin watermark pada canvas pratinjau berukuran kecil identik dengan kanvas ekspor beresolusi tinggi.
-- **Audit CSP & Dependensi Eksternal**: Memverifikasi bahwa berkas kompilasi produksi `dist/index.html` dan `dist/assets/*.css` tidak memuat URL eksternal ke CDN, analitik, atau server fon pihak ketiga.
-- **Audit Storage Hygiene**: Menjamin bahwa setelah operasi pembersihan dijalankan, tidak ada data dokumen atau nama berkas yang tertinggal di penyimpanan browser.
+### Matriks Pengujian:
+- [x] **Watermark Parity**: Proporsi ukuran font dan kerapatan ubin identik antara canvas pratinjau dan hasil ekspor resolusi tinggi.
+- [x] **Redaction Manager**: Koordinat normalisasi relatif `[0..1]`, manipulasi penambahan, seleksi, penggeseran, dan penghapusan kotak.
+- [x] **PDF Flattening**: Validasi sintaks berkas PDF keluaran via `pdf-lib`.
+- [x] **Batch ZIP Packaging**: Validasi integritas arsip ZIP multi-berkas via `JSZip`.
+- [x] **Storage Hygiene**: Memastikan tidak ada sisa berkas dokumen yang tersimpan di penyimpanan lokal peramban.
+- [x] **Audit CSP & Offline Assets**: Menjamin tidak ada permintaan HTTP/HTTPS ke server eksternal, Google Fonts, CDN, maupun analitik.
 
 ---
 
-## Lisensi
+## 📁 Struktur Direktori
 
-Proyek ini didistribusikan di bawah lisensi MIT. Anda bebas menggunakan, memodifikasi, dan mendistribusikan perangkat lunak ini untuk keperluan pribadi maupun komersial.
+```
+tandain/
+├── public/
+│   ├── icons/                  # Ikon aplikasi vektor (SVG, 192px, 512px)
+│   ├── manifest.webmanifest    # Manifest konfigurasi PWA luring
+│   └── sw.js                   # Service Worker precache lokal
+├── src/
+│   ├── core/
+│   │   ├── cleanup.js          # Rutinitas pelepasan memori & storage hygiene
+│   │   ├── exporter.js         # Generator ekspor PNG, JPG, PDF-lib, dan ZIP
+│   │   ├── loader.js           # Pengurai berkas gambar & pdfjs-dist
+│   │   ├── redact.js           # Mesin kotak sensor manual berkoordinat [0..1]
+│   │   └── watermark.js        # Fungsi tunggal kalkulasi dan rendering watermark
+│   ├── styles/
+│   │   └── main.css            # Sistem token desain Apple HIG (macOS & iOS)
+│   ├── ui/
+│   │   ├── presets.js          # Pengelola preset bawaan dan kustom lokal
+│   │   ├── preview.js          # Pratinjau canvas, split handle, dan gestur sentuh
+│   │   └── theme.js            # Sinkronisasi tema terang/gelap otomatis
+│   ├── sw.js                   # Sumber injeksi Service Worker PWA
+│   └── main.js                 # Pengendali alur antarmuka dan interaksi pengguna
+├── test/
+│   ├── run-tests.js            # Uji unit fungsional, CSP audit, dan hygiene
+│   ├── test-aspect-ratio.js    # Uji konsistensi orientasi gambar
+│   └── test-exif.js            # Uji sanitasi metadata EXIF
+├── index.html                  # Antarmuka macOS 3-pane & meta CSP ketat
+├── package.json
+└── vite.config.js
+```
+
+---
+
+## 📄 Lisensi
+
+Didistribusikan di bawah lisensi [MIT](LICENSE). Anda bebas menggunakan, memodifikasi, dan mendistribusikan perangkat lunak ini baik untuk keperluan pribadi maupun komersial.
