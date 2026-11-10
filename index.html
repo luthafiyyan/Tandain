@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ATURAN KEAMANAN WAJIB: Content Security Policy Ketat -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none';" />
+  
+  <title>Tandain - Watermark & Sensor Dokumen 100% Offline</title>
+  <meta name="description" content="Beri watermark dan sensor dokumen penting (KTP, KK, NPWP, Ijazah) 100% offline di perangkat Anda tanpa pernah diupload ke server." />
+  <meta name="theme-color" content="#059669" />
+
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <img src="./icons/icon.svg" alt="Tandain Logo" class="brand-logo" />
+      <div>
+        <div class="brand-title">
+          Tandain
+          <span class="offline-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            100% Offline
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btnToggleTheme" class="btn-icon" title="Ganti Tema (Gelap/Terang)">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button id="btnResetApp" class="btn-reset-header" title="Hapus semua berkas dari memori">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- Security Banner -->
+  <div class="security-banner">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+    <span>Diproses di perangkat Anda. <strong>Tidak ada file yang diupload ke server mana pun.</strong></span>
+  </div>
+
+  <main class="main-content">
+    <!-- STATE 1: Dropzone & File Input (Empty State) -->
+    <section id="dropzoneSection" class="dropzone-container">
+      <div id="dropzoneCard" class="dropzone-card">
+        <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <div>
+          <h2 class="dropzone-title">Tarik & Letakkan Dokumen Di Sini</h2>
+          <p class="dropzone-desc">Dukung KTP, Kartu Keluarga, NPWP, Ijazah, dan dokumen penting lainnya.</p>
+        </div>
+        <div class="format-badges">
+          <span class="format-badge">JPG / JPEG</span>
+          <span class="format-badge">PNG</span>
+          <span class="format-badge">WEBP</span>
+          <span class="format-badge">PDF (Multi-halaman)</span>
+        </div>
+        <button id="btnBrowseFile" class="btn-upload-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Pilih File dari Perangkat
+        </button>
+        <button id="btnSampleDoc" class="pill-insert" style="margin-top: 0.5rem;">
+          Coba dengan Contoh KTP Dummy
+        </button>
+        <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,application/pdf" style="display: none;" />
+      </div>
+
+      <!-- Security Guarantee Cards -->
+      <div class="security-grid">
+        <div class="security-card">
+          <svg class="security-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <h4>100% Offline di Memori</h4>
+          <p>File diproses langsung di RAM browser. Tidak ada API, tidak ada server, tidak ada kebocoran data.</p>
+        </div>
+        <div class="security-card">
+          <svg class="security-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <h4>Flattened Permanen</h4>
+          <p>Watermark dan sensor menyatu langsung ke pixel gambar, tidak bisa di-remove sebagai layer vektor terpisah.</p>
+        </div>
+        <div class="security-card">
+          <svg class="security-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <h4>Metadata EXIF Dihapus</h4>
+          <p>Data lokasi GPS, merek kamera, dan timestamp foto otomatis hilang saat dokumen diekspor ulang.</p>
+        </div>
+        <div class="security-card">
+          <svg class="security-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.2 7.2L2.5 8m19 8-0.7 0.8A10 10 0 0 1 2 12.5"/></svg>
+          <h4>Sensor Manual (Redact)</h4>
+          <p>Tutupi sebagian digit NIK atau tanggal lahir dengan kotak hitam pekat sebelum dibagikan.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATE 2: Active Workspace (Preview & Controls) -->
+    <section id="workspaceSection" class="workspace-grid" style="display: none;">
+      <!-- Column 1: Interactive Preview & Batch Selector -->
+      <div class="preview-column">
+        <!-- Batch & Page selector -->
+        <div id="batchContainer" style="display: none;">
+          <div class="control-label-row" style="margin-bottom: 0.35rem;">
+            <span class="control-label">Daftar Dokumen (Batch):</span>
+            <span id="batchCountBadge" class="control-value-badge">1 Berkas</span>
+          </div>
+          <div id="batchStrip" class="batch-strip"></div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="preview-card">
+          <div class="preview-toolbar">
+            <!-- View Mode (Before / After / Split) -->
+            <div class="view-mode-group">
+              <button id="btnViewAfter" class="btn-view-mode active" title="Tampilkan hasil ber-watermark">Hasil</button>
+              <button id="btnViewBefore" class="btn-view-mode" title="Tampilkan dokumen asli tanpa watermark">Asli</button>
+              <button id="btnViewSplit" class="btn-view-mode" title="Bandingkan dengan garis geser">Belah</button>
+            </div>
+
+            <!-- Redaction Mode Toggle -->
+            <button id="btnToggleRedact" class="btn-redact-mode" title="Mode Sensor: Buat kotak hitam untuk menutupi NIK atau data pribadi">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6"/><path d="m15 9-6 6"/></svg>
+              <span>Mode Sensor</span>
+            </button>
+          </div>
+
+          <!-- Redaction Box Info Bar (muncul saat kotak terpilih) -->
+          <div id="redactFloatBar" class="redact-float-bar">
+            <span>Kotak Sensor Terpilih</span>
+            <button id="btnDeleteSelectedBox" class="btn-delete-box">Hapus Kotak</button>
+          </div>
+
+          <!-- The Canvas Viewport -->
+          <div id="canvasViewport" class="canvas-viewport">
+            <canvas id="previewCanvas"></canvas>
+          </div>
+
+          <!-- PDF Multi-page navigation -->
+          <div id="pdfPageNav" class="page-pagination" style="display: none;">
+            <button id="btnPrevPage" class="btn-page-nav">◀ Halaman Sebelumnya</button>
+            <span id="pageNavIndicator">Halaman 1 / 1</span>
+            <button id="btnNextPage" class="btn-page-nav">Halaman Berikutnya ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Controls & Export -->
+      <div class="controls-column">
+        <!-- Tabs -->
+        <div class="tab-navigation">
+          <button id="tabBtnWatermark" class="tab-btn active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Watermark
+          </button>
+          <button id="tabBtnRedact" class="tab-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Sensor (<span id="redactCountBadge">0</span>)
+          </button>
+          <button id="tabBtnExport" class="tab-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Ekspor & Unduh
+          </button>
+        </div>
+
+        <!-- Panel 1: Watermark Settings -->
+        <div id="panelWatermark" class="panel-card">
+          <!-- Preset Selector -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="presetSelect" class="control-label">Pilihan Preset Cepat</label>
+            </div>
+            <select id="presetSelect" class="select-input"></select>
+            <div class="preset-actions-row" style="margin-top: 0.35rem;">
+              <button id="btnSavePreset" class="btn-secondary" style="flex: 1;">
+                + Simpan Pengaturan Ini
+              </button>
+              <button id="btnDeletePreset" class="btn-secondary" style="display: none; color: #ef4444;" title="Hapus Preset Ini">
+                Hapus
+              </button>
+            </div>
+          </div>
+
+          <!-- Teks Watermark -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="inputWatermarkText" class="control-label">Teks Watermark</label>
+            </div>
+            <textarea id="inputWatermarkText" class="text-input" rows="2" placeholder="Masukkan teks watermark..."></textarea>
+            <!-- Quick Pills -->
+            <div class="text-pills">
+              <button type="button" class="pill-insert" data-insert="[tanggal]">+ Tanggal Hari Ini</button>
+              <button type="button" class="pill-insert" data-insert="HANYA UNTUK VERIFIKASI BANK">Verifikasi Bank</button>
+              <button type="button" class="pill-insert" data-insert="HANYA UNTUK LAMARAN KERJA">Lamar Kerja</button>
+              <button type="button" class="pill-insert" data-insert="SYARAT PENDAFTARAN">Pendaftaran</button>
+            </div>
+          </div>
+
+          <!-- Transparansi (Opacity) -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="sliderOpacity" class="control-label">Transparansi (Opacity)</label>
+              <span id="valOpacity" class="control-value-badge">30%</span>
+            </div>
+            <input type="range" id="sliderOpacity" min="5" max="90" step="1" value="30" />
+          </div>
+
+          <!-- Ukuran Font -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="sliderFontSize" class="control-label">Ukuran Font (% Lebar)</label>
+              <span id="valFontSize" class="control-value-badge">3.2%</span>
+            </div>
+            <input type="range" id="sliderFontSize" min="1.0" max="8.0" step="0.1" value="3.2" />
+          </div>
+
+          <!-- Sudut Putar -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="sliderAngle" class="control-label">Kemiringan Sudut</label>
+              <span id="valAngle" class="control-value-badge">-25°</span>
+            </div>
+            <input type="range" id="sliderAngle" min="-90" max="90" step="1" value="-25" />
+          </div>
+
+          <!-- Jarak Horizontal & Vertikal -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="control-group">
+              <div class="control-label-row">
+                <label for="sliderSpacingX" class="control-label">Jarak X</label>
+                <span id="valSpacingX" class="control-value-badge">28%</span>
+              </div>
+              <input type="range" id="sliderSpacingX" min="10" max="60" step="1" value="28" />
+            </div>
+            <div class="control-group">
+              <div class="control-label-row">
+                <label for="sliderSpacingY" class="control-label">Jarak Y</label>
+                <span id="valSpacingY" class="control-value-badge">16%</span>
+              </div>
+              <input type="range" id="sliderSpacingY" min="8" max="40" step="1" value="16" />
+            </div>
+          </div>
+
+          <!-- Variasi Acak Posisi (Jitter) -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <label for="sliderJitter" class="control-label">Variasi Acak (Anti-AI Edit)</label>
+              <span id="valJitter" class="control-value-badge">12%</span>
+            </div>
+            <input type="range" id="sliderJitter" min="0" max="30" step="1" value="12" />
+          </div>
+
+          <!-- Warna Teks -->
+          <div class="control-group">
+            <label class="control-label">Warna Watermark</label>
+            <div class="color-picker-row">
+              <div class="color-swatch active" data-color="#059669" style="background: #059669;" title="Emerald Green"></div>
+              <div class="color-swatch" data-color="#dc2626" style="background: #dc2626;" title="Merah Tegas"></div>
+              <div class="color-swatch" data-color="#0f172a" style="background: #0f172a;" title="Hitam Pekat"></div>
+              <div class="color-swatch" data-color="#1d4ed8" style="background: #1d4ed8;" title="Biru Formal"></div>
+              <div class="color-swatch" data-color="#4b5563" style="background: #4b5563;" title="Abu-abu"></div>
+              <div class="color-swatch" data-color="#ffffff" style="background: #ffffff; border: 1px solid #cbd5e1;" title="Putih"></div>
+              <input type="color" id="customColorPicker" class="custom-color-input" value="#059669" title="Pilih Warna Kustom" />
+            </div>
+          </div>
+
+          <!-- Garis Tepi (Stroke Outline) -->
+          <div class="control-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+              <input type="checkbox" id="checkOutline" style="accent-color: var(--primary-600); width: 16px; height: 16px;" />
+              <span>Garis Tepi Teks (Membantu keterbacaan di latar kontras)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Panel 2: Redaction (Sensor) -->
+        <div id="panelRedact" class="panel-card" style="display: none;">
+          <div class="control-group">
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem;">Sensor Manual (Redaction)</h4>
+            <p style="font-size: 0.825rem; color: var(--text-muted);">
+              Aktifkan mode sensor lalu klik & seret di area preview dokumen untuk menutup data sensitif (misal: 6 digit NIK terakhir, tanggal lahir, nama ibu).
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <button id="btnPanelToggleRedact" class="btn-primary-action" style="padding: 0.65rem;">
+              Aktifkan Mode Sensor
+            </button>
+            <button id="btnClearPageRedactions" class="btn-secondary" style="color: #ef4444;">
+              Bersihkan Sensor
+            </button>
+          </div>
+
+          <div class="control-group" style="margin-top: 0.5rem;">
+            <label class="control-label">Daftar Kotak Sensor Halaman Ini:</label>
+            <div id="redactionList" style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 180px; overflow-y: auto;">
+              <p style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Belum ada kotak sensor pada halaman ini.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Export & Download -->
+        <div id="panelExport" class="panel-card" style="display: none;">
+          <div class="export-panel">
+            <div class="control-group">
+              <label class="control-label">Pilih Format Unduhan:</label>
+              <div class="format-selector-row">
+                <div class="format-radio-card active" data-format="png">
+                  <div style="font-size: 1rem; font-weight: 700;">PNG</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">Lossless & Tajam</div>
+                </div>
+                <div class="format-radio-card" data-format="jpg">
+                  <div style="font-size: 1rem; font-weight: 700;">JPG</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">Kualitas 0.92 Ringan</div>
+                </div>
+                <div class="format-radio-card" data-format="pdf">
+                  <div style="font-size: 1rem; font-weight: 700;">PDF</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">Diratakan ke Dokumen</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Single document download -->
+            <button id="btnDownloadActive" class="btn-primary-action">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Unduh Dokumen Ini (<span id="downloadFormatLabel">PNG</span>)
+            </button>
+
+            <!-- Batch download (ZIP) -->
+            <button id="btnDownloadBatchZip" class="btn-primary-action btn-batch-zip" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Unduh Semua Berkas (ZIP)
+            </button>
+
+            <!-- Export Progress info -->
+            <div id="exportProgressBox" style="display: none;">
+              <div class="control-label-row">
+                <span id="exportProgressText" style="font-size: 0.8rem; font-weight: 600;">Memproses dokumen...</span>
+                <span id="exportProgressPercent" class="control-value-badge">0%</span>
+              </div>
+              <div class="progress-container">
+                <div id="exportProgressBar" class="progress-bar"></div>
+              </div>
+            </div>
+
+            <div style="background: var(--bg-card-subtle); border-radius: var(--radius-md); padding: 0.75rem; border: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-secondary);">
+              <strong>Jaminan Keamanan:</strong>
+              <ul style="padding-left: 1.25rem; margin-top: 0.35rem; line-height: 1.4;">
+                <li>Watermark dan sensor diratakan langsung ke pixel.</li>
+                <li>Semua EXIF metadata (GPS, Kamera, Waktu) terhapus.</li>
+                <li>Tidak ada jejak file di browser setelah Anda menekan tombol Reset.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p><strong>Tandain</strong> — Alat Tambah Watermark & Sensor Dokumen Sensitif Pribadi.</p>
+    <p style="margin-top: 0.25rem; font-size: 0.75rem;">100% Client-Side. Berjalan tanpa koneksi internet. Kode sumber terbuka.</p>
+  </footer>
+
+  <!-- Script Masuk Utama -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

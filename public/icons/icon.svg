@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#ecfdf5" stop-opacity="0.9" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
+  <!-- Document Sheet -->
+  <path d="M160 120 C160 106.745 170.745 96 184 96 L296 96 L352 152 L352 392 C352 405.255 341.255 416 328 416 L184 416 C170.745 416 160 405.255 160 392 Z" fill="#ffffff" filter="drop-shadow(0 16px 24px rgba(0,0,0,0.15))"/>
+  <path d="M296 96 L352 152 L296 152 Z" fill="#d1fae5"/>
+  <!-- Text lines on Document -->
+  <rect x="192" y="180" width="128" height="12" rx="6" fill="#a7f3d0"/>
+  <rect x="192" y="208" width="96" height="12" rx="6" fill="#a7f3d0"/>
+  <!-- Watermark Stamp Overlay -->
+  <g transform="rotate(-25 256 280)">
+    <rect x="140" y="250" width="232" height="60" rx="12" fill="none" stroke="#059669" stroke-width="8" stroke-dasharray="14 8"/>
+    <text x="256" y="290" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="900" fill="#059669" text-anchor="middle" letter-spacing="4">TANDAIN</text>
+  </g>
+  <!-- Shield Badge (bottom right) -->
+  <g transform="translate(300, 290)">
+    <circle cx="60" cy="60" r="54" fill="#047857" stroke="#ffffff" stroke-width="6"/>
+    <!-- Checkmark & Lock inside shield -->
+    <path d="M42 60 L54 72 L78 48" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
