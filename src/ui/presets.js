@@ -11,51 +11,86 @@ const STORAGE_KEY = 'tandain_presets';
 
 export const BUILTIN_PRESETS = [
   {
-    id: 'ktp_verif',
-    name: 'Verifikasi KTP / Bank',
+    id: 'ktp_bank',
+    name: 'KTP - Verifikasi Bank / Pinjaman',
+    icon: '💳',
     settings: {
       ...DEFAULT_WATERMARK_SETTINGS,
       text: `HANYA UNTUK VERIFIKASI BANK - ${getTodayFormatted()}`,
+      pattern: 'tiled',
       fontSizePercent: 3.2,
-      opacity: 0.32,
-      color: '#dc2626', // Merah agar mencolok di KTP
-      angle: -22
+      opacity: 0.35,
+      color: '#dc2626', // Merah tegas
+      angle: -22,
+      spacingXPercent: 26,
+      spacingYPercent: 15,
+      jitterPercent: 10
     }
   },
   {
     id: 'lamar_kerja',
-    name: 'Melamar Pekerjaan',
+    name: 'Ijazah & KK - Melamar Pekerjaan',
+    icon: '💼',
     settings: {
       ...DEFAULT_WATERMARK_SETTINGS,
-      text: `Hanya untuk melamar pekerjaan di [Nama Perusahaan] - ${getTodayFormatted()}`,
+      text: `HANYA UNTUK MELAMAR PEKERJAAN - ${getTodayFormatted()}`,
+      pattern: 'tiled',
       fontSizePercent: 3.0,
       opacity: 0.28,
       color: '#059669', // Emerald
-      angle: -25
-    }
-  },
-  {
-    id: 'pendaftaran',
-    name: 'Pendaftaran Sekolah / Kampus',
-    settings: {
-      ...DEFAULT_WATERMARK_SETTINGS,
-      text: `Syarat Pendaftaran Akademik - ${getTodayFormatted()}`,
-      fontSizePercent: 3.0,
-      opacity: 0.25,
-      color: '#1d4ed8', // Biru
-      angle: -30
+      angle: -25,
+      spacingXPercent: 28,
+      spacingYPercent: 16,
+      jitterPercent: 12
     }
   },
   {
     id: 'npwp_fintech',
     name: 'NPWP / E-Wallet / Fintech',
+    icon: '📱',
     settings: {
       ...DEFAULT_WATERMARK_SETTINGS,
-      text: `Verifikasi Akun Fintech - ${getTodayFormatted()}`,
-      fontSizePercent: 3.4,
-      opacity: 0.30,
-      color: '#4b5563', // Abu-abu gelap
-      angle: -25
+      text: `VERIFIKASI AKUN FINTECH - ${getTodayFormatted()}`,
+      pattern: 'tiled',
+      fontSizePercent: 3.2,
+      opacity: 0.32,
+      color: '#0284c7', // Biru laut
+      angle: -25,
+      spacingXPercent: 26,
+      spacingYPercent: 15,
+      jitterPercent: 12
+    }
+  },
+  {
+    id: 'pendaftaran_kampus',
+    name: 'Pendaftaran Sekolah / Kampus',
+    icon: '🎓',
+    settings: {
+      ...DEFAULT_WATERMARK_SETTINGS,
+      text: `SYARAT PENDAFTARAN AKADEMIK - ${getTodayFormatted()}`,
+      pattern: 'tiled',
+      fontSizePercent: 2.8,
+      opacity: 0.25,
+      color: '#475569', // Abu-abu formal
+      angle: -30,
+      spacingXPercent: 30,
+      spacingYPercent: 18,
+      jitterPercent: 8
+    }
+  },
+  {
+    id: 'cap_tengah',
+    name: 'Cap Tengah (Single Center)',
+    icon: '🎯',
+    settings: {
+      ...DEFAULT_WATERMARK_SETTINGS,
+      text: `DOKUMEN RESMI\nVERIFIKASI ${getTodayFormatted()}`,
+      pattern: 'single',
+      fontSizePercent: 5.5,
+      opacity: 0.40,
+      color: '#dc2626',
+      angle: -20,
+      strokeOutline: true
     }
   }
 ];
@@ -79,15 +114,13 @@ export function getSavedPresets() {
 
 /**
  * Simpan preset baru dari pengaturan saat ini
- * @param {string} name Nama preset
- * @param {Object} settings Objek pengaturan watermark
  */
 export function saveCustomPreset(name, settings) {
   if (!name || !name.trim()) return false;
 
-  // Pastikan HANYA properti styling yang disimpan (sanitasi ketat)
   const safeSettings = {
     text: String(settings.text || '').slice(0, 300),
+    pattern: ['tiled', 'single', 'cross'].includes(settings.pattern) ? settings.pattern : 'tiled',
     fontSizePercent: Number(settings.fontSizePercent) || 3.2,
     color: String(settings.color || '#059669').slice(0, 20),
     opacity: Number(settings.opacity) || 0.3,
@@ -102,6 +135,7 @@ export function saveCustomPreset(name, settings) {
   const newPreset = {
     id: 'custom_' + Date.now().toString(36),
     name: name.trim().slice(0, 50),
+    icon: '⭐',
     settings: safeSettings,
     isCustom: true
   };
@@ -120,7 +154,6 @@ export function saveCustomPreset(name, settings) {
 
 /**
  * Hapus preset kustom
- * @param {string} presetId
  */
 export function deleteCustomPreset(presetId) {
   try {

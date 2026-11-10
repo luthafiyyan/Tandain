@@ -3,6 +3,7 @@
  * Modul untuk sensor manual (redaction kotak hitam).
  * Semua koordinat disimpan dalam rentang relatif [0..1] terhadap lebar dan tinggi dokumen asli,
  * sehingga hasil sensor tepat di posisi yang sama saat preview maupun saat export resolusi tinggi.
+ * Dilengkapi dengan sistem Undo/Redo dan manajemen interaksi multi-halaman.
  */
 
 export class RedactionManager {
@@ -11,9 +12,10 @@ export class RedactionManager {
     // RedactionBox: { id, x, y, width, height } (semua 0..1)
     this.boxesMap = new Map();
     this.selectedBoxId = null;
-    this.activeHandle = null; // 'nw', 'ne', 'se', 'sw', 'move', 'create'
-    this.dragStart = null;
-    this.dragOriginalBox = null;
+
+    // History stacks untuk Undo / Redo: fileKey -> Array<Array<RedactionBox>>
+    this.undoStacks = new Map();
+    this.redoStacks = new Map();
   }
 
   /**
@@ -29,16 +31,76 @@ export class RedactionManager {
   }
 
   /**
-   * Set kotak untuk file tertentu
+   * Simpan snapshot untuk Undo sebelum memodifikasi state
    */
-  setBoxes(fileKey, boxes) {
-    this.boxesMap.set(fileKey, [...boxes]);
+  pushSnapshot(fileKey) {
+    if (!this.undoStacks.has(fileKey)) {
+      this.undoStacks.set(fileKey, []);
+    }
+    const stack = this.undoStacks.get(fileKey);
+    const current = this.getBoxes(fileKey).map(b => ({ ...b }));
+    stack.push(current);
+    if (stack.length > 30) stack.shift(); // Maksimal 30 langkah riwayat
+
+    // Kosongkan redo saat ada aksi baru
+    if (this.redoStacks.has(fileKey)) {
+      this.redoStacks.get(fileKey).length = 0;
+    }
+  }
+
+  /**
+   * Batalkan aksi terakhir (Undo)
+   */
+  undo(fileKey) {
+    const undoStack = this.undoStacks.get(fileKey);
+    if (!undoStack || undoStack.length === 0) return false;
+
+    if (!this.redoStacks.has(fileKey)) {
+      this.redoStacks.set(fileKey, []);
+    }
+    const redoStack = this.redoStacks.get(fileKey);
+    redoStack.push(this.getBoxes(fileKey).map(b => ({ ...b })));
+
+    const prev = undoStack.pop();
+    this.boxesMap.set(fileKey, prev);
+    this.selectedBoxId = null;
+    return true;
+  }
+
+  /**
+   * Ulangi aksi yang dibatalkan (Redo)
+   */
+  redo(fileKey) {
+    const redoStack = this.redoStacks.get(fileKey);
+    if (!redoStack || redoStack.length === 0) return false;
+
+    if (!this.undoStacks.has(fileKey)) {
+      this.undoStacks.set(fileKey, []);
+    }
+    const undoStack = this.undoStacks.get(fileKey);
+    undoStack.push(this.getBoxes(fileKey).map(b => ({ ...b })));
+
+    const next = redoStack.pop();
+    this.boxesMap.set(fileKey, next);
+    this.selectedBoxId = null;
+    return true;
+  }
+
+  canUndo(fileKey) {
+    const stack = this.undoStacks.get(fileKey);
+    return !!(stack && stack.length > 0);
+  }
+
+  canRedo(fileKey) {
+    const stack = this.redoStacks.get(fileKey);
+    return !!(stack && stack.length > 0);
   }
 
   /**
    * Tambah kotak baru
    */
   addBox(fileKey, box) {
+    this.pushSnapshot(fileKey);
     const boxes = this.getBoxes(fileKey);
     const newBox = {
       id: 'box_' + Math.random().toString(36).slice(2, 9),
@@ -57,6 +119,7 @@ export class RedactionManager {
    */
   deleteSelectedBox(fileKey) {
     if (!this.selectedBoxId) return false;
+    this.pushSnapshot(fileKey);
     const boxes = this.getBoxes(fileKey);
     const index = boxes.findIndex(b => b.id === this.selectedBoxId);
     if (index !== -1) {
@@ -71,6 +134,9 @@ export class RedactionManager {
    * Hapus semua kotak untuk file ini
    */
   clearAllBoxes(fileKey) {
+    const boxes = this.getBoxes(fileKey);
+    if (boxes.length === 0) return;
+    this.pushSnapshot(fileKey);
     this.boxesMap.set(fileKey, []);
     this.selectedBoxId = null;
   }
@@ -82,7 +148,7 @@ export class RedactionManager {
    * @param {number} normY Relatif 0..1
    * @param {number} handleRadiusNorm Radius handle relatif terhadap canvas
    */
-  hitTest(fileKey, normX, normY, handleRadiusNorm = 0.02) {
+  hitTest(fileKey, normX, normY, handleRadiusNorm = 0.03) {
     const boxes = this.getBoxes(fileKey);
 
     // Cek handle kotak terpilih terlebih dahulu
@@ -151,30 +217,33 @@ export function renderRedactions(ctx, width, height, boxes = [], selectedBoxId =
 
     // 2. Jika bukan export dan ini adalah kotak terpilih, gambar highlight editing
     if (!isExport && box.id === selectedBoxId) {
-      // Border seleksi kuning-emas / emerald cerah
+      // Glow effect dan border neon
+      ctx.shadowColor = 'rgba(16, 185, 129, 0.4)';
+      ctx.shadowBlur = 8;
       ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 2.5;
       ctx.strokeRect(bx, by, bw, bh);
-      ctx.setLineDash([]);
+      ctx.shadowBlur = 0;
 
-      // Corner handles
-      const handleSize = Math.max(8, Math.min(16, width * 0.02));
-      const halfH = handleSize / 2;
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#059669';
-      ctx.lineWidth = 2;
-
+      // Handle pojok bulat modern
+      const handleRadius = Math.max(5, Math.min(10, width * 0.014));
       const corners = [
-        [bx - halfH, by - halfH],
-        [bx + bw - halfH, by - halfH],
-        [bx + bw - halfH, by + bh - halfH],
-        [bx - halfH, by + bh - halfH]
+        [bx, by],
+        [bx + bw, by],
+        [bx + bw, by + bh],
+        [bx, by + bh]
       ];
 
       for (const [cx, cy] of corners) {
-        ctx.fillRect(cx, cy, handleSize, handleSize);
-        ctx.strokeRect(cx, cy, handleSize, handleSize);
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(cx, cy, handleRadius + 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx, cy, handleRadius - 1, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
 

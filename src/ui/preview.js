@@ -1,11 +1,11 @@
 /**
  * preview.js
  * Modul preview interaktif dokumen di Canvas.
- * Memastikan aturan teknis:
- * - Menggunakan fungsi renderWatermark yang sama persis
+ * - Menggunakan SATU fungsi renderWatermark unifikasi
  * - Menangani devicePixelRatio dengan benar
- * - Mendukung perbandingan Sebelum / Sesudah (Before / After)
- * - Mendukung interaksi sensor (redaction) pointer touch & mouse
+ * - Mode Asli, Hasil, dan Belah (Interactive Split Drag)
+ * - Interaksi Sensor (Redaction) Touch & Mouse dengan Undo/Redo support
+ * - Zoom & Pan responsif
  */
 
 import { renderWatermark } from '../core/watermark.js';
@@ -29,6 +29,10 @@ export class DocumentPreview {
     // Mode tampilan: 'after' (hasil watermark), 'before' (dokumen asli), 'split' (slider belah)
     this.viewMode = 'after';
     this.splitRatio = 0.5; // 0..1 untuk mode split
+    this.isDraggingSplit = false;
+
+    // Zoom level: 1 = fit to container, > 1 = zoomed in
+    this.zoomScale = 1.0;
 
     // Mode sensor aktif atau tidak
     this.isRedactionMode = false;
@@ -75,6 +79,16 @@ export class DocumentPreview {
     this.render();
   }
 
+  setSplitRatio(ratio) {
+    this.splitRatio = Math.max(0.05, Math.min(0.95, ratio));
+    this.render();
+  }
+
+  setZoom(scale) {
+    this.zoomScale = Math.max(0.5, Math.min(3.0, scale));
+    this.render();
+  }
+
   setRedactionMode(enabled) {
     this.isRedactionMode = enabled;
     if (!enabled && this.redactionManager) {
@@ -102,57 +116,87 @@ export class DocumentPreview {
   }
 
   handlePointerDown(e) {
-    if (!this.activePage || !this.isRedactionMode || !this.redactionManager) return;
-    this.canvas.setPointerCapture(e.pointerId);
-
+    if (!this.activePage) return;
     const { normX, normY } = this.getNormalizedCoordinates(e);
-    const hit = this.redactionManager.hitTest(this.fileKey, normX, normY, 0.03);
 
-    if (hit.action === 'select') {
-      this.redactionManager.selectedBoxId = hit.box.id;
-      this.dragAction = 'move';
-      this.dragStartPos = { normX, normY };
-      this.initialBoxState = { ...hit.box };
-      if (this.onSelectionChange) this.onSelectionChange(hit.box);
-      this.render();
-    } else if (['move', 'nw', 'ne', 'se', 'sw'].includes(hit.action)) {
-      this.dragAction = hit.action;
-      this.dragStartPos = { normX, normY };
-      this.initialBoxState = { ...hit.box };
-    } else {
-      // Klik di luar kotak: mulai menggambar kotak sensor baru
-      this.dragAction = 'create';
-      this.dragStartPos = { normX, normY };
-      this.creatingBox = {
-        x: normX,
-        y: normY,
-        width: 0.001,
-        height: 0.001
-      };
-      this.redactionManager.selectedBoxId = null;
-      if (this.onSelectionChange) this.onSelectionChange(null);
-      this.render();
+    // 1. Cek apakah pengguna mengklik garis pembatas Split
+    if (this.viewMode === 'split') {
+      const splitTolerance = 0.05; // 5% toleransi area garis split
+      if (Math.abs(normX - this.splitRatio) <= splitTolerance) {
+        this.isDraggingSplit = true;
+        this.canvas.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+
+    // 2. Interaksi Sensor Redaction
+    if (this.isRedactionMode && this.redactionManager) {
+      this.canvas.setPointerCapture(e.pointerId);
+      const hit = this.redactionManager.hitTest(this.fileKey, normX, normY, 0.035);
+
+      if (hit.action === 'select') {
+        this.redactionManager.selectedBoxId = hit.box.id;
+        this.dragAction = 'move';
+        this.dragStartPos = { normX, normY };
+        this.initialBoxState = { ...hit.box };
+        this.redactionManager.pushSnapshot(this.fileKey);
+        if (this.onSelectionChange) this.onSelectionChange(hit.box);
+        this.render();
+      } else if (['move', 'nw', 'ne', 'se', 'sw'].includes(hit.action)) {
+        this.dragAction = hit.action;
+        this.dragStartPos = { normX, normY };
+        this.initialBoxState = { ...hit.box };
+        this.redactionManager.pushSnapshot(this.fileKey);
+      } else {
+        // Klik di luar kotak: mulai menggambar kotak sensor baru
+        this.dragAction = 'create';
+        this.dragStartPos = { normX, normY };
+        this.creatingBox = {
+          x: normX,
+          y: normY,
+          width: 0.001,
+          height: 0.001
+        };
+        this.redactionManager.selectedBoxId = null;
+        if (this.onSelectionChange) this.onSelectionChange(null);
+        this.render();
+      }
     }
   }
 
   handlePointerMove(e) {
-    if (!this.dragAction || !this.activePage || !this.redactionManager) {
-      // Perbarui cursor hover saat mode sensor aktif
+    if (!this.activePage) return;
+    const { normX, normY } = this.getNormalizedCoordinates(e);
+
+    // A. Geser garis split view
+    if (this.isDraggingSplit) {
+      this.splitRatio = Math.max(0.05, Math.min(0.95, normX));
+      this.render();
+      return;
+    }
+
+    // B. Perbarui kursor saat hover garis split
+    if (this.viewMode === 'split' && !this.isRedactionMode) {
+      if (Math.abs(normX - this.splitRatio) <= 0.05) {
+        this.canvas.style.cursor = 'ew-resize';
+      } else {
+        this.canvas.style.cursor = 'default';
+      }
+    }
+
+    // C. Interaksi sensor
+    if (!this.dragAction || !this.redactionManager) {
       if (this.isRedactionMode && this.redactionManager) {
-        const { normX, normY } = this.getNormalizedCoordinates(e);
-        const hit = this.redactionManager.hitTest(this.fileKey, normX, normY, 0.03);
+        const hit = this.redactionManager.hitTest(this.fileKey, normX, normY, 0.035);
         if (hit.action === 'move') this.canvas.style.cursor = 'move';
         else if (hit.action === 'nw' || hit.action === 'se') this.canvas.style.cursor = 'nwse-resize';
         else if (hit.action === 'ne' || hit.action === 'sw') this.canvas.style.cursor = 'nesw-resize';
         else if (hit.action === 'select') this.canvas.style.cursor = 'pointer';
         else this.canvas.style.cursor = 'crosshair';
-      } else {
-        this.canvas.style.cursor = 'default';
       }
       return;
     }
 
-    const { normX, normY } = this.getNormalizedCoordinates(e);
     const dx = normX - this.dragStartPos.normX;
     const dy = normY - this.dragStartPos.normY;
 
@@ -201,22 +245,24 @@ export class DocumentPreview {
     }
   }
 
-  handlePointerUp(e) {
-    if (!this.dragAction) return;
-
-    if (this.dragAction === 'create' && this.creatingBox) {
-      // Simpan kotak jika dimensinya signifikan (> 1% layar)
-      if (this.creatingBox.width > 0.01 && this.creatingBox.height > 0.01) {
-        const added = this.redactionManager.addBox(this.fileKey, this.creatingBox);
-        if (this.onSelectionChange) this.onSelectionChange(added);
-      }
-      this.creatingBox = null;
+  handlePointerUp() {
+    if (this.isDraggingSplit) {
+      this.isDraggingSplit = false;
     }
 
-    this.dragAction = null;
-    this.dragStartPos = null;
-    this.initialBoxState = null;
-    this.render();
+    if (this.dragAction) {
+      if (this.dragAction === 'create' && this.creatingBox) {
+        if (this.creatingBox.width > 0.015 && this.creatingBox.height > 0.015) {
+          const added = this.redactionManager.addBox(this.fileKey, this.creatingBox);
+          if (this.onSelectionChange) this.onSelectionChange(added);
+        }
+        this.creatingBox = null;
+      }
+      this.dragAction = null;
+      this.dragStartPos = null;
+      this.initialBoxState = null;
+      this.render();
+    }
   }
 
   /**
@@ -229,14 +275,13 @@ export class DocumentPreview {
       return;
     }
 
-    // Tunggu font siap
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready;
     }
 
-    // 1. Hitung ukuran tampilan sesuai kontainer dan aspek rasio
-    const containerWidth = this.container.clientWidth || 600;
-    const maxHeight = Math.max(300, window.innerHeight * 0.58);
+    // 1. Dimensi tampilan responsif
+    const containerWidth = (this.container.clientWidth || 600) - 16;
+    const maxHeight = Math.max(340, window.innerHeight * 0.60);
     const docAspect = this.activePage.width / this.activePage.height;
 
     let displayWidth = containerWidth;
@@ -247,7 +292,11 @@ export class DocumentPreview {
       displayWidth = displayHeight * docAspect;
     }
 
-    // 2. Terapkan devicePixelRatio untuk ketajaman retina/HP
+    // Terapkan Zoom scale
+    displayWidth *= this.zoomScale;
+    displayHeight *= this.zoomScale;
+
+    // 2. Terapkan devicePixelRatio untuk retina/HP
     const dpr = window.devicePixelRatio || 1;
     this.canvas.width = Math.round(displayWidth * dpr);
     this.canvas.height = Math.round(displayHeight * dpr);
@@ -264,7 +313,7 @@ export class DocumentPreview {
     // 3. Render gambar asli sebagai latar belakang
     ctx.drawImage(this.activePage.bitmap, 0, 0, renderW, renderH);
 
-    // 4. Jika mode 'before', tampilkan hanya gambar asli tanpa watermark & sensor
+    // 4. Jika mode 'before', stop di sini
     if (this.viewMode === 'before') {
       ctx.restore();
       return;
@@ -276,12 +325,13 @@ export class DocumentPreview {
       const selectedId = this.isRedactionMode ? this.redactionManager.selectedBoxId : null;
       renderRedactions(ctx, renderW, renderH, boxes, selectedId, false);
 
-      // Render kotak yang sedang dibuat saat drag
+      // Render kotak yang sedang ditarik kursor
       if (this.creatingBox) {
         ctx.save();
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
         ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
         const bx = Math.round(this.creatingBox.x * renderW);
         const by = Math.round(this.creatingBox.y * renderH);
         const bw = Math.round(this.creatingBox.width * renderW);
@@ -297,11 +347,11 @@ export class DocumentPreview {
       renderWatermark(ctx, renderW, renderH, this.watermarkSettings);
     }
 
-    // 7. Jika mode 'split', gambar divider pemisah dan bandingkan
+    // 7. Jika mode 'split', gambar pembatas interaktif
     if (this.viewMode === 'split') {
       const splitX = Math.round(renderW * this.splitRatio);
 
-      // Gambar ulang sisi kiri murni dokumen asli
+      // Potong dan gambar ulang sisi kiri sebagai gambar murni tanpa watermark
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, 0, splitX, renderH);
@@ -309,34 +359,51 @@ export class DocumentPreview {
       ctx.drawImage(this.activePage.bitmap, 0, 0, renderW, renderH);
       ctx.restore();
 
-      // Garis pembatas split
+      // Garis pemisah neon dengan shadow
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(splitX, 0);
       ctx.lineTo(splitX, renderH);
       ctx.strokeStyle = '#10b981';
       ctx.lineWidth = 3;
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 6;
       ctx.stroke();
 
-      // Handle bulatan di tengah garis split
-      ctx.fillStyle = '#059669';
+      // Tombol handle melingkar di tengah garis split
+      ctx.fillStyle = '#10b981';
       ctx.beginPath();
-      ctx.arc(splitX, renderH / 2, 12, 0, Math.PI * 2);
+      ctx.arc(splitX, renderH / 2, 16, 0, Math.PI * 2);
       ctx.fill();
+
       ctx.fillStyle = '#ffffff';
-      ctx.font = '10px sans-serif';
+      ctx.beginPath();
+      ctx.arc(splitX, renderH / 2, 13, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#065f46';
+      ctx.font = 'bold 11px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('◀▶', splitX, renderH / 2);
 
-      // Label teks Asli vs Watermark
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(8, 8, 60, 22);
-      ctx.fillRect(renderW - 88, 8, 80, 22);
+      // Pill label Asli vs Watermark
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+      ctx.beginPath();
+      ctx.roundRect(12, 12, 64, 24, 6);
+      ctx.fill();
       ctx.fillStyle = '#ffffff';
-      ctx.font = '600 11px sans-serif';
-      ctx.fillText('ASLI', 38, 19);
-      ctx.fillText('WATERMARK', renderW - 48, 19);
+      ctx.font = '700 10px sans-serif';
+      ctx.fillText('ASLI', 44, 24);
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+      ctx.beginPath();
+      ctx.roundRect(renderW - 96, 12, 84, 24, 6);
+      ctx.fill();
+      ctx.fillStyle = '#34d399';
+      ctx.font = '700 10px sans-serif';
+      ctx.fillText('WATERMARK', renderW - 54, 24);
+
       ctx.restore();
     }
 

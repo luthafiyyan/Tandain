@@ -1,7 +1,7 @@
 /**
  * main.js
  * Titik masuk utama aplikasi Tandain.
- * Menghubungkan seluruh modul core, state manajemen, dan interaksi UI.
+ * Menghubungkan seluruh modul core, state manajemen, dan interaksi UI modern.
  */
 
 import './styles/main.css';
@@ -12,7 +12,7 @@ import { RedactionManager } from './core/redact.js';
 import { DocumentPreview } from './ui/preview.js';
 import { loadDocument } from './core/loader.js';
 import { exportDocument, exportBatchAsZip, triggerDownload } from './core/exporter.js';
-import { fullMemoryCleanup } from './core/cleanup.js';
+import { fullMemoryCleanup, clearCanvas } from './core/cleanup.js';
 
 // ==========================================
 // STATE APLIKASI (Hanya hidup di RAM)
@@ -23,9 +23,10 @@ let watermarkSettings = { ...DEFAULT_WATERMARK_SETTINGS };
 let redactionManager = new RedactionManager();
 let exportFormat = 'png'; // 'png' | 'jpg' | 'pdf'
 let preview = null;
+let currentZoom = 1.0;
 
 // ==========================================
-// TOAST NOTIFIKASI
+// TOAST NOTIFIKASI MODERN
 // ==========================================
 function showToast(message, type = 'info', duration = 3000) {
   const container = document.getElementById('toastContainer');
@@ -33,15 +34,19 @@ function showToast(message, type = 'info', duration = 3000) {
 
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.textContent = message;
+  toast.innerHTML = `
+    <span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
+    <span>${message}</span>
+  `;
 
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.3s ease';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all 0.25s ease';
     setTimeout(() => {
       if (toast.parentNode) toast.parentNode.removeChild(toast);
-    }, 300);
+    }, 250);
   }, duration);
 }
 
@@ -54,7 +59,7 @@ async function createDummyKtpBitmap() {
   canvas.height = 540;
   const ctx = canvas.getContext('2d');
 
-  // Background KTP biru langit
+  // Background KTP biru langit bergradasi
   const grad = ctx.createLinearGradient(0, 0, 856, 540);
   grad.addColorStop(0, '#bae6fd');
   grad.addColorStop(0.5, '#7dd3fc');
@@ -62,10 +67,10 @@ async function createDummyKtpBitmap() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 856, 540);
 
-  // Pola garis halus keamanan latar
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.lineWidth = 1;
-  for (let i = -540; i < 856; i += 24) {
+  // Pola garis halus keamanan guilloche
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+  ctx.lineWidth = 1.2;
+  for (let i = -540; i < 856; i += 26) {
     ctx.beginPath();
     ctx.moveTo(i, 0);
     ctx.bezierCurveTo(i + 200, 180, i + 100, 360, i + 300, 540);
@@ -82,7 +87,6 @@ async function createDummyKtpBitmap() {
   ctx.font = 'bold 15px sans-serif';
   ctx.fillText('KOTA JAKARTA SELATAN', 428, 88);
 
-  // Garis batas header
   ctx.strokeStyle = '#0284c7';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -126,7 +130,6 @@ async function createDummyKtpBitmap() {
   ctx.lineWidth = 2;
   ctx.strokeRect(640, 140, 160, 210);
 
-  // Placeholder Foto Wajah
   ctx.fillStyle = '#94a3b8';
   ctx.beginPath();
   ctx.arc(720, 210, 40, 0, Math.PI * 2);
@@ -148,27 +151,22 @@ async function createDummyKtpBitmap() {
   ctx.fillText('Contoh TTD', 720, 415);
 
   const bitmap = await window.createImageBitmap(canvas);
-  canvas.width = 0;
-  canvas.height = 0;
+  clearCanvas(canvas);
   return bitmap;
 }
 
 // ==========================================
-// INISIALISASI & EVENT LISTENERS
+// INISIALISASI APLIKASI
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Inisialisasi Tema
   initTheme();
-  document.getElementById('btnToggleTheme')?.addEventListener('click', () => {
-    toggleTheme();
-  });
+  document.getElementById('btnToggleTheme')?.addEventListener('click', toggleTheme);
 
-  // 2. Setup Canvas Preview
   const previewCanvas = document.getElementById('previewCanvas');
   const canvasViewport = document.getElementById('canvasViewport');
   preview = new DocumentPreview(previewCanvas, canvasViewport);
 
-  // 3. Callback saat ada kotak sensor terpilih
+  // Callback saat seleksi kotak sensor berubah
   preview.onSelectionChange = (selectedBox) => {
     const floatBar = document.getElementById('redactFloatBar');
     if (floatBar) {
@@ -176,60 +174,54 @@ document.addEventListener('DOMContentLoaded', () => {
       else floatBar.classList.remove('visible');
     }
     updateRedactionPanel();
+    updateUndoRedoButtons();
   };
 
-  // 4. Inisialisasi Dropzone & File Input
   setupFileInputs();
+  setupStageToolbar();
+  setupStudioWatermark();
+  setupStudioRedact();
+  setupStudioExport();
+  setupKeyboardShortcuts();
 
-  // 5. Inisialisasi Kontrol Toolbar Preview
-  setupPreviewToolbar();
-
-  // 6. Inisialisasi Panel Kontrol & Presets
-  setupWatermarkControls();
-  setupRedactionControls();
-  setupExportControls();
-  setupPresetDropdown();
-
-  // 7. Tombol Reset Utama
   document.getElementById('btnResetApp')?.addEventListener('click', resetAll);
 
-  // 8. Registrasi Service Worker PWA (jika didukung)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {
-        // Ignored in dev / non-sw env
-      });
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
   }
 });
 
 // ==========================================
-// PENANGANAN INPUT BERKAS
+// INPUT FILE & DRAG DROP
 // ==========================================
 function setupFileInputs() {
   const dropzoneCard = document.getElementById('dropzoneCard');
   const fileInput = document.getElementById('fileInput');
   const btnBrowseFile = document.getElementById('btnBrowseFile');
   const btnSampleDoc = document.getElementById('btnSampleDoc');
+  const btnAddMore = document.getElementById('btnAddMoreDocs');
 
   btnBrowseFile?.addEventListener('click', () => fileInput?.click());
+  btnAddMore?.addEventListener('click', () => fileInput?.click());
+
   dropzoneCard?.addEventListener('click', (e) => {
     if (e.target !== btnBrowseFile && e.target !== btnSampleDoc) {
       fileInput?.click();
     }
   });
 
-  // Drag & Drop
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropzoneCard?.addEventListener(eventName, (e) => {
+  ['dragenter', 'dragover'].forEach(name => {
+    dropzoneCard?.addEventListener(name, (e) => {
       e.preventDefault();
       e.stopPropagation();
       dropzoneCard.classList.add('drag-over');
     });
   });
 
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropzoneCard?.addEventListener(eventName, (e) => {
+  ['dragleave', 'drop'].forEach(name => {
+    dropzoneCard?.addEventListener(name, (e) => {
       e.preventDefault();
       e.stopPropagation();
       dropzoneCard.classList.remove('drag-over');
@@ -245,10 +237,9 @@ function setupFileInputs() {
   fileInput?.addEventListener('change', (e) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     if (files.length > 0) handleFiles(files);
-    e.target.value = ''; // Reset input agar bisa pilih file yang sama
+    e.target.value = '';
   });
 
-  // Contoh KTP Dummy
   btnSampleDoc?.addEventListener('click', async (e) => {
     e.stopPropagation();
     try {
@@ -270,7 +261,7 @@ function setupFileInputs() {
       loadedDocuments = [sampleDoc];
       activeDocIndex = 0;
       showWorkspace();
-      showToast('Dokumen contoh KTP berhasil dimuat!', 'success');
+      showToast('Dokumen contoh KTP siap diuji!', 'success');
     } catch (err) {
       console.error(err);
       showToast('Gagal membuat dokumen contoh', 'error');
@@ -278,9 +269,6 @@ function setupFileInputs() {
   });
 }
 
-/**
- * Memproses daftar file yang dipilih
- */
 async function handleFiles(files) {
   showToast(`Membaca ${files.length} dokumen di perangkat Anda...`, 'info');
 
@@ -297,14 +285,15 @@ async function handleFiles(files) {
 
   if (newDocs.length === 0) return;
 
+  const previousCount = loadedDocuments.length;
   loadedDocuments = [...loadedDocuments, ...newDocs];
-  activeDocIndex = loadedDocuments.length - newDocs.length; // Fokus ke file pertama yang baru dimasukkan
+  activeDocIndex = previousCount;
   showWorkspace();
   showToast(`${newDocs.length} berkas berhasil dimuat 100% offline!`, 'success');
 }
 
 // ==========================================
-// TAMPILAN WORKSPACE & BATCH SELECTOR
+// WORKSPACE DISPLAY & BATCH GALLERY
 // ==========================================
 function showWorkspace() {
   const dropzone = document.getElementById('dropzoneSection');
@@ -312,11 +301,11 @@ function showWorkspace() {
   if (dropzone) dropzone.style.display = 'none';
   if (workspace) workspace.style.display = 'grid';
 
-  updateBatchStrip();
+  updateBatchGallery();
   updateActiveDocumentView();
 }
 
-function updateBatchStrip() {
+function updateBatchGallery() {
   const batchContainer = document.getElementById('batchContainer');
   const batchStrip = document.getElementById('batchStrip');
   const batchCountBadge = document.getElementById('batchCountBadge');
@@ -327,26 +316,55 @@ function updateBatchStrip() {
   if (loadedDocuments.length > 1) {
     batchContainer.style.display = 'block';
     if (btnBatchZip) btnBatchZip.style.display = 'flex';
-    if (batchCountBadge) batchCountBadge.textContent = `${loadedDocuments.length} Berkas`;
+    if (batchCountBadge) batchCountBadge.textContent = String(loadedDocuments.length);
 
     batchStrip.innerHTML = '';
     loadedDocuments.forEach((doc, idx) => {
-      const chip = document.createElement('div');
-      chip.className = `batch-chip ${idx === activeDocIndex ? 'active' : ''}`;
-      chip.innerHTML = `
-        <span>${doc.isPdf ? '📄' : '🖼️'} ${doc.name}</span>
+      const card = document.createElement('div');
+      card.className = `batch-card ${idx === activeDocIndex ? 'active' : ''}`;
+      card.innerHTML = `
+        <span>${doc.isPdf ? '📄' : '🖼️'}</span>
+        <span style="max-width: 140px; overflow: hidden; text-overflow: ellipsis;">${doc.name}</span>
+        <button class="btn-remove-batch" title="Hapus dari daftar" style="border: none; background: transparent; color: #ef4444; cursor: pointer; padding: 2px 4px; font-weight: bold;">✕</button>
       `;
-      chip.addEventListener('click', () => {
+
+      card.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-remove-batch')) return;
         activeDocIndex = idx;
-        updateBatchStrip();
+        updateBatchGallery();
         updateActiveDocumentView();
       });
-      batchStrip.appendChild(chip);
+
+      card.querySelector('.btn-remove-batch')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeDocumentAt(idx);
+      });
+
+      batchStrip.appendChild(card);
     });
   } else {
     batchContainer.style.display = 'none';
     if (btnBatchZip) btnBatchZip.style.display = 'none';
   }
+}
+
+function removeDocumentAt(index) {
+  if (index < 0 || index >= loadedDocuments.length) return;
+  const doc = loadedDocuments[index];
+  fullMemoryCleanup([doc], []);
+  loadedDocuments.splice(index, 1);
+
+  if (loadedDocuments.length === 0) {
+    resetAll();
+    return;
+  }
+
+  if (activeDocIndex >= loadedDocuments.length) {
+    activeDocIndex = loadedDocuments.length - 1;
+  }
+  updateBatchGallery();
+  updateActiveDocumentView();
+  showToast('Dokumen dihapus dari daftar', 'info');
 }
 
 function updateActiveDocumentView() {
@@ -356,7 +374,7 @@ function updateActiveDocumentView() {
   const page = doc.pages[doc.activePageIndex];
   const fileKey = `${doc.id}_p${doc.activePageIndex}`;
 
-  // Multi-page PDF navigation
+  // Navigasi PDF Multi-halaman
   const pdfPageNav = document.getElementById('pdfPageNav');
   const pageNavIndicator = document.getElementById('pageNavIndicator');
   const btnPrevPage = document.getElementById('btnPrevPage');
@@ -371,15 +389,15 @@ function updateActiveDocumentView() {
     if (pdfPageNav) pdfPageNav.style.display = 'none';
   }
 
-  // Perbarui preview
   preview.setDocumentPage(page, fileKey, redactionManager, watermarkSettings);
   updateRedactionPanel();
+  updateUndoRedoButtons();
 }
 
 // ==========================================
-// TOOLBAR PREVIEW (ASLI / HASIL / BELAH & SENSOR)
+// STAGE TOOLBAR (VIEW MODES, SENSOR, ZOOM, UNDO)
 // ==========================================
-function setupPreviewToolbar() {
+function setupStageToolbar() {
   const btnAfter = document.getElementById('btnViewAfter');
   const btnBefore = document.getElementById('btnViewBefore');
   const btnSplit = document.getElementById('btnViewSplit');
@@ -387,10 +405,14 @@ function setupPreviewToolbar() {
   const btnDeleteSelectedBox = document.getElementById('btnDeleteSelectedBox');
   const btnPrevPage = document.getElementById('btnPrevPage');
   const btnNextPage = document.getElementById('btnNextPage');
+  const btnUndo = document.getElementById('btnUndo');
+  const btnRedo = document.getElementById('btnRedo');
+  const btnZoomIn = document.getElementById('btnZoomIn');
+  const btnZoomOut = document.getElementById('btnZoomOut');
 
-  function setActiveViewBtn(btn) {
+  function setActiveViewBtn(activeBtn) {
     [btnAfter, btnBefore, btnSplit].forEach(b => b?.classList.remove('active'));
-    btn?.classList.add('active');
+    activeBtn?.classList.add('active');
   }
 
   btnAfter?.addEventListener('click', () => {
@@ -417,16 +439,7 @@ function setupPreviewToolbar() {
   });
 
   btnDeleteSelectedBox?.addEventListener('click', () => {
-    const doc = loadedDocuments[activeDocIndex];
-    if (doc) {
-      const fileKey = `${doc.id}_p${doc.activePageIndex}`;
-      const deleted = redactionManager.deleteSelectedBox(fileKey);
-      if (deleted) {
-        preview.render();
-        preview.onSelectionChange(null);
-        showToast('Kotak sensor dihapus', 'info');
-      }
-    }
+    deleteActiveRedactionBox();
   });
 
   btnPrevPage?.addEventListener('click', () => {
@@ -444,20 +457,134 @@ function setupPreviewToolbar() {
       updateActiveDocumentView();
     }
   });
+
+  // Undo / Redo
+  btnUndo?.addEventListener('click', () => {
+    const doc = loadedDocuments[activeDocIndex];
+    if (doc) {
+      const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+      if (redactionManager.undo(fileKey)) {
+        preview.render();
+        updateRedactionPanel();
+        updateUndoRedoButtons();
+        showToast('Undo berhasil', 'info', 1000);
+      }
+    }
+  });
+
+  btnRedo?.addEventListener('click', () => {
+    const doc = loadedDocuments[activeDocIndex];
+    if (doc) {
+      const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+      if (redactionManager.redo(fileKey)) {
+        preview.render();
+        updateRedactionPanel();
+        updateUndoRedoButtons();
+        showToast('Redo berhasil', 'info', 1000);
+      }
+    }
+  });
+
+  // Zoom
+  btnZoomIn?.addEventListener('click', () => {
+    currentZoom = Math.min(2.5, currentZoom + 0.2);
+    preview.setZoom(currentZoom);
+  });
+
+  btnZoomOut?.addEventListener('click', () => {
+    currentZoom = Math.max(0.6, currentZoom - 0.2);
+    preview.setZoom(currentZoom);
+  });
+}
+
+function deleteActiveRedactionBox() {
+  const doc = loadedDocuments[activeDocIndex];
+  if (doc) {
+    const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+    const deleted = redactionManager.deleteSelectedBox(fileKey);
+    if (deleted) {
+      preview.render();
+      preview.onSelectionChange(null);
+      updateUndoRedoButtons();
+      showToast('Kotak sensor dihapus', 'info');
+    }
+  }
+}
+
+function updateUndoRedoButtons() {
+  const btnUndo = document.getElementById('btnUndo');
+  const btnRedo = document.getElementById('btnRedo');
+  const doc = loadedDocuments[activeDocIndex];
+  if (!doc) return;
+
+  const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+  if (btnUndo) btnUndo.disabled = !redactionManager.canUndo(fileKey);
+  if (btnRedo) btnRedo.disabled = !redactionManager.canRedo(fileKey);
 }
 
 function syncRedactTabButton(enabled) {
   const btnPanel = document.getElementById('btnPanelToggleRedact');
   if (btnPanel) {
     btnPanel.textContent = enabled ? 'Non-aktifkan Mode Sensor' : 'Aktifkan Mode Sensor';
-    btnPanel.style.background = enabled ? '#0f172a' : '';
+    btnPanel.style.background = enabled ? '#1e293b' : '';
   }
 }
 
 // ==========================================
-// PENGATURAN WATERMARK & PRESET
+// KEYBOARD SHORTCUTS
 // ==========================================
-function setupWatermarkControls() {
+function setupKeyboardShortcuts() {
+  window.addEventListener('keydown', (e) => {
+    // Abaikan jika fokus di textarea/input
+    if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+    // Delete / Backspace untuk hapus kotak sensor terpilih
+    if ((e.key === 'Delete' || e.key === 'Backspace') && redactionManager.selectedBoxId) {
+      e.preventDefault();
+      deleteActiveRedactionBox();
+    }
+
+    // Ctrl+Z (Undo) & Ctrl+Y (Redo)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      const doc = loadedDocuments[activeDocIndex];
+      if (doc) {
+        const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+        if (e.shiftKey) {
+          if (redactionManager.redo(fileKey)) {
+            preview.render();
+            updateRedactionPanel();
+            updateUndoRedoButtons();
+          }
+        } else {
+          if (redactionManager.undo(fileKey)) {
+            preview.render();
+            updateRedactionPanel();
+            updateUndoRedoButtons();
+          }
+        }
+      }
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+      e.preventDefault();
+      const doc = loadedDocuments[activeDocIndex];
+      if (doc) {
+        const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+        if (redactionManager.redo(fileKey)) {
+          preview.render();
+          updateRedactionPanel();
+          updateUndoRedoButtons();
+        }
+      }
+    }
+  });
+}
+
+// ==========================================
+// STUDIO WATERMARK (PRESETS & CONTROLS)
+// ==========================================
+function setupStudioWatermark() {
   const inputText = document.getElementById('inputWatermarkText');
   const sliderOpacity = document.getElementById('sliderOpacity');
   const sliderFontSize = document.getElementById('sliderFontSize');
@@ -467,8 +594,10 @@ function setupWatermarkControls() {
   const sliderJitter = document.getElementById('sliderJitter');
   const checkOutline = document.getElementById('checkOutline');
   const customColorPicker = document.getElementById('customColorPicker');
+  const btnSavePreset = document.getElementById('btnSavePreset');
 
-  // Nilai Awal
+  renderPresetCards();
+
   if (inputText) inputText.value = watermarkSettings.text;
   if (sliderOpacity) sliderOpacity.value = Math.round(watermarkSettings.opacity * 100);
   if (sliderFontSize) sliderFontSize.value = watermarkSettings.fontSizePercent;
@@ -478,14 +607,13 @@ function setupWatermarkControls() {
   if (sliderJitter) sliderJitter.value = watermarkSettings.jitterPercent;
   if (checkOutline) checkOutline.checked = watermarkSettings.strokeOutline;
 
-  // Event Input Teks
   inputText?.addEventListener('input', (e) => {
     watermarkSettings.text = e.target.value;
     preview.setWatermarkSettings(watermarkSettings);
   });
 
-  // Quick Insert Pills
-  document.querySelectorAll('.pill-insert[data-insert]').forEach(btn => {
+  // Quick Tags
+  document.querySelectorAll('.tag-btn[data-insert]').forEach(btn => {
     btn.addEventListener('click', () => {
       let insertStr = btn.getAttribute('data-insert') || '';
       if (insertStr === '[tanggal]') {
@@ -502,7 +630,18 @@ function setupWatermarkControls() {
     });
   });
 
-  // Slider Events
+  // Pattern Selector (Tiled, Single, Cross)
+  const patternBtns = document.querySelectorAll('.pattern-btn');
+  patternBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      patternBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const pattern = btn.getAttribute('data-pattern') || 'tiled';
+      watermarkSettings.pattern = pattern;
+      preview.setWatermarkSettings(watermarkSettings);
+    });
+  });
+
   function bindSlider(sliderEl, badgeId, transformVal, key, suffix = '%') {
     if (!sliderEl) return;
     const badge = document.getElementById(badgeId);
@@ -521,19 +660,18 @@ function setupWatermarkControls() {
   bindSlider(sliderSpacingY, 'valSpacingY', v => v, 'spacingYPercent', '%');
   bindSlider(sliderJitter, 'valJitter', v => v, 'jitterPercent', '%');
 
-  // Checkbox Stroke Outline
   checkOutline?.addEventListener('change', (e) => {
     watermarkSettings.strokeOutline = e.target.checked;
     preview.setWatermarkSettings(watermarkSettings);
   });
 
   // Color Swatches
-  const swatches = document.querySelectorAll('.color-swatch');
-  swatches.forEach(sw => {
-    sw.addEventListener('click', () => {
-      swatches.forEach(s => s.classList.remove('active'));
-      sw.classList.add('active');
-      const c = sw.getAttribute('data-color') || '#059669';
+  const colorDots = document.querySelectorAll('.color-dot');
+  colorDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      colorDots.forEach(d => d.classList.remove('active'));
+      dot.classList.add('active');
+      const c = dot.getAttribute('data-color') || '#059669';
       watermarkSettings.color = c;
       if (customColorPicker) customColorPicker.value = c;
       preview.setWatermarkSettings(watermarkSettings);
@@ -541,80 +679,63 @@ function setupWatermarkControls() {
   });
 
   customColorPicker?.addEventListener('input', (e) => {
-    swatches.forEach(s => s.classList.remove('active'));
+    colorDots.forEach(d => d.classList.remove('active'));
     watermarkSettings.color = e.target.value;
     preview.setWatermarkSettings(watermarkSettings);
   });
-}
 
-// ==========================================
-// PRESET DROPDOWN
-// ==========================================
-function setupPresetDropdown() {
-  const select = document.getElementById('presetSelect');
-  const btnSave = document.getElementById('btnSavePreset');
-  const btnDelete = document.getElementById('btnDeletePreset');
-
-  function renderOptions() {
-    if (!select) return;
-    const presets = getSavedPresets();
-    select.innerHTML = '<option value="">-- Pilih Preset Rekomendasi --</option>';
-
-    presets.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = `${p.isCustom ? '⭐ ' : ''}${p.name}`;
-      select.appendChild(opt);
-    });
-  }
-
-  renderOptions();
-
-  select?.addEventListener('change', (e) => {
-    const presetId = e.target.value;
-    if (!presetId) {
-      if (btnDelete) btnDelete.style.display = 'none';
-      return;
-    }
-
-    const presets = getSavedPresets();
-    const found = presets.find(p => p.id === presetId);
-    if (found) {
-      applyPresetSettings(found.settings);
-      if (btnDelete) btnDelete.style.display = found.isCustom ? 'inline-block' : 'none';
-      showToast(`Preset "${found.name}" diterapkan`, 'info');
-    }
-  });
-
-  btnSave?.addEventListener('click', () => {
-    const name = prompt('Masukkan nama preset baru:');
+  btnSavePreset?.addEventListener('click', () => {
+    const name = prompt('Nama preset baru Anda:');
     if (!name || !name.trim()) return;
 
     const saved = saveCustomPreset(name.trim(), watermarkSettings);
     if (saved) {
-      renderOptions();
-      select.value = saved.id;
-      if (btnDelete) btnDelete.style.display = 'inline-block';
-      showToast(`Preset "${saved.name}" berhasil disimpan`, 'success');
+      renderPresetCards();
+      showToast(`Preset "${saved.name}" berhasil disimpan!`, 'success');
     }
   });
+}
 
-  btnDelete?.addEventListener('click', () => {
-    const presetId = select.value;
-    if (!presetId) return;
-    if (confirm('Hapus preset ini dari browser Anda?')) {
-      deleteCustomPreset(presetId);
-      renderOptions();
-      btnDelete.style.display = 'none';
-      showToast('Preset dihapus', 'info');
-    }
+function renderPresetCards() {
+  const container = document.getElementById('presetCardsContainer');
+  if (!container) return;
+
+  const presets = getSavedPresets();
+  container.innerHTML = '';
+
+  presets.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'preset-chip';
+    chip.innerHTML = `
+      <span style="font-size: 1.1rem;">${p.icon || '🏷️'}</span>
+      <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.name}</span>
+      ${p.isCustom ? `<button class="btn-del-preset" title="Hapus Preset" style="border: none; background: transparent; color: #ef4444; cursor: pointer; font-size: 0.75rem;">✕</button>` : ''}
+    `;
+
+    chip.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-del-preset')) return;
+      document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      applyPresetSettings(p.settings);
+      showToast(`Preset "${p.name}" aktif`, 'info', 1500);
+    });
+
+    chip.querySelector('.btn-del-preset')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm(`Hapus preset "${p.name}"?`)) {
+        deleteCustomPreset(p.id);
+        renderPresetCards();
+        showToast('Preset dihapus', 'info');
+      }
+    });
+
+    container.appendChild(chip);
   });
 }
 
 function applyPresetSettings(newSettings) {
   watermarkSettings = { ...watermarkSettings, ...newSettings };
 
-  // Sinkronkan form inputs
   const inputText = document.getElementById('inputWatermarkText');
   const sliderOpacity = document.getElementById('sliderOpacity');
   const sliderFontSize = document.getElementById('sliderFontSize');
@@ -652,10 +773,14 @@ function applyPresetSettings(newSettings) {
   }
   if (checkOutline) checkOutline.checked = watermarkSettings.strokeOutline;
 
-  // Warna
-  const swatches = document.querySelectorAll('.color-swatch');
-  swatches.forEach(s => {
-    s.classList.toggle('active', s.getAttribute('data-color') === watermarkSettings.color);
+  // Pattern buttons
+  document.querySelectorAll('.pattern-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-pattern') === (watermarkSettings.pattern || 'tiled'));
+  });
+
+  // Color
+  document.querySelectorAll('.color-dot').forEach(d => {
+    d.classList.toggle('active', d.getAttribute('data-color') === watermarkSettings.color);
   });
   if (customColorPicker) customColorPicker.value = watermarkSettings.color;
 
@@ -663,9 +788,9 @@ function applyPresetSettings(newSettings) {
 }
 
 // ==========================================
-// KONTROL PANEL SENSOR (REDACTION)
+// STUDIO SENSOR (REDACT)
 // ==========================================
-function setupRedactionControls() {
+function setupStudioRedact() {
   const btnPanelToggle = document.getElementById('btnPanelToggleRedact');
   const btnClearAll = document.getElementById('btnClearPageRedactions');
 
@@ -674,7 +799,7 @@ function setupRedactionControls() {
     preview.setRedactionMode(isNow);
     document.getElementById('btnToggleRedact')?.classList.toggle('active', isNow);
     syncRedactTabButton(isNow);
-    showToast(isNow ? 'Mode Sensor aktif' : 'Mode Sensor non-aktif', 'info');
+    showToast(isNow ? 'Mode Sensor aktif: Seret pada dokumen untuk membuat kotak sensor' : 'Mode Sensor dinonaktifkan', 'info');
   });
 
   btnClearAll?.addEventListener('click', () => {
@@ -684,6 +809,7 @@ function setupRedactionControls() {
       redactionManager.clearAllBoxes(fileKey);
       preview.render();
       updateRedactionPanel();
+      updateUndoRedoButtons();
       showToast('Semua kotak sensor di halaman ini dibersihkan', 'info');
     }
   });
@@ -711,16 +837,16 @@ function updateRedactionPanel() {
     const item = document.createElement('div');
     item.style.cssText = `
       display: flex; justify-content: space-between; align-items: center;
-      padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.825rem;
-      background: ${isSel ? 'var(--primary-100)' : 'var(--bg-card-subtle)'};
-      border: 1px solid ${isSel ? 'var(--primary-500)' : 'var(--border-color)'};
+      padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.825rem; font-weight: 600;
+      background: ${isSel ? 'var(--primary-subtle)' : 'var(--bg-subtle)'};
+      border: 1px solid ${isSel ? 'var(--primary)' : 'var(--border-light)'};
+      cursor: pointer; transition: all 0.15s ease;
     `;
     item.innerHTML = `
       <span>⬛ Kotak #${i + 1} (${Math.round(b.width * 100)}% × ${Math.round(b.height * 100)}%)</span>
-      <button style="border: none; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold;">✕</button>
+      <button style="border: none; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 0.9rem;">✕</button>
     `;
 
-    // Klik untuk seleksi kotak
     item.addEventListener('click', (e) => {
       if (e.target.tagName !== 'BUTTON') {
         redactionManager.selectedBoxId = b.id;
@@ -729,7 +855,6 @@ function updateRedactionPanel() {
       }
     });
 
-    // Tombol hapus satuan
     item.querySelector('button')?.addEventListener('click', (e) => {
       e.stopPropagation();
       redactionManager.selectedBoxId = b.id;
@@ -737,6 +862,7 @@ function updateRedactionPanel() {
       preview.render();
       preview.onSelectionChange(null);
       updateRedactionPanel();
+      updateUndoRedoButtons();
     });
 
     listEl.appendChild(item);
@@ -744,9 +870,9 @@ function updateRedactionPanel() {
 }
 
 // ==========================================
-// TAB SWITCHING & EXPORT
+// STUDIO EXPORT
 // ==========================================
-function setupExportControls() {
+function setupStudioExport() {
   const tabWatermark = document.getElementById('tabBtnWatermark');
   const tabRedact = document.getElementById('tabBtnRedact');
   const tabExport = document.getElementById('tabBtnExport');
@@ -768,8 +894,7 @@ function setupExportControls() {
   tabRedact?.addEventListener('click', () => setTab(tabRedact, panelRedact));
   tabExport?.addEventListener('click', () => setTab(tabExport, panelExport));
 
-  // Format selection cards
-  const formatCards = document.querySelectorAll('.format-radio-card');
+  const formatCards = document.querySelectorAll('.format-card');
   const formatLabel = document.getElementById('downloadFormatLabel');
 
   formatCards.forEach(card => {
@@ -781,7 +906,6 @@ function setupExportControls() {
     });
   });
 
-  // Download Dokumen Aktif
   const btnDownloadActive = document.getElementById('btnDownloadActive');
   btnDownloadActive?.addEventListener('click', async () => {
     const doc = loadedDocuments[activeDocIndex];
@@ -805,7 +929,6 @@ function setupExportControls() {
     }
   });
 
-  // Download Batch ZIP
   const btnBatchZip = document.getElementById('btnDownloadBatchZip');
   btnBatchZip?.addEventListener('click', async () => {
     if (loadedDocuments.length === 0) return;
@@ -846,7 +969,7 @@ function setupExportControls() {
 }
 
 // ==========================================
-// RESET & BERSIHKAN SEMUA DATA
+// RESET & BERSIHKAN SEMUA DATA DARI MEMORI
 // ==========================================
 function resetAll() {
   if (loadedDocuments.length > 0) {
@@ -861,8 +984,8 @@ function resetAll() {
   activeDocIndex = 0;
   redactionManager = new RedactionManager();
   watermarkSettings = { ...DEFAULT_WATERMARK_SETTINGS };
+  currentZoom = 1.0;
 
-  // Reset UI View
   const dropzone = document.getElementById('dropzoneSection');
   const workspace = document.getElementById('workspaceSection');
   if (workspace) workspace.style.display = 'none';

@@ -30,7 +30,8 @@ export function getTodayFormatted() {
  * Preset bawaan aplikasi
  */
 export const DEFAULT_WATERMARK_SETTINGS = {
-  text: `Hanya untuk keperluan verifikasi - ${getTodayFormatted()}`,
+  text: `Hanya untuk [tujuan] - ${getTodayFormatted()}`,
+  pattern: 'tiled',           // 'tiled' | 'single' | 'cross'
   fontSizePercent: 3.2,       // 3.2% dari lebar gambar
   color: '#059669',           // Hijau emerald default
   opacity: 0.30,              // 30% default
@@ -43,7 +44,7 @@ export const DEFAULT_WATERMARK_SETTINGS = {
 };
 
 /**
- * Render watermark berulang ke konteks canvas
+ * Render watermark ke konteks canvas
  *
  * @param {CanvasRenderingContext2D} ctx - Konteks canvas 2D
  * @param {number} width - Lebar target canvas (px)
@@ -59,8 +60,8 @@ export function renderWatermark(ctx, width, height, settings = DEFAULT_WATERMARK
 
   // 1. Hitung ukuran font berbasis persentase lebar (resolusi independen)
   const fontSizePx = Math.max(8, (settings.fontSizePercent / 100) * width);
-  const fontName = `'Inter', system-ui, -apple-system, sans-serif`;
-  ctx.font = `600 ${fontSizePx}px ${fontName}`;
+  const fontName = `'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif`;
+  ctx.font = `700 ${fontSizePx}px ${fontName}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -69,30 +70,66 @@ export function renderWatermark(ctx, width, height, settings = DEFAULT_WATERMARK
   ctx.fillStyle = settings.color || '#059669';
 
   if (settings.strokeOutline) {
-    ctx.strokeStyle = settings.color === '#ffffff' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.6)';
-    ctx.lineWidth = Math.max(1, fontSizePx * 0.08);
+    ctx.strokeStyle = settings.color === '#ffffff' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = Math.max(1.5, fontSizePx * 0.08);
   }
 
-  // 3. Hitung jarak grid relatif terhadap lebar
-  const spacingX = Math.max(fontSizePx * 2, ((settings.spacingXPercent || 25) / 100) * width);
-  const spacingY = Math.max(fontSizePx * 1.5, ((settings.spacingYPercent || 15) / 100) * width);
-  const jitterAmount = ((settings.jitterPercent || 0) / 100) * spacingX * 0.35;
+  const lines = text.split('\n');
+  const lineHeight = fontSizePx * 1.28;
+  const totalBlockHeight = (lines.length - 1) * lineHeight;
 
-  // 4. Hitung diagonal untuk menutupi seluruh canvas saat diputar
-  const diagonal = Math.hypot(width, height);
+  const renderTextBlock = (posX, posY) => {
+    const blockStartY = posY - totalBlockHeight / 2;
+    for (let l = 0; l < lines.length; l++) {
+      const lineY = blockStartY + l * lineHeight;
+      if (settings.strokeOutline) {
+        ctx.strokeText(lines[l], posX, lineY);
+      }
+      ctx.fillText(lines[l], posX, lineY);
+    }
+  };
+
+  const pattern = settings.pattern || 'tiled';
   const centerX = width / 2;
   const centerY = height / 2;
-
-  // 5. Transformasi rotasi terpusat
-  ctx.translate(centerX, centerY);
   const rad = ((settings.angle ?? -25) * Math.PI) / 180;
+
+  // A. Pola Cap Tunggal di Tengah (Single Center Stamp)
+  if (pattern === 'single') {
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rad);
+    renderTextBlock(0, 0);
+    ctx.restore();
+    return;
+  }
+
+  // B. Pola Diagonal Silang (Cross Stamp)
+  if (pattern === 'cross') {
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rad);
+    renderTextBlock(0, 0);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(-rad);
+    renderTextBlock(0, 0);
+    ctx.restore();
+
+    ctx.restore();
+    return;
+  }
+
+  // C. Pola Penuh Berulang (Tiled repeating pattern - DEFAULT)
+  const spacingX = Math.max(fontSizePx * 2, ((settings.spacingXPercent || 28) / 100) * width);
+  const spacingY = Math.max(fontSizePx * 1.5, ((settings.spacingYPercent || 16) / 100) * width);
+  const jitterAmount = ((settings.jitterPercent || 0) / 100) * spacingX * 0.35;
+
+  const diagonal = Math.hypot(width, height);
+  ctx.translate(centerX, centerY);
   ctx.rotate(rad);
 
-  // Pisahkan multi-line jika ada baris baru
-  const lines = text.split('\n');
-  const lineHeight = fontSizePx * 1.25;
-
-  // 6. Pola Tiling berulang
   const startX = -diagonal;
   const endX = diagonal;
   const startY = -diagonal;
@@ -101,15 +138,13 @@ export function renderWatermark(ctx, width, height, settings = DEFAULT_WATERMARK
   let rowIndex = 0;
   for (let y = startY; y <= endY; y += spacingY) {
     let colIndex = 0;
-    // Stagger per baris seperti pola susunan batu bata
     const rowOffset = (settings.staggerRows && (Math.abs(rowIndex) % 2 === 1)) ? spacingX * 0.5 : 0;
 
     for (let x = startX - spacingX; x <= endX + spacingX; x += spacingX) {
-      // Deterministic jitter
       let jitX = 0;
       let jitY = 0;
       if (jitterAmount > 0) {
-        const randX = hash2d(rowIndex, colIndex, 101) * 2 - 1; // -1 .. 1
+        const randX = hash2d(rowIndex, colIndex, 101) * 2 - 1;
         const randY = hash2d(rowIndex, colIndex, 202) * 2 - 1;
         jitX = randX * jitterAmount;
         jitY = randY * jitterAmount;
@@ -118,18 +153,7 @@ export function renderWatermark(ctx, width, height, settings = DEFAULT_WATERMARK
       const posX = x + rowOffset + jitX;
       const posY = y + jitY;
 
-      // Render setiap baris teks
-      const totalBlockHeight = (lines.length - 1) * lineHeight;
-      const blockStartY = posY - totalBlockHeight / 2;
-
-      for (let l = 0; l < lines.length; l++) {
-        const lineY = blockStartY + l * lineHeight;
-        if (settings.strokeOutline) {
-          ctx.strokeText(lines[l], posX, lineY);
-        }
-        ctx.fillText(lines[l], posX, lineY);
-      }
-
+      renderTextBlock(posX, posY);
       colIndex++;
     }
     rowIndex++;
