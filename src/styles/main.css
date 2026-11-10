@@ -1420,32 +1420,75 @@ button, input, textarea, select {
     overflow: visible;
   }
 
-  /* Sembunyikan sidebar di mobile, berkas bisa ditambah langsung */
+  /* Sidebar adaptif di mobile: strip horizontal saat berkas > 1 */
   .app-sidebar {
+    display: none;
+    border-right: none;
+    border-bottom: 1px solid var(--separator);
+    background: var(--bg-surface);
+    padding: 6px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-sidebar.has-docs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    height: 48px;
+  }
+
+  .sidebar-header, .sidebar-footer {
     display: none;
   }
 
+  .doc-list-scroll {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0;
+    flex: 1;
+  }
+
+  .doc-list-item {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    font-size: 12px;
+    height: 32px;
+  }
+
   .app-stage {
-    min-height: 52vh;
+    min-height: 48vh;
     padding: 16px;
   }
 
-  /* Bottom Sheet Drawer iOS Mobile */
+  /* Bottom Sheet Drawer iOS Mobile dengan detent */
   .app-inspector {
     border-left: none;
     border-top: 1px solid var(--separator);
     border-top-left-radius: var(--radius-card);
     border-top-right-radius: var(--radius-card);
     background: var(--bg-surface);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 52vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-inspector.expanded {
+    max-height: 85vh;
   }
 
   .mobile-drawer-handle {
     display: flex;
     justify-content: center;
-    padding: 8px 0 4px;
-    cursor: grab;
+    padding: 10px 0 6px;
+    cursor: pointer;
+    touch-action: none;
   }
 
   .drawer-pill {
@@ -1453,6 +1496,11 @@ button, input, textarea, select {
     height: 5px;
     border-radius: 2.5px;
     background: var(--slider-track);
+    transition: background-color 0.15s ease;
+  }
+
+  .mobile-drawer-handle:hover .drawer-pill {
+    background: var(--text-tertiary);
   }
 
   .mobile-tab-switch {

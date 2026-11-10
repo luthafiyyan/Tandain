@@ -187,6 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
   setupResetModal();
   setupKeyboardShortcuts();
 
+  // Mobile Bottom Sheet Detent Toggle
+  const drawerHandle = document.querySelector('.mobile-drawer-handle');
+  const inspector = document.getElementById('inspectorPanel');
+  drawerHandle?.addEventListener('click', () => {
+    inspector?.classList.toggle('expanded');
+  });
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -374,8 +381,11 @@ function updateSidebarList() {
   const batchStrip = document.getElementById('batchStrip');
   const batchCountBadge = document.getElementById('batchCountBadge');
   const btnBatchZip = document.getElementById('btnDownloadBatchZip');
+  const sidebarDocs = document.getElementById('sidebarDocs');
 
   if (!batchStrip) return;
+
+  sidebarDocs?.classList.toggle('has-docs', loadedDocuments.length > 1);
 
   if (batchCountBadge) batchCountBadge.textContent = String(loadedDocuments.length);
 
