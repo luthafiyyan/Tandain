@@ -1,40 +1,39 @@
-# Tandain 🛡️ — Watermark & Sensor Dokumen 100% Offline
+# Tandain 🖋️ — Cap & Sensor Dokumen 100% Offline
 
-Aplikasi web modern, aman, dan privat untuk menambahkan watermark teks berulang serta sensor (redaction) pada dokumen penting (KTP, KK, NPWP, Ijazah, dll).
+Aplikasi alat kerja praktis, aman, dan privat berkonsep **"Cap & Tinta"** untuk menambahkan watermark stempel resmi serta sensor manual (redaction) pada dokumen sensitif (KTP, KK, NPWP, Ijazah, dll).
 
-**100% Client-Side. Berjalan sepenuhnya di perangkat pengguna tanpa server backend dan tanpa ada file yang diunggah ke internet.**
+**100% Client-Side. Berjalan seutuhnya di peramban pengguna tanpa server backend dan tanpa ada file yang diunggah ke internet.**
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Fitur & Konsep Desain "Cap & Tinta"
 
 - 🔒 **100% Offline & Privat**: Menggunakan Content Security Policy (CSP) ketat dengan `connect-src 'none'`. Tidak ada request jaringan, API, analytics, maupun skrip eksternal.
+- 🖋️ **Konsep Visual Cap & Tinta**:
+  - Estetika kertas off-white hangat (`#F6F2EA`) dengan tinta hitam kebiruan dan aksen tunggal **merah cap stempel** (`#C8372D`).
+  - Tipografi lokal: font display berkarakter **Fraunces**, sans-serif **Inter**, dan monospace **JetBrains Mono** via `@fontsource`.
+  - Desain *Tool-First*: langsung menampilkan area kerja tanpa landing page atau brosur korporat.
 - 🖼️ **Dukungan Format Lengkap**: JPG, PNG, WEBP, dan PDF (termasuk PDF multi-halaman).
 - 📦 **Pemrosesan Batch**: Dukung banyak file sekaligus, unduh per dokumen atau sekaligus dalam arsip ZIP lokal (`JSZip`).
 - 👁️ **Preview Real-Time Interaktif**:
-  - Tampilan Hasil (Watermark & Sensor)
+  - Tampilan Hasil (Cap & Sensor)
   - Tampilan Dokumen Asli (Sebelum)
-  - Mode Garis Belah Interaktif (Drag & Geser langsung di canvas untuk membandingkan secara presisi)
+  - Mode Garis Belah Interaktif (drag langsung di atas canvas untuk membandingkan secara presisi)
   - Fitur Zoom In (+), Zoom Out (-), dan responsif terhadap layar sentuh / retina mobile.
-- 🔤 **Pengaturan Watermark Fleksibel**:
-  - Pilihan Pola: **Pola Penuh (Tiled)**, **Cap Tengah (Single Center Stamp)**, dan **Diagonal Silang (Cross)**.
-  - Teks kustom dengan template cepat (Tanggal hari ini, Verifikasi Bank, Melamar Kerja, Pendaftaran, dll.)
-  - Transparansi (Opacity), ukuran font, sudut kemiringan, jarak horizontal & vertikal.
-  - Variasi acak posisi (Jitter) berbasis hash deterministik untuk mencegah penghapusan otomatis oleh AI.
-  - Pilihan palet warna dan pemilih warna kustom.
-  - Garis tepi teks (Stroke Outline) untuk keterbacaan di latar kontras.
+- 🔤 **Pengaturan Cap Sederhana & Taktil**:
+  - **Mode Cepat**: Chip preset (`Verifikasi Bank`, `Melamar Kerja`, `Pendaftaran`, `Cap Tengah`), tombol cepat `+ Tanggal hari ini`, dan satu slider terpadu `Tipis ↔ Tebal` (mengatur transparansi & ukuran font bersamaan).
+  - **Pengaturan Lanjutan**: Sudut kemiringan, jarak X & Y, variasi posisi acak, palet tinta resmi, dan garis tepi teks.
 - ⬛ **Sensor Manual (Redaction)**:
-  - Buat kotak hitam pekat di atas data sensitif (seperti 6 digit terakhir NIK, tanggal lahir, nama ibu).
+  - Buat kotak hitam pekat di atas data sensitif (seperti 6 digit terakhir NIK, tanggal lahir, nomor rekening).
   - Kotak dapat digeser, diubah ukurannya (resize), dan dihapus dengan mudah.
   - Dilengkapi sistem **Undo (`Ctrl+Z`)** & **Redo (`Ctrl+Y`)** serta tombol hapus cepat (`Delete` / `Backspace`).
 - 💾 **Manajemen Preset Aman**:
-  - Kartu preset siap pakai satu-klik (Bank, Lamar Kerja, Fintech, Kampus, Cap Tengah) + simpan preset kustom di `localStorage`.
-  - **Aturan Keamanan**: Hanya styling teks dan slider yang disimpan. Gambar, file, dan nama file tidak pernah disimpan ke storage browser!
+  - Simpan dan muat preset gaya cap kustom di `localStorage` (hanya pengaturan teks/gaya, tidak pernah gambar atau nama file).
 - 🧹 **Pembersihan Memori Lengkap**:
   - Tombol **Reset** memanggil `URL.revokeObjectURL`, mengosongkan canvas (`width = 0, height = 0`), dan melepaskan semua referensi buffer dari RAM.
 - 📱 **PWA & Mobile-First**:
   - Siap di-install sebagai Progressive Web App (PWA) di Android, iOS, Windows, dan macOS.
-  - Dukungan Mode Gelap (Dark Mode) dan Mode Terang (Light Mode).
+  - Dukungan Mode Gelap (Dark Mode: tinta gelap kebiruan) dan Mode Terang (Light Mode: kertas hangat).
 
 ---
 
