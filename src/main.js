@@ -1100,12 +1100,13 @@ function resetAll() {
   loadedDocuments = [];
   activeDocIndex = 0;
   redactionManager = new RedactionManager();
-  watermarkSettings = {
-    ...DEFAULT_WATERMARK_SETTINGS,
-    color: '#C8372D'
-  };
   currentZoom = 1.0;
   preview?.clear();
+  preview?.setViewMode('after');
+
+  // Bersihkan input berkas agar berkas yang sama bisa dipilih kembali
+  const fileInput = document.getElementById('fileInput');
+  if (fileInput) fileInput.value = '';
 
   const dropzoneCard = document.getElementById('dropzoneCard');
   const previewArea = document.getElementById('previewArea');
@@ -1119,7 +1120,22 @@ function resetAll() {
   if (btnDownloadTop) btnDownloadTop.disabled = true;
   if (docNameLabel) docNameLabel.textContent = '-';
 
+  // Kembalikan preset dan pengaturan cap ke kondisi awal bawaan
+  const presets = getSavedPresets();
+  if (presets.length > 0) {
+    applyPresetSettings(presets[0].settings);
+    document.querySelectorAll('.preset-chip-btn').forEach((c, i) => {
+      c.classList.toggle('active', i === 0);
+    });
+  }
+
+  // Kembalikan mode ke Watermark (jika sebelumnya sedang di mode Sensor)
+  const tabWatermark = document.getElementById('tabModeWatermark');
+  tabWatermark?.click();
+
   updateSidebarList();
+  updateSensorList();
+  updateUndoRedoButtons();
 
   // Toast wajib:
   showToast('Semua data dihapus dari memori.');

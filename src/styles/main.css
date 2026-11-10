@@ -512,20 +512,21 @@ button, input, textarea, select {
 /* Keadaan Kosong (Dropzone Polos ala Apple) */
 .empty-dropzone {
   width: 100%;
-  max-width: 460px;
-  border: 1px dashed var(--separator);
+  max-width: 440px;
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-card);
-  padding: 48px 32px;
+  padding: 40px 28px;
   text-align: center;
   background: var(--bg-surface);
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   margin: auto;
 }
 
 .empty-dropzone:hover, .empty-dropzone.drag-over {
   border-color: var(--accent);
-  background: var(--bg-window);
+  box-shadow: 0 0 0 3px var(--accent-subtle), var(--shadow-popover);
 }
 
 .dropzone-box {
