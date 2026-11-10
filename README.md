@@ -14,8 +14,10 @@ Aplikasi web modern, aman, dan privat untuk menambahkan watermark teks berulang 
 - 👁️ **Preview Real-Time Interaktif**:
   - Tampilan Hasil (Watermark & Sensor)
   - Tampilan Dokumen Asli (Sebelum)
-  - Mode Garis Belah (Before / After Split Comparison)
+  - Mode Garis Belah Interaktif (Drag & Geser langsung di canvas untuk membandingkan secara presisi)
+  - Fitur Zoom In (+), Zoom Out (-), dan responsif terhadap layar sentuh / retina mobile.
 - 🔤 **Pengaturan Watermark Fleksibel**:
+  - Pilihan Pola: **Pola Penuh (Tiled)**, **Cap Tengah (Single Center Stamp)**, dan **Diagonal Silang (Cross)**.
   - Teks kustom dengan template cepat (Tanggal hari ini, Verifikasi Bank, Melamar Kerja, Pendaftaran, dll.)
   - Transparansi (Opacity), ukuran font, sudut kemiringan, jarak horizontal & vertikal.
   - Variasi acak posisi (Jitter) berbasis hash deterministik untuk mencegah penghapusan otomatis oleh AI.
@@ -24,8 +26,9 @@ Aplikasi web modern, aman, dan privat untuk menambahkan watermark teks berulang 
 - ⬛ **Sensor Manual (Redaction)**:
   - Buat kotak hitam pekat di atas data sensitif (seperti 6 digit terakhir NIK, tanggal lahir, nama ibu).
   - Kotak dapat digeser, diubah ukurannya (resize), dan dihapus dengan mudah.
+  - Dilengkapi sistem **Undo (`Ctrl+Z`)** & **Redo (`Ctrl+Y`)** serta tombol hapus cepat (`Delete` / `Backspace`).
 - 💾 **Manajemen Preset Aman**:
-  - Simpan dan muat preset gaya watermark di `localStorage`.
+  - Kartu preset siap pakai satu-klik (Bank, Lamar Kerja, Fintech, Kampus, Cap Tengah) + simpan preset kustom di `localStorage`.
   - **Aturan Keamanan**: Hanya styling teks dan slider yang disimpan. Gambar, file, dan nama file tidak pernah disimpan ke storage browser!
 - 🧹 **Pembersihan Memori Lengkap**:
   - Tombol **Reset** memanggil `URL.revokeObjectURL`, mengosongkan canvas (`width = 0, height = 0`), dan melepaskan semua referensi buffer dari RAM.
