@@ -5,7 +5,7 @@
  */
 
 import './styles/main.css';
-import { initTheme, toggleTheme } from './ui/theme.js';
+import { initTheme, toggleTheme, applyAccent } from './ui/theme.js';
 import { getSavedPresets, saveCustomPreset, deleteCustomPreset, BUILTIN_PRESETS } from './ui/presets.js';
 import { DEFAULT_WATERMARK_SETTINGS, getTodayFormatted } from './core/watermark.js';
 import { RedactionManager } from './core/redact.js';
@@ -159,8 +159,21 @@ async function createDummyKtpBitmap() {
 // INISIALISASI APLIKASI
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
+  const { theme, accent } = initTheme();
   document.getElementById('btnToggleTheme')?.addEventListener('click', toggleTheme);
+
+  // Selector Palet Aksen Visual
+  const accentBtns = document.querySelectorAll('[data-accent-btn]');
+  accentBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-accent-btn') === accent);
+    btn.addEventListener('click', () => {
+      accentBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const chosen = btn.getAttribute('data-accent-btn');
+      applyAccent(chosen);
+      showToast(`Tema Aksen: ${chosen.toUpperCase()}`, 'info', 1200);
+    });
+  });
 
   const previewCanvas = document.getElementById('previewCanvas');
   const canvasViewport = document.getElementById('canvasViewport');

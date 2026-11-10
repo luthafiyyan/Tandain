@@ -106,7 +106,7 @@ export function fullMemoryCleanup(items = [], canvases = []) {
   // 4. Pastikan storage bersih dari file data (hanya preset teks yang diizinkan)
   // Bersihkan data sementara yang mungkin tak sengaja tersimpan
   try {
-    const allowedKeys = ['tandain_presets', 'tandain_theme', 'tandain_active_preset'];
+    const allowedKeys = ['tandain_presets', 'tandain_theme', 'tandain_accent', 'tandain_active_preset'];
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
