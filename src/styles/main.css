@@ -1390,67 +1390,64 @@ button, input, textarea, select {
 }
 
 /* ===================================================
-   12. RESPONSIVE LAYOUT (TABLET & MOBILE iOS)
+   12. RESPONSIVE LAYOUT (DESKTOP, TABLET & MOBILE iOS)
    =================================================== */
 
-/* Tablet (Lebar <= 1024px) */
-@media (max-width: 1024px) {
+/* 1. Large Desktop (min-width: 1201px) */
+@media (min-width: 1201px) {
   .app-workspace {
-    grid-template-columns: 200px 1fr 280px;
+    grid-template-columns: 240px 1fr 320px;
   }
 }
 
-/* Mobile & Small Tablet (Lebar <= 768px) */
-@media (max-width: 768px) {
-  html, body {
-    overflow: auto;
+/* 2. Standard Desktop & Laptop (1025px - 1200px) */
+@media (max-width: 1200px) and (min-width: 1025px) {
+  .app-workspace {
+    grid-template-columns: 220px 1fr 300px;
   }
+}
 
-  .app-toolbar {
-    padding: 0 12px;
-  }
-
-  .toolbar-left {
+/* 3. Small Laptop & Tablet Landscape (901px - 1024px) */
+@media (max-width: 1024px) and (min-width: 901px) {
+  .toolbar-left, .toolbar-right {
     min-width: auto;
-  }
-
-  .toolbar-center {
-    display: none; /* Pindah ke tab bar bawah */
-  }
-
-  .toolbar-right {
-    min-width: auto;
-  }
-
-  #btnDownloadActiveTop {
-    display: none;
   }
 
   .app-workspace {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    min-height: calc(100vh - 52px);
-    overflow: visible;
+    grid-template-columns: 190px 1fr 280px;
+  }
+}
+
+/* 4. Tablet Portrait (769px - 900px) */
+@media (max-width: 900px) and (min-width: 769px) {
+  .toolbar-left, .toolbar-right {
+    min-width: auto;
   }
 
-  /* Sidebar adaptif di mobile: strip horizontal saat berkas > 1 */
+  /* 2-Pane Layout di Tablet Portrait: Stage luas (~500px+) + Inspector (280px) */
+  .app-workspace {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    height: calc(100vh - 52px - 28px);
+    overflow: hidden;
+  }
+
+  /* Di tablet portrait, sidebar hanya aktif bila berkas > 1 sebagai tab bar horizontal */
   .app-sidebar {
     display: none;
+    grid-column: 1 / -1;
     border-right: none;
     border-bottom: 1px solid var(--separator);
     background: var(--bg-surface);
-    padding: 6px 12px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    padding: 6px 14px;
+    height: 48px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
 
   .app-sidebar.has-docs {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    height: 48px;
   }
 
   .sidebar-header, .sidebar-footer {
@@ -1472,29 +1469,213 @@ button, input, textarea, select {
     font-size: 12px;
     height: 32px;
   }
+}
 
-  .app-stage {
-    min-height: 48vh;
-    padding: 16px;
+/* 5. Mobile iOS & Smartphone (<= 768px) */
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
   }
 
-  /* Bottom Sheet Drawer iOS Mobile dengan detent */
+  /* Sembunyikan footer di mobile agar tidak menutupi bottom sheet & safe-area */
+  .app-footer {
+    display: none !important;
+  }
+
+  /* Toolbar ringkas ala iOS Navigation Bar */
+  .app-toolbar {
+    height: 50px;
+    padding: 0 12px;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .toolbar-left {
+    min-width: auto;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .app-title {
+    font-size: 15px;
+  }
+
+  .privacy-label {
+    padding: 3px 6px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  /* Popover Privasi Adaptif di Layar Kecil */
+  .popover-anchor {
+    position: static;
+  }
+
+  .ios-popover {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: 320px;
+    top: 54px;
+  }
+
+  .toolbar-center {
+    display: none; /* Pindah ke tab bar segmented di bottom sheet */
+  }
+
+  .toolbar-right {
+    min-width: auto;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  #btnDownloadActiveTop {
+    display: none;
+  }
+
+  .toolbar-text-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  /* Toast mengambang di atas seperti iOS Dynamic Island / Notification Banner */
+  .toast-stack {
+    top: calc(58px + env(safe-area-inset-top));
+    bottom: auto;
+    width: auto;
+    max-width: calc(100vw - 32px);
+  }
+
+  .toast {
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+
+  /* Workspace satu kolom: Stage di atas, Inspector di bottom sheet */
+  .app-workspace {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 50px);
+    height: calc(100dvh - 50px);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Sidebar Dokumen Horizontal saat berkas > 1 */
+  .app-sidebar {
+    display: none;
+    border-right: none;
+    border-bottom: 1px solid var(--separator);
+    background: var(--bg-surface);
+    padding: 6px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+  }
+
+  .app-sidebar.has-docs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+  }
+
+  .sidebar-header, .sidebar-footer {
+    display: none;
+  }
+
+  .doc-list-scroll {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0;
+    flex: 1;
+  }
+
+  .doc-list-item {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    font-size: 11px;
+    height: 30px;
+  }
+
+  /* Stage pratinjau dokumen di atas sheet */
+  .app-stage {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stage-viewport {
+    padding: 56px 10px 20px 10px;
+    min-height: 100%;
+  }
+
+  .empty-dropzone {
+    padding: 24px 16px;
+    max-width: 320px;
+  }
+
+  .dropzone-title {
+    font-size: 17px;
+  }
+
+  .dropzone-sub {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Floating Bar Pratinjau Kompak agar pas di layar 360-390px */
+  .stage-floating-bar {
+    top: 10px;
+    padding: 2px 4px;
+    gap: 4px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .stage-floating-bar .seg-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  .btn-icon-subtle {
+    width: 26px;
+    height: 26px;
+  }
+
+  .bar-divider {
+    height: 12px;
+    margin: 0 2px;
+  }
+
+  /* Bottom Sheet Drawer iOS Mobile dengan Detents (Half: 46vh, Expanded: 84vh) */
   .app-inspector {
+    position: relative;
     border-left: none;
     border-top: 1px solid var(--separator);
     border-top-left-radius: var(--radius-card);
     border-top-right-radius: var(--radius-card);
     background: var(--bg-surface);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    max-height: 52vh;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
     display: flex;
     flex-direction: column;
+    height: 46vh;
+    max-height: 46vh;
+    flex-shrink: 0;
+    transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 30;
   }
 
   .app-inspector.expanded {
-    max-height: 85vh;
+    height: 84vh;
+    max-height: 84vh;
   }
 
   .mobile-drawer-handle {
@@ -1503,6 +1684,7 @@ button, input, textarea, select {
     padding: 10px 0 6px;
     cursor: pointer;
     touch-action: none;
+    flex-shrink: 0;
   }
 
   .drawer-pill {
@@ -1519,14 +1701,30 @@ button, input, textarea, select {
 
   .mobile-tab-switch {
     display: block;
-    padding: 6px 16px 12px;
+    padding: 2px 14px 10px;
+    flex-shrink: 0;
   }
 
-  .btn-filled, .btn-filled-lg, .seg-btn {
-    min-height: 44px; /* Target sentuh minimal 44px */
+  .mobile-tab-switch .segmented-control {
+    background: var(--bg-secondary);
+  }
+
+  .inspector-scroll {
+    padding: 12px 14px calc(24px + env(safe-area-inset-bottom));
+    gap: 14px;
+  }
+
+  /* Target sentuh minimal 44px sesuai panduan Apple HIG */
+  .btn-filled, .btn-filled-lg, .mobile-tab-switch .seg-btn {
+    min-height: 44px;
   }
 
   .list-row {
-    min-height: 48px;
+    min-height: 44px;
+  }
+
+  /* Tombol unduh penuh di mobile */
+  .download-btn-wrap .btn-filled-lg {
+    width: 100%;
   }
 }

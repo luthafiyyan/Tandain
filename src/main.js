@@ -200,12 +200,29 @@ document.addEventListener('DOMContentLoaded', () => {
   setupResetModal();
   setupKeyboardShortcuts();
 
-  // Mobile Bottom Sheet Detent Toggle
+  // Mobile Bottom Sheet Detent Toggle (Tap & Touch Swipe)
   const drawerHandle = document.querySelector('.mobile-drawer-handle');
   const inspector = document.getElementById('inspectorPanel');
   drawerHandle?.addEventListener('click', () => {
     inspector?.classList.toggle('expanded');
+    setTimeout(() => preview?.render(), 320);
   });
+
+  let touchStartY = 0;
+  drawerHandle?.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  drawerHandle?.addEventListener('touchend', (e) => {
+    const touchEndY = e.changedTouches[0].clientY;
+    const diff = touchStartY - touchEndY;
+    if (diff > 25) {
+      inspector?.classList.add('expanded');
+      setTimeout(() => preview?.render(), 320);
+    } else if (diff < -25) {
+      inspector?.classList.remove('expanded');
+      setTimeout(() => preview?.render(), 320);
+    }
+  }, { passive: true });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -511,6 +528,7 @@ function setupToolbarModes() {
     const isWatermark = mode === 'watermark';
     const isSensor = mode === 'sensor';
     const isUnduh = mode === 'unduh';
+    const isMobile = window.innerWidth <= 768;
 
     [tabWatermark, tabSensor].forEach(t => t?.classList.remove('active'));
     [mTabWatermark, mTabSensor, mTabUnduh].forEach(t => t?.classList.remove('active'));
@@ -525,7 +543,7 @@ function setupToolbarModes() {
       mTabWatermark?.classList.add('active');
       if (watermarkGroup) watermarkGroup.style.display = 'block';
       if (sensorGroup) sensorGroup.style.display = 'none';
-      if (exportGroup) exportGroup.style.display = 'block';
+      if (exportGroup) exportGroup.style.display = isMobile ? 'none' : 'block';
       preview?.setRedactionMode(false);
       if (checkSensor) checkSensor.checked = false;
     } else if (isSensor) {
@@ -533,7 +551,7 @@ function setupToolbarModes() {
       mTabSensor?.classList.add('active');
       if (watermarkGroup) watermarkGroup.style.display = 'none';
       if (sensorGroup) sensorGroup.style.display = 'block';
-      if (exportGroup) exportGroup.style.display = 'block';
+      if (exportGroup) exportGroup.style.display = isMobile ? 'none' : 'block';
       preview?.setRedactionMode(true);
       if (checkSensor) checkSensor.checked = true;
     } else if (isUnduh) {
@@ -543,6 +561,16 @@ function setupToolbarModes() {
       if (exportGroup) exportGroup.style.display = 'block';
     }
   }
+
+  window.addEventListener('resize', () => {
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) {
+      if (exportGroup) exportGroup.style.display = 'block';
+      if (mTabUnduh?.classList.contains('active')) {
+        activateMode('watermark');
+      }
+    }
+  });
 
   tabWatermark?.addEventListener('click', () => activateMode('watermark'));
   tabSensor?.addEventListener('click', () => activateMode('sensor'));
