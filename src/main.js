@@ -1,11 +1,11 @@
 /**
  * main.js
- * Titik masuk utama aplikasi Tandain.
- * Menghubungkan seluruh modul core, state manajemen, dan interaksi UI modern.
+ * Titik masuk utama aplikasi Tandain dengan konsep "Cap & Tinta".
+ * Menghubungkan seluruh modul core tanpa mengubah logika inti.
  */
 
 import './styles/main.css';
-import { initTheme, toggleTheme, applyAccent } from './ui/theme.js';
+import { initTheme, toggleTheme } from './ui/theme.js';
 import { getSavedPresets, saveCustomPreset, deleteCustomPreset, BUILTIN_PRESETS } from './ui/presets.js';
 import { DEFAULT_WATERMARK_SETTINGS, getTodayFormatted } from './core/watermark.js';
 import { RedactionManager } from './core/redact.js';
@@ -19,31 +19,39 @@ import { fullMemoryCleanup, clearCanvas } from './core/cleanup.js';
 // ==========================================
 let loadedDocuments = [];
 let activeDocIndex = 0;
-let watermarkSettings = { ...DEFAULT_WATERMARK_SETTINGS };
+let watermarkSettings = {
+  ...DEFAULT_WATERMARK_SETTINGS,
+  color: '#C8372D' // Bawaan: Merah Cap
+};
 let redactionManager = new RedactionManager();
-let exportFormat = 'png'; // 'png' | 'jpg' | 'pdf'
+let exportFormat = 'png';
 let preview = null;
 let currentZoom = 1.0;
 
+// Mapping Intensitas "Tipis ↔ Tebal"
+const INTENSITY_LEVELS = {
+  1: { opacity: 0.16, fontSizePercent: 2.4, label: 'Sangat Tipis' },
+  2: { opacity: 0.24, fontSizePercent: 2.8, label: 'Tipis' },
+  3: { opacity: 0.32, fontSizePercent: 3.3, label: 'Standar' },
+  4: { opacity: 0.42, fontSizePercent: 4.0, label: 'Tegas' },
+  5: { opacity: 0.55, fontSizePercent: 5.0, label: 'Tebal' }
+};
+
 // ==========================================
-// TOAST NOTIFIKASI MODERN
+// TOAST NOTIFIKASI
 // ==========================================
-function showToast(message, type = 'info', duration = 3000) {
+function showToast(message, duration = 2800) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
 
   const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
-    <span>${message}</span>
-  `;
+  toast.className = 'toast';
+  toast.textContent = message;
 
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transform = 'translateY(10px)';
-    toast.style.transition = 'all 0.25s ease';
+    toast.style.transition = 'opacity 0.25s ease';
     setTimeout(() => {
       if (toast.parentNode) toast.parentNode.removeChild(toast);
     }, 250);
@@ -59,7 +67,6 @@ async function createDummyKtpBitmap() {
   canvas.height = 540;
   const ctx = canvas.getContext('2d');
 
-  // Background KTP biru langit bergradasi
   const grad = ctx.createLinearGradient(0, 0, 856, 540);
   grad.addColorStop(0, '#bae6fd');
   grad.addColorStop(0.5, '#7dd3fc');
@@ -67,7 +74,6 @@ async function createDummyKtpBitmap() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 856, 540);
 
-  // Pola garis halus keamanan guilloche
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
   ctx.lineWidth = 1.2;
   for (let i = -540; i < 856; i += 26) {
@@ -77,7 +83,6 @@ async function createDummyKtpBitmap() {
     ctx.stroke();
   }
 
-  // Header KTP
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 22px sans-serif';
   ctx.textAlign = 'center';
@@ -94,12 +99,10 @@ async function createDummyKtpBitmap() {
   ctx.lineTo(816, 100);
   ctx.stroke();
 
-  // NIK
   ctx.font = 'bold 24px monospace';
   ctx.textAlign = 'left';
   ctx.fillText('NIK          : 3174051208900003', 50, 140);
 
-  // Field Data Diri
   const fields = [
     ['Nama', 'WARGA CONTOH TANDAIN'],
     ['Tempat/Tgl Lahir', 'JAKARTA, 12-08-1990'],
@@ -123,7 +126,6 @@ async function createDummyKtpBitmap() {
     startY += 24;
   }
 
-  // Kotak Pas Foto
   ctx.fillStyle = '#cbd5e1';
   ctx.fillRect(640, 140, 160, 210);
   ctx.strokeStyle = '#94a3b8';
@@ -143,7 +145,6 @@ async function createDummyKtpBitmap() {
   ctx.textAlign = 'center';
   ctx.fillText('PAS FOTO', 720, 280);
 
-  // Tanda Tangan Box
   ctx.strokeStyle = '#64748b';
   ctx.strokeRect(640, 370, 160, 70);
   ctx.font = 'italic 18px cursive, sans-serif';
@@ -156,45 +157,33 @@ async function createDummyKtpBitmap() {
 }
 
 // ==========================================
-// INISIALISASI APLIKASI
+// INISIALISASI
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  const { theme, accent } = initTheme();
+  initTheme();
   document.getElementById('btnToggleTheme')?.addEventListener('click', toggleTheme);
 
-  // Selector Palet Aksen Visual
-  const accentBtns = document.querySelectorAll('[data-accent-btn]');
-  accentBtns.forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-accent-btn') === accent);
-    btn.addEventListener('click', () => {
-      accentBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const chosen = btn.getAttribute('data-accent-btn');
-      applyAccent(chosen);
-      showToast(`Tema Aksen: ${chosen.toUpperCase()}`, 'info', 1200);
-    });
-  });
+  // Setup Popover Offline
+  setupOfflinePopover();
 
+  // Setup Canvas Preview
   const previewCanvas = document.getElementById('previewCanvas');
   const canvasViewport = document.getElementById('canvasViewport');
   preview = new DocumentPreview(previewCanvas, canvasViewport);
 
-  // Callback saat seleksi kotak sensor berubah
   preview.onSelectionChange = (selectedBox) => {
     const floatBar = document.getElementById('redactFloatBar');
     if (floatBar) {
       if (selectedBox) floatBar.classList.add('visible');
       else floatBar.classList.remove('visible');
     }
-    updateRedactionPanel();
+    updateSensorChipsList();
     updateUndoRedoButtons();
   };
 
   setupFileInputs();
   setupStageToolbar();
-  setupStudioWatermark();
-  setupStudioRedact();
-  setupStudioExport();
+  setupControlPanel();
   setupKeyboardShortcuts();
 
   document.getElementById('btnResetApp')?.addEventListener('click', resetAll);
@@ -207,20 +196,68 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// INPUT FILE & DRAG DROP
+// POPOVER OFFLINE
+// ==========================================
+function setupOfflinePopover() {
+  const chip = document.getElementById('btnOfflineChip');
+  const popover = document.getElementById('offlinePopover');
+  if (!chip || !popover) return;
+
+  chip.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isVis = popover.classList.toggle('visible');
+    chip.setAttribute('aria-expanded', String(isVis));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!popover.contains(e.target) && e.target !== chip) {
+      popover.classList.remove('visible');
+      chip.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+// ==========================================
+// STEPPER UPDATE
+// ==========================================
+function updateStepper(step) {
+  const s1 = document.querySelector('.step-item.step-1');
+  const s2 = document.querySelector('.step-item.step-2');
+  const s3 = document.querySelector('.step-item.step-3');
+
+  [s1, s2, s3].forEach(el => el?.classList.remove('active'));
+
+  if (step === 1) s1?.classList.add('active');
+  else if (step === 2) s2?.classList.add('active');
+  else if (step === 3) s3?.classList.add('active');
+}
+
+// ==========================================
+// INPUT FILE & DROPZONE
 // ==========================================
 function setupFileInputs() {
   const dropzoneCard = document.getElementById('dropzoneCard');
   const fileInput = document.getElementById('fileInput');
-  const btnBrowseFile = document.getElementById('btnBrowseFile');
-  const btnSampleDoc = document.getElementById('btnSampleDoc');
+  const btnBrowse = document.getElementById('btnBrowseFile');
+  const btnSample = document.getElementById('btnSampleDoc');
   const btnAddMore = document.getElementById('btnAddMoreDocs');
 
-  btnBrowseFile?.addEventListener('click', () => fileInput?.click());
+  btnBrowse?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput?.click();
+  });
+
   btnAddMore?.addEventListener('click', () => fileInput?.click());
 
   dropzoneCard?.addEventListener('click', (e) => {
-    if (e.target !== btnBrowseFile && e.target !== btnSampleDoc) {
+    if (e.target !== btnBrowse && e.target !== btnSample) {
+      fileInput?.click();
+    }
+  });
+
+  dropzoneCard?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
       fileInput?.click();
     }
   });
@@ -253,10 +290,10 @@ function setupFileInputs() {
     e.target.value = '';
   });
 
-  btnSampleDoc?.addEventListener('click', async (e) => {
+  btnSample?.addEventListener('click', async (e) => {
     e.stopPropagation();
     try {
-      showToast('Membuat dokumen contoh KTP...', 'info');
+      showToast('Memuat contoh KTP dummy...');
       const sampleBitmap = await createDummyKtpBitmap();
       const sampleDoc = {
         id: 'doc_sample_ktp',
@@ -273,26 +310,26 @@ function setupFileInputs() {
 
       loadedDocuments = [sampleDoc];
       activeDocIndex = 0;
-      showWorkspace();
-      showToast('Dokumen contoh KTP siap diuji!', 'success');
+      showWorkspaceView();
+      showToast('Contoh KTP siap.');
     } catch (err) {
       console.error(err);
-      showToast('Gagal membuat dokumen contoh', 'error');
+      showToast('Gagal membuat contoh dokumen.');
     }
   });
 }
 
 async function handleFiles(files) {
-  showToast(`Membaca ${files.length} dokumen di perangkat Anda...`, 'info');
+  showToast(`Membaca ${files.length} dokumen...`);
 
   const newDocs = [];
   for (const file of files) {
     try {
-      const doc = await loadDocument(file, (msg) => showToast(msg, 'info', 1500));
+      const doc = await loadDocument(file);
       newDocs.push(doc);
     } catch (err) {
-      console.error('Gagal membaca file:', file.name, err);
-      showToast(`Gagal membaca ${file.name}`, 'error');
+      console.error('Gagal membaca:', file.name, err);
+      showToast(`Gagal membaca ${file.name}`);
     }
   }
 
@@ -301,24 +338,24 @@ async function handleFiles(files) {
   const previousCount = loadedDocuments.length;
   loadedDocuments = [...loadedDocuments, ...newDocs];
   activeDocIndex = previousCount;
-  showWorkspace();
-  showToast(`${newDocs.length} berkas berhasil dimuat 100% offline!`, 'success');
+  showWorkspaceView();
 }
 
-// ==========================================
-// WORKSPACE DISPLAY & BATCH GALLERY
-// ==========================================
-function showWorkspace() {
-  const dropzone = document.getElementById('dropzoneSection');
-  const workspace = document.getElementById('workspaceSection');
-  if (dropzone) dropzone.style.display = 'none';
-  if (workspace) workspace.style.display = 'grid';
+function showWorkspaceView() {
+  const dropzoneCard = document.getElementById('dropzoneCard');
+  const previewArea = document.getElementById('previewArea');
+  const btnDownload = document.getElementById('btnDownloadActive');
 
-  updateBatchGallery();
-  updateActiveDocumentView();
+  if (dropzoneCard) dropzoneCard.style.display = 'none';
+  if (previewArea) previewArea.style.display = 'flex';
+  if (btnDownload) btnDownload.disabled = false;
+
+  updateStepper(2);
+  updateBatchBar();
+  updateActiveDocView();
 }
 
-function updateBatchGallery() {
+function updateBatchBar() {
   const batchContainer = document.getElementById('batchContainer');
   const batchStrip = document.getElementById('batchStrip');
   const batchCountBadge = document.getElementById('batchCountBadge');
@@ -333,27 +370,27 @@ function updateBatchGallery() {
 
     batchStrip.innerHTML = '';
     loadedDocuments.forEach((doc, idx) => {
-      const card = document.createElement('div');
-      card.className = `batch-card ${idx === activeDocIndex ? 'active' : ''}`;
-      card.innerHTML = `
-        <span>${doc.isPdf ? '📄' : '🖼️'}</span>
-        <span style="max-width: 140px; overflow: hidden; text-overflow: ellipsis;">${doc.name}</span>
-        <button class="btn-remove-batch" title="Hapus dari daftar" style="border: none; background: transparent; color: #ef4444; cursor: pointer; padding: 2px 4px; font-weight: bold;">✕</button>
+      const chip = document.createElement('div');
+      chip.className = `batch-chip-item ${idx === activeDocIndex ? 'active' : ''}`;
+      chip.innerHTML = `
+        <span>${doc.isPdf ? 'PDF' : 'IMG'}</span>
+        <span style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;">${doc.name}</span>
+        <button class="btn-del-file" title="Hapus" style="border:none; background:transparent; color:#EF4444; cursor:pointer; font-weight:bold; padding:0 2px;">✕</button>
       `;
 
-      card.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-remove-batch')) return;
+      chip.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-del-file')) return;
         activeDocIndex = idx;
-        updateBatchGallery();
-        updateActiveDocumentView();
+        updateBatchBar();
+        updateActiveDocView();
       });
 
-      card.querySelector('.btn-remove-batch')?.addEventListener('click', (e) => {
+      chip.querySelector('.btn-del-file')?.addEventListener('click', (e) => {
         e.stopPropagation();
-        removeDocumentAt(idx);
+        removeDocAt(idx);
       });
 
-      batchStrip.appendChild(card);
+      batchStrip.appendChild(chip);
     });
   } else {
     batchContainer.style.display = 'none';
@@ -361,11 +398,11 @@ function updateBatchGallery() {
   }
 }
 
-function removeDocumentAt(index) {
-  if (index < 0 || index >= loadedDocuments.length) return;
-  const doc = loadedDocuments[index];
+function removeDocAt(idx) {
+  if (idx < 0 || idx >= loadedDocuments.length) return;
+  const doc = loadedDocuments[idx];
   fullMemoryCleanup([doc], []);
-  loadedDocuments.splice(index, 1);
+  loadedDocuments.splice(idx, 1);
 
   if (loadedDocuments.length === 0) {
     resetAll();
@@ -375,17 +412,20 @@ function removeDocumentAt(index) {
   if (activeDocIndex >= loadedDocuments.length) {
     activeDocIndex = loadedDocuments.length - 1;
   }
-  updateBatchGallery();
-  updateActiveDocumentView();
-  showToast('Dokumen dihapus dari daftar', 'info');
+  updateBatchBar();
+  updateActiveDocView();
 }
 
-function updateActiveDocumentView() {
+function updateActiveDocView() {
   const doc = loadedDocuments[activeDocIndex];
   if (!doc) return;
 
   const page = doc.pages[doc.activePageIndex];
   const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+
+  // Nama file di panel unduh
+  const docNameLabel = document.getElementById('activeDocName');
+  if (docNameLabel) docNameLabel.textContent = doc.name;
 
   // Navigasi PDF Multi-halaman
   const pdfPageNav = document.getElementById('pdfPageNav');
@@ -395,7 +435,7 @@ function updateActiveDocumentView() {
 
   if (doc.pages.length > 1) {
     if (pdfPageNav) pdfPageNav.style.display = 'flex';
-    if (pageNavIndicator) pageNavIndicator.textContent = `Halaman ${doc.activePageIndex + 1} / ${doc.pages.length}`;
+    if (pageNavIndicator) pageNavIndicator.textContent = `Hal ${doc.activePageIndex + 1} / ${doc.pages.length}`;
     if (btnPrevPage) btnPrevPage.disabled = doc.activePageIndex <= 0;
     if (btnNextPage) btnNextPage.disabled = doc.activePageIndex >= doc.pages.length - 1;
   } else {
@@ -403,12 +443,12 @@ function updateActiveDocumentView() {
   }
 
   preview.setDocumentPage(page, fileKey, redactionManager, watermarkSettings);
-  updateRedactionPanel();
+  updateSensorChipsList();
   updateUndoRedoButtons();
 }
 
 // ==========================================
-// STAGE TOOLBAR (VIEW MODES, SENSOR, ZOOM, UNDO)
+// STAGE TOOLBAR (VIEW, SENSOR, UNDO, ZOOM)
 // ==========================================
 function setupStageToolbar() {
   const btnAfter = document.getElementById('btnViewAfter');
@@ -423,23 +463,27 @@ function setupStageToolbar() {
   const btnZoomIn = document.getElementById('btnZoomIn');
   const btnZoomOut = document.getElementById('btnZoomOut');
 
-  function setActiveViewBtn(activeBtn) {
-    [btnAfter, btnBefore, btnSplit].forEach(b => b?.classList.remove('active'));
-    activeBtn?.classList.add('active');
+  function setSegActive(btn) {
+    [btnAfter, btnBefore, btnSplit].forEach(b => {
+      b?.classList.remove('active');
+      b?.setAttribute('aria-selected', 'false');
+    });
+    btn?.classList.add('active');
+    btn?.setAttribute('aria-selected', 'true');
   }
 
   btnAfter?.addEventListener('click', () => {
-    setActiveViewBtn(btnAfter);
+    setSegActive(btnAfter);
     preview.setViewMode('after');
   });
 
   btnBefore?.addEventListener('click', () => {
-    setActiveViewBtn(btnBefore);
+    setSegActive(btnBefore);
     preview.setViewMode('before');
   });
 
   btnSplit?.addEventListener('click', () => {
-    setActiveViewBtn(btnSplit);
+    setSegActive(btnSplit);
     preview.setViewMode('split');
   });
 
@@ -447,19 +491,16 @@ function setupStageToolbar() {
     const isNow = !preview.isRedactionMode;
     preview.setRedactionMode(isNow);
     btnToggleRedact.classList.toggle('active', isNow);
-    syncRedactTabButton(isNow);
-    showToast(isNow ? 'Mode Sensor aktif: Seret kursor di preview untuk membuat kotak sensor' : 'Mode Sensor non-aktif', 'info');
+    showToast(isNow ? 'Mode sensor aktif. Seret di preview untuk membuat kotak.' : 'Mode sensor selesai.');
   });
 
-  btnDeleteSelectedBox?.addEventListener('click', () => {
-    deleteActiveRedactionBox();
-  });
+  btnDeleteSelectedBox?.addEventListener('click', deleteActiveRedactionBox);
 
   btnPrevPage?.addEventListener('click', () => {
     const doc = loadedDocuments[activeDocIndex];
     if (doc && doc.activePageIndex > 0) {
       doc.activePageIndex--;
-      updateActiveDocumentView();
+      updateActiveDocView();
     }
   });
 
@@ -467,20 +508,18 @@ function setupStageToolbar() {
     const doc = loadedDocuments[activeDocIndex];
     if (doc && doc.activePageIndex < doc.pages.length - 1) {
       doc.activePageIndex++;
-      updateActiveDocumentView();
+      updateActiveDocView();
     }
   });
 
-  // Undo / Redo
   btnUndo?.addEventListener('click', () => {
     const doc = loadedDocuments[activeDocIndex];
     if (doc) {
       const fileKey = `${doc.id}_p${doc.activePageIndex}`;
       if (redactionManager.undo(fileKey)) {
         preview.render();
-        updateRedactionPanel();
+        updateSensorChipsList();
         updateUndoRedoButtons();
-        showToast('Undo berhasil', 'info', 1000);
       }
     }
   });
@@ -491,14 +530,12 @@ function setupStageToolbar() {
       const fileKey = `${doc.id}_p${doc.activePageIndex}`;
       if (redactionManager.redo(fileKey)) {
         preview.render();
-        updateRedactionPanel();
+        updateSensorChipsList();
         updateUndoRedoButtons();
-        showToast('Redo berhasil', 'info', 1000);
       }
     }
   });
 
-  // Zoom
   btnZoomIn?.addEventListener('click', () => {
     currentZoom = Math.min(2.5, currentZoom + 0.2);
     preview.setZoom(currentZoom);
@@ -518,8 +555,9 @@ function deleteActiveRedactionBox() {
     if (deleted) {
       preview.render();
       preview.onSelectionChange(null);
+      updateSensorChipsList();
       updateUndoRedoButtons();
-      showToast('Kotak sensor dihapus', 'info');
+      showToast('Kotak sensor dihapus');
     }
   }
 }
@@ -535,12 +573,52 @@ function updateUndoRedoButtons() {
   if (btnRedo) btnRedo.disabled = !redactionManager.canRedo(fileKey);
 }
 
-function syncRedactTabButton(enabled) {
-  const btnPanel = document.getElementById('btnPanelToggleRedact');
-  if (btnPanel) {
-    btnPanel.textContent = enabled ? 'Non-aktifkan Mode Sensor' : 'Aktifkan Mode Sensor';
-    btnPanel.style.background = enabled ? '#1e293b' : '';
+function updateSensorChipsList() {
+  const doc = loadedDocuments[activeDocIndex];
+  const container = document.getElementById('sensorBoxListContainer');
+  const chipsRow = document.getElementById('sensorChips');
+  if (!doc || !container || !chipsRow) return;
+
+  const fileKey = `${doc.id}_p${doc.activePageIndex}`;
+  const boxes = redactionManager.getBoxes(fileKey);
+
+  if (boxes.length === 0) {
+    container.style.display = 'none';
+    chipsRow.innerHTML = '';
+    return;
   }
+
+  container.style.display = 'flex';
+  chipsRow.innerHTML = '';
+
+  boxes.forEach((b, i) => {
+    const isSel = b.id === redactionManager.selectedBoxId;
+    const chip = document.createElement('div');
+    chip.className = `sensor-chip ${isSel ? 'active' : ''}`;
+    chip.innerHTML = `
+      <span>Kotak #${i + 1}</span>
+      <span class="del-btn" style="color:#EF4444; font-weight:bold; margin-left:3px;">✕</span>
+    `;
+
+    chip.addEventListener('click', (e) => {
+      if (e.target.classList.contains('del-btn')) return;
+      redactionManager.selectedBoxId = b.id;
+      preview.render();
+      preview.onSelectionChange(b);
+    });
+
+    chip.querySelector('.del-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      redactionManager.selectedBoxId = b.id;
+      redactionManager.deleteSelectedBox(fileKey);
+      preview.render();
+      preview.onSelectionChange(null);
+      updateSensorChipsList();
+      updateUndoRedoButtons();
+    });
+
+    chipsRow.appendChild(chip);
+  });
 }
 
 // ==========================================
@@ -548,16 +626,13 @@ function syncRedactTabButton(enabled) {
 // ==========================================
 function setupKeyboardShortcuts() {
   window.addEventListener('keydown', (e) => {
-    // Abaikan jika fokus di textarea/input
     if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
-    // Delete / Backspace untuk hapus kotak sensor terpilih
     if ((e.key === 'Delete' || e.key === 'Backspace') && redactionManager.selectedBoxId) {
       e.preventDefault();
       deleteActiveRedactionBox();
     }
 
-    // Ctrl+Z (Undo) & Ctrl+Y (Redo)
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
       e.preventDefault();
       const doc = loadedDocuments[activeDocIndex];
@@ -566,28 +641,15 @@ function setupKeyboardShortcuts() {
         if (e.shiftKey) {
           if (redactionManager.redo(fileKey)) {
             preview.render();
-            updateRedactionPanel();
+            updateSensorChipsList();
             updateUndoRedoButtons();
           }
         } else {
           if (redactionManager.undo(fileKey)) {
             preview.render();
-            updateRedactionPanel();
+            updateSensorChipsList();
             updateUndoRedoButtons();
           }
-        }
-      }
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-      e.preventDefault();
-      const doc = loadedDocuments[activeDocIndex];
-      if (doc) {
-        const fileKey = `${doc.id}_p${doc.activePageIndex}`;
-        if (redactionManager.redo(fileKey)) {
-          preview.render();
-          updateRedactionPanel();
-          updateUndoRedoButtons();
         }
       }
     }
@@ -595,151 +657,97 @@ function setupKeyboardShortcuts() {
 }
 
 // ==========================================
-// STUDIO WATERMARK (PRESETS & CONTROLS)
+// CONTROL PANEL (MODE CEPAT & LANJUTAN)
 // ==========================================
-function setupStudioWatermark() {
+function setupControlPanel() {
   const inputText = document.getElementById('inputWatermarkText');
-  const sliderOpacity = document.getElementById('sliderOpacity');
-  const sliderFontSize = document.getElementById('sliderFontSize');
-  const sliderAngle = document.getElementById('sliderAngle');
-  const sliderSpacingX = document.getElementById('sliderSpacingX');
-  const sliderSpacingY = document.getElementById('sliderSpacingY');
-  const sliderJitter = document.getElementById('sliderJitter');
-  const checkOutline = document.getElementById('checkOutline');
-  const customColorPicker = document.getElementById('customColorPicker');
-  const btnSavePreset = document.getElementById('btnSavePreset');
+  const btnInsertDate = document.getElementById('btnInsertDate');
+  const sliderIntensity = document.getElementById('sliderIntensity');
+  const valIntensityLabel = document.getElementById('valIntensityLabel');
 
-  renderPresetCards();
+  renderPresetChips();
 
+  // Inisialisasi Teks
   if (inputText) inputText.value = watermarkSettings.text;
-  if (sliderOpacity) sliderOpacity.value = Math.round(watermarkSettings.opacity * 100);
-  if (sliderFontSize) sliderFontSize.value = watermarkSettings.fontSizePercent;
-  if (sliderAngle) sliderAngle.value = watermarkSettings.angle;
-  if (sliderSpacingX) sliderSpacingX.value = watermarkSettings.spacingXPercent;
-  if (sliderSpacingY) sliderSpacingY.value = watermarkSettings.spacingYPercent;
-  if (sliderJitter) sliderJitter.value = watermarkSettings.jitterPercent;
-  if (checkOutline) checkOutline.checked = watermarkSettings.strokeOutline;
 
   inputText?.addEventListener('input', (e) => {
     watermarkSettings.text = e.target.value;
     preview.setWatermarkSettings(watermarkSettings);
   });
 
-  // Quick Tags
-  document.querySelectorAll('.tag-btn[data-insert]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      let insertStr = btn.getAttribute('data-insert') || '';
-      if (insertStr === '[tanggal]') {
-        insertStr = getTodayFormatted();
-      }
-      if (inputText) {
-        const start = inputText.selectionStart;
-        const end = inputText.selectionEnd;
-        const current = inputText.value;
-        inputText.value = current.substring(0, start) + ' ' + insertStr + ' ' + current.substring(end);
-        watermarkSettings.text = inputText.value;
-        preview.setWatermarkSettings(watermarkSettings);
-      }
-    });
+  // Tombol "+ tanggal hari ini"
+  btnInsertDate?.addEventListener('click', () => {
+    const today = getTodayFormatted();
+    if (inputText) {
+      const current = inputText.value;
+      if (current.includes(today)) return;
+      inputText.value = current ? `${current} - ${today}` : today;
+      watermarkSettings.text = inputText.value;
+      preview.setWatermarkSettings(watermarkSettings);
+      preview.triggerStampAnimation();
+    }
   });
 
-  // Pattern Selector (Tiled, Single, Cross)
-  const patternBtns = document.querySelectorAll('.pattern-btn');
+  // Slider Tipis ↔ Tebal (Mengatur Opacity + Ukuran Bersamaan)
+  sliderIntensity?.addEventListener('input', (e) => {
+    const lvl = parseInt(e.target.value, 10) || 3;
+    const config = INTENSITY_LEVELS[lvl] || INTENSITY_LEVELS[3];
+
+    watermarkSettings.opacity = config.opacity;
+    watermarkSettings.fontSizePercent = config.fontSizePercent;
+
+    if (valIntensityLabel) valIntensityLabel.textContent = config.label;
+    preview.setWatermarkSettings(watermarkSettings);
+  });
+
+  // Toggle Pola (Penuh / Cap Tengah)
+  const patternBtns = document.querySelectorAll('.pattern-toggle-btn');
   patternBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       patternBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const pattern = btn.getAttribute('data-pattern') || 'tiled';
-      watermarkSettings.pattern = pattern;
+      watermarkSettings.pattern = btn.getAttribute('data-pattern') || 'tiled';
       preview.setWatermarkSettings(watermarkSettings);
+      preview.triggerStampAnimation();
     });
   });
 
-  function bindSlider(sliderEl, badgeId, transformVal, key, suffix = '%') {
-    if (!sliderEl) return;
-    const badge = document.getElementById(badgeId);
-    sliderEl.addEventListener('input', (e) => {
-      const val = parseFloat(e.target.value);
-      watermarkSettings[key] = transformVal(val);
-      if (badge) badge.textContent = `${val}${suffix}`;
-      preview.setWatermarkSettings(watermarkSettings);
-    });
-  }
+  // Accordion Pengaturan Lanjutan
+  const btnAccordion = document.getElementById('btnToggleAccordion');
+  const accordionContent = document.getElementById('accordionContent');
+  const accordionArrow = document.getElementById('accordionArrow');
 
-  bindSlider(sliderOpacity, 'valOpacity', v => v / 100, 'opacity', '%');
-  bindSlider(sliderFontSize, 'valFontSize', v => v, 'fontSizePercent', '%');
-  bindSlider(sliderAngle, 'valAngle', v => v, 'angle', '°');
-  bindSlider(sliderSpacingX, 'valSpacingX', v => v, 'spacingXPercent', '%');
-  bindSlider(sliderSpacingY, 'valSpacingY', v => v, 'spacingYPercent', '%');
-  bindSlider(sliderJitter, 'valJitter', v => v, 'jitterPercent', '%');
-
-  checkOutline?.addEventListener('change', (e) => {
-    watermarkSettings.strokeOutline = e.target.checked;
-    preview.setWatermarkSettings(watermarkSettings);
+  btnAccordion?.addEventListener('click', () => {
+    const isExpanded = accordionContent?.style.display !== 'none';
+    if (accordionContent) accordionContent.style.display = isExpanded ? 'none' : 'flex';
+    accordionArrow?.classList.toggle('open', !isExpanded);
+    btnAccordion.setAttribute('aria-expanded', String(!isExpanded));
   });
 
-  // Color Swatches
-  const colorDots = document.querySelectorAll('.color-dot');
-  colorDots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      colorDots.forEach(d => d.classList.remove('active'));
-      dot.classList.add('active');
-      const c = dot.getAttribute('data-color') || '#059669';
-      watermarkSettings.color = c;
-      if (customColorPicker) customColorPicker.value = c;
-      preview.setWatermarkSettings(watermarkSettings);
-    });
-  });
+  // Slider Lanjutan
+  setupAdvancedSliders();
 
-  customColorPicker?.addEventListener('input', (e) => {
-    colorDots.forEach(d => d.classList.remove('active'));
-    watermarkSettings.color = e.target.value;
-    preview.setWatermarkSettings(watermarkSettings);
-  });
-
-  btnSavePreset?.addEventListener('click', () => {
-    const name = prompt('Nama preset baru Anda:');
-    if (!name || !name.trim()) return;
-
-    const saved = saveCustomPreset(name.trim(), watermarkSettings);
-    if (saved) {
-      renderPresetCards();
-      showToast(`Preset "${saved.name}" berhasil disimpan!`, 'success');
-    }
-  });
+  // Format Unduhan
+  setupDownloadControls();
 }
 
-function renderPresetCards() {
-  const container = document.getElementById('presetCardsContainer');
+function renderPresetChips() {
+  const container = document.getElementById('presetChipsContainer');
   if (!container) return;
 
   const presets = getSavedPresets();
   container.innerHTML = '';
 
-  presets.forEach(p => {
-    const chip = document.createElement('div');
-    chip.className = 'preset-chip';
-    chip.innerHTML = `
-      <span style="font-size: 1.1rem;">${p.icon || '🏷️'}</span>
-      <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.name}</span>
-      ${p.isCustom ? `<button class="btn-del-preset" title="Hapus Preset" style="border: none; background: transparent; color: #ef4444; cursor: pointer; font-size: 0.75rem;">✕</button>` : ''}
-    `;
+  presets.forEach((p, idx) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = `preset-chip-btn ${idx === 0 ? 'active' : ''}`;
+    chip.textContent = p.name;
 
-    chip.addEventListener('click', (e) => {
-      if (e.target.classList.contains('btn-del-preset')) return;
-      document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.preset-chip-btn').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       applyPresetSettings(p.settings);
-      showToast(`Preset "${p.name}" aktif`, 'info', 1500);
-    });
-
-    chip.querySelector('.btn-del-preset')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (confirm(`Hapus preset "${p.name}"?`)) {
-        deleteCustomPreset(p.id);
-        renderPresetCards();
-        showToast('Preset dihapus', 'info');
-      }
     });
 
     container.appendChild(chip);
@@ -750,202 +758,158 @@ function applyPresetSettings(newSettings) {
   watermarkSettings = { ...watermarkSettings, ...newSettings };
 
   const inputText = document.getElementById('inputWatermarkText');
-  const sliderOpacity = document.getElementById('sliderOpacity');
-  const sliderFontSize = document.getElementById('sliderFontSize');
   const sliderAngle = document.getElementById('sliderAngle');
   const sliderSpacingX = document.getElementById('sliderSpacingX');
   const sliderSpacingY = document.getElementById('sliderSpacingY');
   const sliderJitter = document.getElementById('sliderJitter');
   const checkOutline = document.getElementById('checkOutline');
-  const customColorPicker = document.getElementById('customColorPicker');
 
   if (inputText) inputText.value = watermarkSettings.text;
-  if (sliderOpacity) {
-    sliderOpacity.value = Math.round(watermarkSettings.opacity * 100);
-    document.getElementById('valOpacity').textContent = `${sliderOpacity.value}%`;
-  }
-  if (sliderFontSize) {
-    sliderFontSize.value = watermarkSettings.fontSizePercent;
-    document.getElementById('valFontSize').textContent = `${sliderFontSize.value}%`;
-  }
   if (sliderAngle) {
     sliderAngle.value = watermarkSettings.angle;
-    document.getElementById('valAngle').textContent = `${sliderAngle.value}°`;
+    document.getElementById('valAngle').textContent = `${watermarkSettings.angle}°`;
   }
   if (sliderSpacingX) {
     sliderSpacingX.value = watermarkSettings.spacingXPercent;
-    document.getElementById('valSpacingX').textContent = `${sliderSpacingX.value}%`;
+    document.getElementById('valSpacingX').textContent = `${watermarkSettings.spacingXPercent}%`;
   }
   if (sliderSpacingY) {
     sliderSpacingY.value = watermarkSettings.spacingYPercent;
-    document.getElementById('valSpacingY').textContent = `${sliderSpacingY.value}%`;
+    document.getElementById('valSpacingY').textContent = `${watermarkSettings.spacingYPercent}%`;
   }
   if (sliderJitter) {
     sliderJitter.value = watermarkSettings.jitterPercent;
-    document.getElementById('valJitter').textContent = `${sliderJitter.value}%`;
+    document.getElementById('valJitter').textContent = `${watermarkSettings.jitterPercent}%`;
   }
   if (checkOutline) checkOutline.checked = watermarkSettings.strokeOutline;
 
-  // Pattern buttons
-  document.querySelectorAll('.pattern-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-pattern') === (watermarkSettings.pattern || 'tiled'));
+  // Pola
+  document.querySelectorAll('.pattern-toggle-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-pattern') === (watermarkSettings.pattern || 'tiled'));
   });
 
-  // Color
-  document.querySelectorAll('.color-dot').forEach(d => {
+  // Tinta warna
+  document.querySelectorAll('.ink-circle').forEach(d => {
     d.classList.toggle('active', d.getAttribute('data-color') === watermarkSettings.color);
   });
-  if (customColorPicker) customColorPicker.value = watermarkSettings.color;
 
   preview.setWatermarkSettings(watermarkSettings);
+  preview.triggerStampAnimation();
 }
 
-// ==========================================
-// STUDIO SENSOR (REDACT)
-// ==========================================
-function setupStudioRedact() {
-  const btnPanelToggle = document.getElementById('btnPanelToggleRedact');
-  const btnClearAll = document.getElementById('btnClearPageRedactions');
+function setupAdvancedSliders() {
+  const sliderAngle = document.getElementById('sliderAngle');
+  const sliderSpacingX = document.getElementById('sliderSpacingX');
+  const sliderSpacingY = document.getElementById('sliderSpacingY');
+  const sliderJitter = document.getElementById('sliderJitter');
+  const checkOutline = document.getElementById('checkOutline');
+  const customInk = document.getElementById('customColorPicker');
+  const btnSavePreset = document.getElementById('btnSavePreset');
 
-  btnPanelToggle?.addEventListener('click', () => {
-    const isNow = !preview.isRedactionMode;
-    preview.setRedactionMode(isNow);
-    document.getElementById('btnToggleRedact')?.classList.toggle('active', isNow);
-    syncRedactTabButton(isNow);
-    showToast(isNow ? 'Mode Sensor aktif: Seret pada dokumen untuk membuat kotak sensor' : 'Mode Sensor dinonaktifkan', 'info');
+  sliderAngle?.addEventListener('input', (e) => {
+    watermarkSettings.angle = parseFloat(e.target.value);
+    document.getElementById('valAngle').textContent = `${watermarkSettings.angle}°`;
+    preview.setWatermarkSettings(watermarkSettings);
   });
 
-  btnClearAll?.addEventListener('click', () => {
-    const doc = loadedDocuments[activeDocIndex];
-    if (doc) {
-      const fileKey = `${doc.id}_p${doc.activePageIndex}`;
-      redactionManager.clearAllBoxes(fileKey);
-      preview.render();
-      updateRedactionPanel();
-      updateUndoRedoButtons();
-      showToast('Semua kotak sensor di halaman ini dibersihkan', 'info');
+  sliderSpacingX?.addEventListener('input', (e) => {
+    watermarkSettings.spacingXPercent = parseFloat(e.target.value);
+    document.getElementById('valSpacingX').textContent = `${watermarkSettings.spacingXPercent}%`;
+    preview.setWatermarkSettings(watermarkSettings);
+  });
+
+  sliderSpacingY?.addEventListener('input', (e) => {
+    watermarkSettings.spacingYPercent = parseFloat(e.target.value);
+    document.getElementById('valSpacingY').textContent = `${watermarkSettings.spacingYPercent}%`;
+    preview.setWatermarkSettings(watermarkSettings);
+  });
+
+  sliderJitter?.addEventListener('input', (e) => {
+    watermarkSettings.jitterPercent = parseFloat(e.target.value);
+    document.getElementById('valJitter').textContent = `${watermarkSettings.jitterPercent}%`;
+    preview.setWatermarkSettings(watermarkSettings);
+  });
+
+  checkOutline?.addEventListener('change', (e) => {
+    watermarkSettings.strokeOutline = e.target.checked;
+    preview.setWatermarkSettings(watermarkSettings);
+  });
+
+  // Warna Tinta
+  const inkCircles = document.querySelectorAll('.ink-circle');
+  inkCircles.forEach(circle => {
+    circle.addEventListener('click', () => {
+      inkCircles.forEach(c => c.classList.remove('active'));
+      circle.classList.add('active');
+      const c = circle.getAttribute('data-color') || '#C8372D';
+      watermarkSettings.color = c;
+      if (customInk) customInk.value = c;
+      preview.setWatermarkSettings(watermarkSettings);
+      preview.triggerStampAnimation();
+    });
+  });
+
+  customInk?.addEventListener('input', (e) => {
+    inkCircles.forEach(c => c.classList.remove('active'));
+    watermarkSettings.color = e.target.value;
+    preview.setWatermarkSettings(watermarkSettings);
+  });
+
+  // Simpan Preset Kustom
+  btnSavePreset?.addEventListener('click', () => {
+    const name = prompt('Nama preset kustom baru:');
+    if (!name || !name.trim()) return;
+
+    const saved = saveCustomPreset(name.trim(), watermarkSettings);
+    if (saved) {
+      renderPresetChips();
+      showToast(`Preset "${saved.name}" tersimpan.`);
     }
   });
 }
 
-function updateRedactionPanel() {
-  const doc = loadedDocuments[activeDocIndex];
-  const listEl = document.getElementById('redactionList');
-  const badge = document.getElementById('redactCountBadge');
-  if (!doc || !listEl) return;
-
-  const fileKey = `${doc.id}_p${doc.activePageIndex}`;
-  const boxes = redactionManager.getBoxes(fileKey);
-
-  if (badge) badge.textContent = String(boxes.length);
-
-  if (boxes.length === 0) {
-    listEl.innerHTML = `<p style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Belum ada kotak sensor pada halaman ini.</p>`;
-    return;
-  }
-
-  listEl.innerHTML = '';
-  boxes.forEach((b, i) => {
-    const isSel = b.id === redactionManager.selectedBoxId;
-    const item = document.createElement('div');
-    item.style.cssText = `
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.825rem; font-weight: 600;
-      background: ${isSel ? 'var(--primary-subtle)' : 'var(--bg-subtle)'};
-      border: 1px solid ${isSel ? 'var(--primary)' : 'var(--border-light)'};
-      cursor: pointer; transition: all 0.15s ease;
-    `;
-    item.innerHTML = `
-      <span>⬛ Kotak #${i + 1} (${Math.round(b.width * 100)}% × ${Math.round(b.height * 100)}%)</span>
-      <button style="border: none; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 0.9rem;">✕</button>
-    `;
-
-    item.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON') {
-        redactionManager.selectedBoxId = b.id;
-        preview.render();
-        preview.onSelectionChange(b);
-      }
-    });
-
-    item.querySelector('button')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      redactionManager.selectedBoxId = b.id;
-      redactionManager.deleteSelectedBox(fileKey);
-      preview.render();
-      preview.onSelectionChange(null);
-      updateRedactionPanel();
-      updateUndoRedoButtons();
-    });
-
-    listEl.appendChild(item);
-  });
-}
-
 // ==========================================
-// STUDIO EXPORT
+// UNDUH & EKSPOR
 // ==========================================
-function setupStudioExport() {
-  const tabWatermark = document.getElementById('tabBtnWatermark');
-  const tabRedact = document.getElementById('tabBtnRedact');
-  const tabExport = document.getElementById('tabBtnExport');
-
-  const panelWatermark = document.getElementById('panelWatermark');
-  const panelRedact = document.getElementById('panelRedact');
-  const panelExport = document.getElementById('panelExport');
-
-  function setTab(activeTab, activePanel) {
-    [tabWatermark, tabRedact, tabExport].forEach(t => t?.classList.remove('active'));
-    [panelWatermark, panelRedact, panelExport].forEach(p => {
-      if (p) p.style.display = 'none';
-    });
-    activeTab?.classList.add('active');
-    if (activePanel) activePanel.style.display = 'flex';
-  }
-
-  tabWatermark?.addEventListener('click', () => setTab(tabWatermark, panelWatermark));
-  tabRedact?.addEventListener('click', () => setTab(tabRedact, panelRedact));
-  tabExport?.addEventListener('click', () => setTab(tabExport, panelExport));
-
-  const formatCards = document.querySelectorAll('.format-card');
+function setupDownloadControls() {
+  const formatBtns = document.querySelectorAll('.format-btn');
   const formatLabel = document.getElementById('downloadFormatLabel');
+  const btnDownload = document.getElementById('btnDownloadActive');
+  const btnBatchZip = document.getElementById('btnDownloadBatchZip');
 
-  formatCards.forEach(card => {
-    card.addEventListener('click', () => {
-      formatCards.forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      exportFormat = card.getAttribute('data-format') || 'png';
+  formatBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      formatBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      exportFormat = btn.getAttribute('data-format') || 'png';
       if (formatLabel) formatLabel.textContent = exportFormat.toUpperCase();
     });
   });
 
-  const btnDownloadActive = document.getElementById('btnDownloadActive');
-  btnDownloadActive?.addEventListener('click', async () => {
+  btnDownload?.addEventListener('click', async () => {
     const doc = loadedDocuments[activeDocIndex];
     if (!doc) return;
 
-    btnDownloadActive.disabled = true;
-    showToast(`Memproses ${doc.name} ke ${exportFormat.toUpperCase()}...`, 'info');
+    updateStepper(3);
+    btnDownload.disabled = true;
+    showToast(`Memproses ${doc.name}...`);
 
     try {
-      const { blob, filename } = await exportDocument(doc, redactionManager, watermarkSettings, exportFormat, (msg) => {
-        showToast(msg, 'info', 1500);
-      });
-
+      const { blob, filename } = await exportDocument(doc, redactionManager, watermarkSettings, exportFormat);
       triggerDownload(blob, filename);
-      showToast(`Berhasil mengunduh: ${filename}`, 'success');
+      showToast(`Tersimpan: ${filename}`);
     } catch (err) {
       console.error(err);
-      showToast('Gagal memproses dokumen', 'error');
+      showToast('Gagal memproses dokumen.');
     } finally {
-      btnDownloadActive.disabled = false;
+      btnDownload.disabled = false;
     }
   });
 
-  const btnBatchZip = document.getElementById('btnDownloadBatchZip');
   btnBatchZip?.addEventListener('click', async () => {
     if (loadedDocuments.length === 0) return;
 
+    updateStepper(3);
     btnBatchZip.disabled = true;
     const progressBox = document.getElementById('exportProgressBox');
     const progressBar = document.getElementById('exportProgressBar');
@@ -967,11 +931,11 @@ function setupStudioExport() {
         }
       );
 
-      triggerDownload(zipBlob, `tandain_dokumen_batch_${Date.now()}.zip`);
-      showToast('Semua dokumen berhasil diunduh dalam arsip ZIP!', 'success');
+      triggerDownload(zipBlob, `tandain_berkas_${Date.now()}.zip`);
+      showToast('Semua berkas berhasil diunduh dalam ZIP.');
     } catch (err) {
       console.error(err);
-      showToast('Gagal membuat arsip ZIP', 'error');
+      showToast('Gagal membuat arsip ZIP.');
     } finally {
       btnBatchZip.disabled = false;
       setTimeout(() => {
@@ -982,27 +946,35 @@ function setupStudioExport() {
 }
 
 // ==========================================
-// RESET & BERSIHKAN SEMUA DATA DARI MEMORI
+// RESET SEMUA DARI MEMORI
 // ==========================================
 function resetAll() {
-  if (loadedDocuments.length > 0) {
-    const confirmed = confirm('Hapus seluruh dokumen dan sensor dari memori browser?');
-    if (!confirmed) return;
-  }
-
   const previewCanvas = document.getElementById('previewCanvas');
   fullMemoryCleanup(loadedDocuments, [previewCanvas]);
 
   loadedDocuments = [];
   activeDocIndex = 0;
   redactionManager = new RedactionManager();
-  watermarkSettings = { ...DEFAULT_WATERMARK_SETTINGS };
+  watermarkSettings = {
+    ...DEFAULT_WATERMARK_SETTINGS,
+    color: '#C8372D'
+  };
   currentZoom = 1.0;
 
-  const dropzone = document.getElementById('dropzoneSection');
-  const workspace = document.getElementById('workspaceSection');
-  if (workspace) workspace.style.display = 'none';
-  if (dropzone) dropzone.style.display = 'block';
+  const dropzoneCard = document.getElementById('dropzoneCard');
+  const previewArea = document.getElementById('previewArea');
+  const batchContainer = document.getElementById('batchContainer');
+  const btnDownload = document.getElementById('btnDownloadActive');
+  const docNameLabel = document.getElementById('activeDocName');
 
-  showToast('Memori telah dibersihkan secara menyeluruh', 'info');
+  if (dropzoneCard) dropzoneCard.style.display = 'flex';
+  if (previewArea) previewArea.style.display = 'none';
+  if (batchContainer) batchContainer.style.display = 'none';
+  if (btnDownload) btnDownload.disabled = true;
+  if (docNameLabel) docNameLabel.textContent = '';
+
+  updateStepper(1);
+
+  // Exact toast requested by user:
+  showToast('Semua data dihapus dari memori.');
 }
