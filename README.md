@@ -62,7 +62,7 @@ tandain/
 │   │   ├── redact.js      # Sensor manual kotak relatif [0..1]
 │   │   └── watermark.js   # Fungsi renderWatermark tunggal
 │   ├── styles/
-│   │   └── main.css       # Desain emerald modern & responsif
+│   │   └── main.css       # Desain Cap & Tinta (kertas hangat, tinta pekat, aksen merah)
 │   ├── ui/
 │   │   ├── preview.js     # Canvas preview & interaksi sensor
 │   │   ├── presets.js     # Manajemen preset aman di localStorage
