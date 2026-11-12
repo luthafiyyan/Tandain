@@ -1,5 +1,8 @@
 <div align="center">
-  <img src="./public/icons/Tandain_logo.png" width="300" alt="Tandain Logo" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./public/icons/Tandain_logo_dark.png">
+    <img src="./public/icons/Tandain_logo.png" width="320" alt="Tandain Logo" />
+  </picture>
   <p><strong>Watermark & Sensor Dokumen Kependudukan 100% Offline: <em>Tandain dokumenmu, tanpa upload</em></strong></p>
 
   <p align="center">
@@ -12,7 +15,7 @@
   <p align="center">
     <a href="#"><img src="https://img.shields.io/badge/STORAGE-ZERO_PERSISTENCE-5856D6?style=for-the-badge" alt="Storage" /></a>
     <a href="#"><img src="https://img.shields.io/badge/TESTED_WITH-NODE_TESTS-30D158?style=for-the-badge" alt="Tests" /></a>
-    <a href="#"><img src="https://img.shields.io/badge/DESIGN-CRAFTED_UTILITY-0F172A?style=for-the-badge" alt="Design Crafted Utility" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/DESIGN-NATURAL_STUDIO-0F172A?style=for-the-badge" alt="Design Natural Studio" /></a>
     <a href="#"><img src="https://img.shields.io/badge/LICENSE-MIT-8E8E93?style=for-the-badge" alt="License" /></a>
   </p>
 </div>
@@ -38,8 +41,11 @@ Platform ini menggantikan kebiasaan menggunakan alat watermark daring konvension
   - *Melamar Kerja*
   - *Pendaftaran*
   - *Cap Tengah*
-  - Dukungan menyimpan preset kustom sendiri ke penyimpanan pengaturan browser.
-- **Dukungan Format Luas**: Menerima format citra JPG, PNG, WEBP, serta berkas dokumen PDF multi-halaman dengan pagination interaktif.
+  - Dukungan menyimpan preset kustom sendiri ke penyimpanan pengaturan peramban.
+- **Pengaturan Lanjutan yang Komprehensif**: Kustomisasi presisi mencakup sudut rotasi (-90° hingga +90°), tingkat transparansi/opasitas, kerapatan ubin (*spacing*), skala ukuran teks, pilihan warna stempel resmi (merah dinas, biru pengaman, hitam, custom picker), serta pilihan font lokal terintegrasi.
+- **Mode Gelap & Terang Adaptif**: Dukungan visual tema dinamis dengan logo yang otomatis beradaptasi (teks navy di mode terang, teks putih di mode gelap) demi kenyamanan mata pengguna di berbagai lingkungan pencahayaan.
+- **Desain Mobile Responsif**: Navigasi alami di perangkat layar sentuh melalui bilah tindakan bawah (*bottom floating bar*), laci pengaturan modular (*bottom sheet*), dan target interaksi sentuh minimal 44 piksel.
+- **Dukungan Format Luas**: Menerima format citra JPG, PNG, WEBP, serta berkas dokumen PDF multi-halaman dengan penomoran halaman (*pagination*) interaktif.
 - **Pemrosesan Kolektif (Batch)**: Pilih banyak berkas sekaligus dan unduh satu per satu atau secara serentak dalam arsip berformat `.ZIP` (`JSZip`).
 - **PWA & Beroperasi Penuh Tanpa Internet**: Aplikasi siap diinstal sebagai Progressive Web App di Android, iOS, Windows, dan macOS, serta tetap dapat digunakan saat perangkat berada dalam mode pesawat (*airplane mode*).
 
@@ -150,7 +156,13 @@ node test/test-exif.js
 ```
 tandain/
 ├── public/
-│   ├── icons/                  # Ikon aplikasi vektor (SVG, 192px, 512px)
+│   ├── icons/                  # Logo resmi, varian mode gelap, favicon, & ikon PWA
+│   │   ├── Tandain_logo.png
+│   │   ├── Tandain_logo_dark.png
+│   │   ├── Tandain_Favicon.png
+│   │   ├── icon-192.png
+│   │   └── icon-512.png
+│   ├── favicon.ico             # Favicon standar browser
 │   ├── manifest.webmanifest    # Manifest konfigurasi PWA luring
 │   └── sw.js                   # Service Worker precache lokal
 ├── src/
@@ -161,7 +173,7 @@ tandain/
 │   │   ├── redact.js           # Mesin kotak sensor manual berkoordinat [0..1]
 │   │   └── watermark.js        # Fungsi tunggal kalkulasi dan rendering watermark
 │   ├── styles/
-│   │   └── main.css            # Sistem token desain Apple HIG (macOS & iOS)
+│   │   └── main.css            # Sistem token desain studio dokumen & tata letak responsif
 │   ├── ui/
 │   │   ├── presets.js          # Pengelola preset bawaan dan kustom lokal
 │   │   ├── preview.js          # Pratinjau canvas, split handle, dan gestur sentuh
@@ -172,7 +184,7 @@ tandain/
 │   ├── run-tests.js            # Uji unit fungsional, CSP audit, dan hygiene
 │   ├── test-aspect-ratio.js    # Uji konsistensi orientasi gambar
 │   └── test-exif.js            # Uji sanitasi metadata EXIF
-├── index.html                  # Antarmuka macOS 3-pane & meta CSP ketat
+├── index.html                  # Antarmuka studio dokumen 3-kolom & meta CSP ketat
 ├── package.json
 └── vite.config.js
 ```
