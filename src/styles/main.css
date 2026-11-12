@@ -1239,14 +1239,15 @@ input:disabled,
   width: 100%;
   border: none;
   background: transparent;
-  padding: 12px 14px;
+  padding: 13px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   transition: background-color 0.15s ease;
+  user-select: none;
 }
 
 .card-accordion-toggle:hover {
@@ -1255,17 +1256,52 @@ input:disabled,
 
 .accordion-chevron {
   color: var(--text-tertiary);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
 }
 
-.card-accordion-toggle[aria-expanded="true"] .accordion-chevron {
+.card-accordion-toggle[aria-expanded="true"] .accordion-chevron,
+.accordion-chevron.open {
   transform: rotate(180deg);
 }
 
 .card-accordion-body {
-  padding: 12px 14px;
+  display: flex;
+  flex-direction: column !important;
+  gap: 14px;
+  padding: 16px;
   border-top: 1px solid var(--border);
   background-color: var(--bg-subtle);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.adv-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.btn-save-preset {
+  width: 100%;
+  border: 1px dashed var(--border-strong);
+  background-color: var(--bg-surface);
+  color: var(--accent-blue);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.15s ease;
+}
+
+.btn-save-preset:hover {
+  background-color: var(--accent-blue-subtle);
+  border-color: var(--accent-blue);
 }
 
 /* Palet Warna Cap */
@@ -1574,79 +1610,98 @@ input:disabled,
 }
 
 /* ===================================================
-   11. RESPONSIVITAS MOBILE (R-03)
+   11. RESPONSIVITAS MOBILE & TABLET (R-03)
    =================================================== */
-@media (max-width: 900px) {
-  body {
-    overflow-y: auto;
-    height: auto;
-    min-height: 100%;
-  }
-
+@media (max-width: 768px) {
+  /* Toolbar Header Mobile: Ramping, 1 Baris Bersih */
   .app-toolbar {
-    height: auto;
-    padding: 10px 14px;
-    flex-wrap: wrap;
-    gap: 10px;
+    height: 50px;
+    padding: 0 12px;
+    gap: 8px;
   }
 
   .toolbar-left {
     min-width: 0;
+    gap: 8px;
   }
 
+  .app-title {
+    font-size: 15px;
+  }
+
+  .privacy-badge {
+    padding: 3px 7px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  /* Sembunyikan tab tengah di header mobile karena sudah ada di panel bawah */
   .toolbar-center {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    padding-top: 4px;
+    display: none !important;
   }
 
   .toolbar-right {
     min-width: 0;
+    gap: 6px;
   }
 
+  .toolbar-action-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .toolbar-text-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .btn-primary-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  /* Tata Letak Area Kerja Mobile */
   .app-workspace {
     flex-direction: column;
-    overflow: visible;
+    height: calc(100% - 50px - 28px);
+    overflow: hidden;
   }
 
-  .app-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    max-height: 180px;
-  }
-
-  .app-stage {
-    min-height: 380px;
-  }
-
-  .canvas-stage-wrapper {
-    padding: 56px 12px 24px 12px;
-  }
-
-  .app-inspector {
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid var(--border);
-  }
-
-  .mobile-tab-switch {
-    display: flex;
-    justify-content: center;
+  /* Keadaan Kosong (Dropzone Layar Penuh) */
+  .app-workspace:not(.has-documents) .empty-dropzone {
+    flex: 1;
+    padding: 20px 14px 32px 14px;
+    align-items: flex-start;
+    overflow-y: auto;
   }
 
   .dropzone-box {
-    padding: 24px 16px;
+    padding: 28px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .dropzone-stamp-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 14px;
   }
 
   .dropzone-title {
     font-size: 18px;
+    line-height: 1.35;
+  }
+
+  .dropzone-sub {
+    font-size: 13px;
+    margin-bottom: 20px;
   }
 
   .dropzone-actions {
     flex-direction: column;
     width: 100%;
+    gap: 10px;
+    margin-bottom: 20px;
   }
 
   .btn-primary-action,
@@ -1654,6 +1709,288 @@ input:disabled,
     width: 100%;
     justify-content: center;
     min-height: 44px;
+    font-size: 13.5px;
+  }
+
+  .dropzone-meta {
+    gap: 5px;
+    margin-bottom: 20px;
+  }
+
+  .privacy-guarantee-bar {
+    padding-top: 16px;
+    gap: 10px;
+  }
+
+  .guarantee-item {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  /* Saat Ada Dokumen Aktif (Mode Studio Split Ergonomis) */
+  .app-workspace.has-documents {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Sidebar Dokumen Mobile: Horizontal Strip Jika Banyak Dokumen */
+  .app-workspace.has-documents .app-sidebar {
+    width: 100%;
+    display: none; /* Sembunyikan jika hanya 1 dokumen untuk maksimalkan kanvas */
+  }
+
+  .app-workspace.has-documents .app-sidebar.has-docs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 44px;
+    min-height: 44px;
+    padding: 4px 10px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-sidebar.has-docs .sidebar-header {
+    display: none;
+  }
+
+  .app-sidebar.has-docs .doc-list-scroll {
+    flex-direction: row;
+    padding: 0;
+    gap: 6px;
+    overflow-x: auto;
+    flex: 1;
+  }
+
+  .app-sidebar.has-docs .doc-list-item {
+    padding: 5px 9px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .app-sidebar.has-docs .sidebar-footer {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    border-top: none;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .app-sidebar.has-docs .btn-outline-full,
+  .app-sidebar.has-docs .btn-secondary-full {
+    width: auto;
+    padding: 5px 9px;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+
+  /* Zona Atas: Kanvas Dokumen Tetap Terlihat */
+  .app-stage {
+    height: 44vh;
+    min-height: 220px;
+    max-height: 52vh;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .canvas-stage-wrapper {
+    padding: 42px 10px 14px 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #previewCanvas {
+    max-width: 95%;
+    max-height: 88%;
+    object-fit: contain;
+  }
+
+  /* Floating Bar Dokumen Mobile: Ramping & Tidak Pernah Meluap */
+  .stage-floating-bar {
+    top: 6px;
+    max-width: calc(100vw - 16px);
+    padding: 3px 6px;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .stage-floating-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stage-floating-bar .segmented-control {
+    padding: 2px;
+  }
+
+  .stage-floating-bar .seg-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .stage-tool-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .stage-icon-btn {
+    width: 26px;
+    height: 26px;
+  }
+
+  .bar-divider {
+    height: 14px;
+  }
+
+  .selection-callout {
+    top: 48px;
+    right: 10px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .pdf-floating-pager {
+    bottom: 8px;
+    padding: 3px 10px;
+    font-size: 11px;
+    gap: 8px;
+  }
+
+  /* Zona Bawah: Panel Pengaturan dengan Sticky Tab Bar */
+  .app-inspector {
+    flex: 1;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-surface);
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .mobile-tab-switch {
+    display: flex;
+    padding: 8px 12px;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    flex-shrink: 0;
+  }
+
+  .mobile-tab-switch .segmented-control {
+    width: 100%;
+    display: flex;
+    padding: 3px;
+  }
+
+  .mobile-tab-switch .seg-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 38px;
+  }
+
+  .inspector-scroll {
+    flex: 1;
+    padding: 12px 14px 28px 14px;
+    gap: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .preset-pill-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .preset-chip-btn {
+    padding: 10px 12px;
+    font-size: 12.5px;
+    min-height: 44px;
+  }
+
+  /* Form & Kontrol Touch Mobile */
+  .custom-textarea {
+    font-size: 14px; /* Hindari auto-zoom di iOS Safari */
+    min-height: 64px;
+  }
+
+  .control-row {
+    font-size: 13px;
+  }
+
+  .custom-slider::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+  }
+
+  .custom-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+  }
+
+  .color-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .custom-color-circle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .btn-primary-action.full-width {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}
+
+/* Penyesuaian Ponsel Layar Sangat Kecil (<= 380px) */
+@media (max-width: 380px) {
+  .app-branding .app-title {
+    display: none;
+  }
+
+  .preset-pill-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-floating-bar .seg-btn {
+    padding: 3px 6px;
+    font-size: 10.5px;
+  }
+}
+
+/* Penyesuaian Ponsel Mode Lanskap (Tinggi Rendah) */
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+  .app-workspace.has-documents {
+    flex-direction: row;
+  }
+
+  .app-stage {
+    height: 100%;
+    min-height: 100%;
+    flex: 1.2;
+  }
+
+  .app-inspector {
+    height: 100%;
+    flex: 1;
+    border-top: none;
+    border-left: 1px solid var(--border);
   }
 }
 

@@ -291,74 +291,86 @@
 
           <!-- Pengaturan Lanjutan (Accordion) -->
           <div class="control-panel-card">
-            <button id="btnToggleAccordion" class="card-accordion-toggle" aria-expanded="false">
+            <button id="btnToggleAccordion" class="card-accordion-toggle" aria-expanded="false" type="button">
               <span class="accordion-title">Pengaturan Lanjutan</span>
               <svg id="accordionArrow" class="accordion-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
 
             <div id="accordionContent" class="card-accordion-body" style="display: none;">
               <!-- Sudut -->
-              <div class="control-row">
-                <label for="sliderAngle" class="control-label">Sudut Kemiringan</label>
-                <span id="valAngle" class="control-val tabular">-25°</span>
-              </div>
-              <div class="control-slider-wrap">
-                <input type="range" id="sliderAngle" class="custom-slider" min="-90" max="90" step="1" value="-25" aria-label="Sudut Kemiringan Watermark" />
+              <div class="adv-control-group">
+                <div class="control-row">
+                  <label for="sliderAngle" class="control-label">Sudut Kemiringan</label>
+                  <span id="valAngle" class="control-val tabular">-25°</span>
+                </div>
+                <div class="control-slider-wrap">
+                  <input type="range" id="sliderAngle" class="custom-slider" min="-90" max="90" step="1" value="-25" aria-label="Sudut Kemiringan Watermark" />
+                </div>
               </div>
 
               <!-- Jarak Horizontal -->
-              <div class="control-row mt-3">
-                <label for="sliderSpacingX" class="control-label">Jarak Horizontal</label>
-                <span id="valSpacingX" class="control-val tabular">28%</span>
-              </div>
-              <div class="control-slider-wrap">
-                <input type="range" id="sliderSpacingX" class="custom-slider" min="10" max="60" step="1" value="28" aria-label="Jarak Horizontal" />
+              <div class="adv-control-group">
+                <div class="control-row">
+                  <label for="sliderSpacingX" class="control-label">Jarak Horizontal</label>
+                  <span id="valSpacingX" class="control-val tabular">28%</span>
+                </div>
+                <div class="control-slider-wrap">
+                  <input type="range" id="sliderSpacingX" class="custom-slider" min="10" max="60" step="1" value="28" aria-label="Jarak Horizontal" />
+                </div>
               </div>
 
               <!-- Jarak Vertikal -->
-              <div class="control-row mt-3">
-                <label for="sliderSpacingY" class="control-label">Jarak Vertikal</label>
-                <span id="valSpacingY" class="control-val tabular">16%</span>
-              </div>
-              <div class="control-slider-wrap">
-                <input type="range" id="sliderSpacingY" class="custom-slider" min="8" max="40" step="1" value="16" aria-label="Jarak Vertikal" />
+              <div class="adv-control-group">
+                <div class="control-row">
+                  <label for="sliderSpacingY" class="control-label">Jarak Vertikal</label>
+                  <span id="valSpacingY" class="control-val tabular">16%</span>
+                </div>
+                <div class="control-slider-wrap">
+                  <input type="range" id="sliderSpacingY" class="custom-slider" min="8" max="40" step="1" value="16" aria-label="Jarak Vertikal" />
+                </div>
               </div>
 
               <!-- Variasi Posisi (Jitter) -->
-              <div class="control-row mt-3">
-                <label for="sliderJitter" class="control-label">Variasi Posisi (Jitter)</label>
-                <span id="valJitter" class="control-val tabular">12%</span>
-              </div>
-              <div class="control-slider-wrap">
-                <input type="range" id="sliderJitter" class="custom-slider" min="0" max="30" step="1" value="12" aria-label="Acak Posisi" />
+              <div class="adv-control-group">
+                <div class="control-row">
+                  <label for="sliderJitter" class="control-label">Variasi Posisi (Jitter)</label>
+                  <span id="valJitter" class="control-val tabular">12%</span>
+                </div>
+                <div class="control-slider-wrap">
+                  <input type="range" id="sliderJitter" class="custom-slider" min="0" max="30" step="1" value="12" aria-label="Acak Posisi" />
+                </div>
               </div>
 
               <!-- Warna Cap / Tinta -->
-              <div class="control-row mt-3">
-                <span class="control-label">Warna Tinta</span>
-                <div class="color-palette-row" role="group" aria-label="Pilihan Warna Tinta">
-                  <button type="button" class="color-dot active" data-color="#C8372D" style="background:#C8372D;" title="Merah Cap"></button>
-                  <button type="button" class="color-dot" data-color="#1D1D1F" style="background:#1D1D1F;" title="Hitam Pekat"></button>
-                  <button type="button" class="color-dot" data-color="#007AFF" style="background:#007AFF;" title="Biru Dinas"></button>
-                  <button type="button" class="color-dot" data-color="#FFFFFF" style="background:#FFFFFF; border:1px solid #CBD5E1;" title="Putih Bersih"></button>
-                  <input type="color" id="customColorPicker" class="custom-color-circle" value="#C8372D" title="Pilih warna kustom" aria-label="Pilih warna tinta kustom" />
+              <div class="adv-control-group">
+                <div class="control-row">
+                  <span class="control-label">Warna Tinta</span>
+                  <div class="color-palette-row" role="group" aria-label="Pilihan Warna Tinta">
+                    <button type="button" class="color-dot active" data-color="#C8372D" style="background:#C8372D;" title="Merah Cap"></button>
+                    <button type="button" class="color-dot" data-color="#1D1D1F" style="background:#1D1D1F;" title="Hitam Pekat"></button>
+                    <button type="button" class="color-dot" data-color="#007AFF" style="background:#007AFF;" title="Biru Dinas"></button>
+                    <button type="button" class="color-dot" data-color="#FFFFFF" style="background:#FFFFFF; border:1px solid #CBD5E1;" title="Putih Bersih"></button>
+                    <input type="color" id="customColorPicker" class="custom-color-circle" value="#C8372D" title="Pilih warna kustom" aria-label="Pilih warna tinta kustom" />
+                  </div>
                 </div>
               </div>
 
               <!-- Garis Tepi Teks (Outline) -->
-              <div class="control-row mt-3">
-                <span class="control-label">Garis Tepi Huruf</span>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="checkOutline" aria-label="Garis Tepi Huruf" />
-                  <span class="toggle-track"></span>
-                </label>
+              <div class="adv-control-group">
+                <div class="control-row">
+                  <span class="control-label">Garis Tepi Huruf</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="checkOutline" aria-label="Garis Tepi Huruf" />
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
               </div>
 
               <!-- Simpan Preset Baru -->
-              <div class="card-action-bar mt-3 pt-2">
-                <button id="btnSavePreset" type="button" class="btn-helper-link">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                  <span>Simpan pengaturan ini sebagai preset baru</span>
+              <div class="adv-control-group pt-1">
+                <button id="btnSavePreset" type="button" class="btn-save-preset">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  <span>Simpan sebagai Preset Baru</span>
                 </button>
               </div>
             </div>
