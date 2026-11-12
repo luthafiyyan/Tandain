@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="./public/icons/icon.svg" width="96" height="96" alt="Tandain Logo" style="border-radius: 22px;" />
-  <h1>🛡️ Tandain</h1>
+  <img src="./public/icons/Tandain_logo.png" width="300" alt="Tandain Logo" />
   <p><strong>Watermark & Sensor Dokumen Kependudukan 100% Offline: <em>Tandain dokumenmu, tanpa upload</em></strong></p>
 
   <p align="center">

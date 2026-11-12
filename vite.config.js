@@ -19,6 +19,12 @@ export default defineConfig({
         orientation: 'portrait-primary',
         icons: [
           {
+            src: 'icons/Tandain_Favicon.png',
+            sizes: '1024x1024',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
             src: 'icons/icon-192.png',
             sizes: '192x192',
             type: 'image/png',

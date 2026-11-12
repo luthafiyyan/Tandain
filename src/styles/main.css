@@ -307,11 +307,19 @@ input:disabled,
   display: flex;
   align-items: center;
   gap: 9px;
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
   user-select: none;
+}
+
+.app-logo-img {
+  height: 28px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  display: block;
+}
+
+[data-theme="dark"] .app-logo-img {
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.85));
 }
 
 .app-logo-icon {
@@ -1962,6 +1970,11 @@ input:disabled,
 @media (max-width: 380px) {
   .app-branding .app-title {
     display: none;
+  }
+
+  .app-logo-img {
+    height: 24px;
+    max-width: 110px;
   }
 
   .preset-pill-grid {
