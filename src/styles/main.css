@@ -318,8 +318,25 @@ input:disabled,
   display: block;
 }
 
-[data-theme="dark"] .app-logo-img {
-  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.85));
+.app-logo-img.app-logo-dark {
+  display: none;
+}
+
+[data-theme="dark"] .app-logo-img.app-logo-light {
+  display: none;
+}
+
+[data-theme="dark"] .app-logo-img.app-logo-dark {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .app-logo-img.app-logo-light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .app-logo-img.app-logo-dark {
+    display: block;
+  }
 }
 
 .app-logo-icon {
