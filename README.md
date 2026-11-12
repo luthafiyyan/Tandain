@@ -43,7 +43,7 @@ Platform ini menggantikan kebiasaan menggunakan alat watermark daring konvension
   - *Cap Tengah*
   - Dukungan menyimpan preset kustom sendiri ke penyimpanan pengaturan peramban.
 - **Pengaturan Lanjutan yang Komprehensif**: Kustomisasi presisi mencakup sudut rotasi (-90° hingga +90°), tingkat transparansi/opasitas, kerapatan ubin (*spacing*), skala ukuran teks, pilihan warna stempel resmi (merah dinas, biru pengaman, hitam, custom picker), serta pilihan font lokal terintegrasi.
-- **Mode Gelap & Terang Adaptif**: Dukungan visual tema dinamis dengan logo yang otomatis beradaptasi (teks navy di mode terang, teks putih di mode gelap) demi kenyamanan mata pengguna di berbagai lingkungan pencahayaan.
+- **Mode Gelap & Terang Adaptif (Zero-FOUC)**: Aplikasi langsung membuka antarmuka dalam mode terang bersih tanpa jeda kedipan gelap (*no flash of dark mode*), disertai dukungan beralih ke mode gelap secara instan dan logo yang adaptif (teks navy di mode terang, teks putih di mode gelap).
 - **Desain Mobile Responsif**: Navigasi alami di perangkat layar sentuh melalui bilah tindakan bawah (*bottom floating bar*), laci pengaturan modular (*bottom sheet*), dan target interaksi sentuh minimal 44 piksel.
 - **Dukungan Format Luas**: Menerima format citra JPG, PNG, WEBP, serta berkas dokumen PDF multi-halaman dengan penomoran halaman (*pagination*) interaktif.
 - **Pemrosesan Kolektif (Batch)**: Pilih banyak berkas sekaligus dan unduh satu per satu atau secara serentak dalam arsip berformat `.ZIP` (`JSZip`).
@@ -164,6 +164,7 @@ tandain/
 │   │   └── icon-512.png
 │   ├── favicon.ico             # Favicon standar browser
 │   ├── manifest.webmanifest    # Manifest konfigurasi PWA luring
+│   ├── theme-init.js           # Skrip inisialisasi tema awal sinkron (Zero-FOUC)
 │   └── sw.js                   # Service Worker precache lokal
 ├── src/
 │   ├── core/
@@ -188,6 +189,12 @@ tandain/
 ├── package.json
 └── vite.config.js
 ```
+
+---
+
+## 👨‍💻 Pengembang
+
+Aplikasi ini dikembangkan dan dirawat oleh **[Luthafiyyan](https://www.threads.com/@luthafiyyan_)**.
 
 ---
 
