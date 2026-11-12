@@ -6,20 +6,20 @@
   <!-- ATURAN KEAMANAN WAJIB: Content Security Policy Ketat -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none';" />
   
-  <title>Tandain — Watermark & Sensor Dokumen</title>
-  <meta name="description" content="Tandain dokumenmu. File tetap di perangkatmu. KTP, KK, NPWP, ijazah. Tanpa upload, tanpa akun." />
-  <meta name="theme-color" content="#F5F5F7" />
+  <title>Tandain: Watermark & Sensor Dokumen Kependudukan</title>
+  <meta name="description" content="Tandain dokumen Anda secara aman. File diproses langsung di perangkat Anda untuk KTP, KK, NPWP, dan ijazah. Tanpa upload, tanpa akun." />
+  <meta name="theme-color" content="#0F172A" />
 
   <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
-  <!-- macOS Top Toolbar (Translucent) -->
-  <header class="app-toolbar">
+  <!-- Bilah Menu Utama Aplikasi -->
+  <header class="app-toolbar" role="banner">
     <div class="toolbar-left">
       <div class="app-branding">
-        <svg class="app-logo-icon" width="20" height="20" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg">
+        <svg class="app-logo-icon" width="22" height="22" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M7 5.5 C7 4.1 8.1 3 9.5 3 H19 L25.5 9.5 V26.5 C25.5 27.9 24.4 29 23 29 H9.5 C8.1 29 7 27.9 7 26.5 Z" stroke-linejoin="round"/>
           <path d="M19 3 V9.5 H25.5" stroke-linejoin="round"/>
           <rect x="10" y="14.5" width="12" height="11" rx="2" stroke-width="1.5" stroke-dasharray="2 1.2"/>
@@ -28,331 +28,382 @@
         <span class="app-title">Tandain</span>
       </div>
 
-      <!-- Label Privasi Tunggal -->
+      <!-- Informasi Jaminan Privasi -->
       <div class="popover-anchor">
-        <button id="btnOfflineChip" class="privacy-label" aria-haspopup="dialog" aria-expanded="false" title="Informasi Privasi">
-          <span class="status-indicator"></span>
-          <span>Diproses di perangkat ini</span>
+        <button id="btnOfflineChip" class="privacy-badge" aria-haspopup="dialog" aria-expanded="false" title="Informasi Keamanan & Privasi">
+          <svg class="privacy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span>100% Offline di Browser</span>
         </button>
-        <div id="offlinePopover" class="ios-popover" role="dialog" aria-label="Jaminan Privasi">
-          <p class="popover-lead">Dokumenmu tidak diunggah ke mana pun.</p>
-          <p class="popover-detail">Untuk memeriksa, buka tab <strong>Network</strong> di DevTools: tidak ada request saat file diproses.</p>
+        <div id="offlinePopover" class="privacy-popover" role="dialog" aria-label="Jaminan Keamanan Dokumen">
+          <div class="popover-header">
+            <strong>Keamanan & Privasi Data</strong>
+          </div>
+          <p class="popover-lead">Dokumen Anda diproses langsung di memori perangkat ini dan tidak pernah dikirim ke server mana pun.</p>
+          <p class="popover-detail">Silakan periksa tab <strong>Network</strong> pada browser DevTools: tidak ada satupun request saat dokumen diproses.</p>
         </div>
       </div>
     </div>
 
-    <!-- Segmented Control Toolbar Tengah: Watermark | Sensor -->
+    <!-- Mode Pemrosesan Tengah: Watermark / Sensor -->
     <div class="toolbar-center">
-      <div class="segmented-control" role="tablist">
-        <button id="tabModeWatermark" class="seg-btn active" role="tab" aria-selected="true">Watermark</button>
-        <button id="tabModeSensor" class="seg-btn" role="tab" aria-selected="false">Sensor</button>
+      <div class="segmented-control" role="tablist" aria-label="Pilihan Alat Dokumen">
+        <button id="tabModeWatermark" class="seg-btn active" role="tab" aria-selected="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Watermark</span>
+        </button>
+        <button id="tabModeSensor" class="seg-btn" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+          <span>Sensor</span>
+        </button>
       </div>
     </div>
 
-    <!-- Toolbar Kanan: Aksi Cepat -->
+    <!-- Aksi Toolbar Kanan -->
     <div class="toolbar-right">
-      <!-- Toggle Tema (Terang / Gelap) -->
-      <button id="btnToggleTheme" class="toolbar-icon-btn" title="Ganti Tema" aria-label="Ganti Tema">
-        <svg id="themeIconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <!-- Toggle Mode Gelap / Terang -->
+      <button id="btnToggleTheme" class="toolbar-action-btn" title="Ganti Mode Tampilan" aria-label="Ganti Tema Tampilan">
+        <svg id="themeIconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
 
       <!-- Tombol Atur Ulang -->
-      <button id="btnResetApp" class="toolbar-text-btn destructive" title="Hapus semua dokumen dari memori">
+      <button id="btnResetApp" class="toolbar-text-btn destructive" title="Hapus seluruh dokumen dari memori browser">
         Atur ulang
       </button>
 
       <!-- Tombol Unduh Cepat di Toolbar -->
-      <button id="btnDownloadActiveTop" class="btn-filled-sm" disabled>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <button id="btnDownloadActiveTop" class="btn-primary-sm" disabled aria-label="Unduh Dokumen Aktif">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span>Unduh</span>
       </button>
     </div>
   </header>
 
-  <!-- macOS 3-Pane Workspace -->
+  <!-- Area Kerja Studio Tandain -->
   <div class="app-workspace">
 
-    <!-- Pane 1: Sidebar Dokumen (~240px, Finder style) -->
+    <!-- Kolom 1: Daftar Dokumen Terpilih -->
     <aside id="sidebarDocs" class="app-sidebar" aria-label="Daftar Dokumen">
       <div class="sidebar-header">
-        <span class="sidebar-title">Dokumen</span>
-        <span id="batchCountBadge" class="sidebar-badge tabular">0</span>
+        <div class="sidebar-title-wrap">
+          <span class="sidebar-title">Dokumen</span>
+          <span id="batchCountBadge" class="sidebar-badge tabular">0</span>
+        </div>
       </div>
 
-      <!-- Daftar berkas dokumen yang dimuat -->
-      <div id="batchStrip" class="doc-list-scroll">
+      <!-- Item Dokumen -->
+      <div id="batchStrip" class="doc-list-scroll" role="list">
         <!-- Terisi secara dinamis -->
       </div>
 
       <div class="sidebar-footer">
-        <button id="btnAddMoreDocs" class="btn-tinted-full">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+        <button id="btnAddMoreDocs" class="btn-outline-full">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span>Tambah Dokumen</span>
         </button>
 
-        <button id="btnDownloadBatchZip" class="btn-plain-sm" style="display: none;">
-          Unduh Semua (.ZIP)
+        <button id="btnDownloadBatchZip" class="btn-secondary-full" style="display: none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Unduh Semua (.ZIP)</span>
         </button>
       </div>
     </aside>
 
-    <!-- Pane 2: Area Tengah (Pratinjau Dokumen / Dropzone Polos) -->
-    <main class="app-stage" aria-label="Area Kerja Dokumen">
+    <!-- Kolom 2: Area Kerja Pratinjau Dokumen -->
+    <main class="app-stage" aria-label="Kanvas Dokumen">
 
-      <!-- Keadaan Kosong: Dropzone Polos -->
-      <div id="dropzoneCard" class="empty-dropzone" role="button" tabindex="0" aria-label="Pilih dokumen">
+      <!-- Keadaan Kosong (Dropzone Alami & Sambutan) -->
+      <div id="dropzoneCard" class="empty-dropzone" role="region" aria-label="Unggah dokumen untuk diproses">
         <div class="dropzone-box">
-          <h2 class="dropzone-title">Tarik dokumen ke sini</h2>
-          <p class="dropzone-sub">KTP, KK, NPWP, ijazah. JPG, PNG, WEBP, PDF.</p>
-          <div class="dropzone-actions">
-            <button id="btnBrowseFile" class="btn-filled">Pilih File</button>
-            <button id="btnSampleDoc" class="btn-plain">Coba dengan contoh dokumen</button>
+          <div class="dropzone-stamp-icon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="M12 18v-6"/>
+              <path d="M9 15l3-3 3 3"/>
+            </svg>
           </div>
-          <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,application/pdf" style="display: none;" />
+          <h1 class="dropzone-title">Amankan Dokumen Anda Sebelum Dikirim</h1>
+          <p class="dropzone-sub">Bubuhkan tanda air perlindungan dan sensor informasi rahasia pada KTP, KK, NPWP, ijazah, atau sertifikat penting lainnya.</p>
+
+          <div class="dropzone-actions">
+            <button id="btnBrowseFile" class="btn-primary-action">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Pilih Dokumen</span>
+            </button>
+            <button id="btnSampleDoc" class="btn-secondary-action">
+              <span>Coba contoh dokumen KTP</span>
+            </button>
+          </div>
+
+          <div class="dropzone-meta">
+            <span class="meta-tag">KTP & KK</span>
+            <span class="meta-tag">NPWP</span>
+            <span class="meta-tag">Ijazah</span>
+            <span class="meta-tag">PDF multi-halaman</span>
+            <span class="meta-tag">JPG, PNG, WebP</span>
+          </div>
+
+          <div class="privacy-guarantee-bar">
+            <div class="guarantee-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span><strong>100% Offline:</strong> Berkas Anda tidak pernah meninggalkan peramban</span>
+            </div>
+            <div class="guarantee-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span><strong>Hapus Metadata EXIF:</strong> Lokasi GPS & data kamera dibersihkan</span>
+            </div>
+            <div class="guarantee-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              <span><strong>Piksel Permanen:</strong> Tanda air & sensor dirasterisasi langsung</span>
+            </div>
+          </div>
+
+          <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,application/pdf" style="display: none;" aria-hidden="true" />
         </div>
       </div>
 
-      <!-- Area Pratinjau Saat Dokumen Dimuat -->
+      <!-- Area Pratinjau Dokumen Aktif -->
       <div id="previewArea" class="stage-viewport" style="display: none;">
         
-        <!-- Floating Subtoolbar Pratinjau (Sebelum / Belah / Sesudah) -->
-        <div class="stage-floating-bar">
-          <div class="segmented-control" role="tablist">
+        <!-- Toolbar Kontrol Tampilan Pratinjau -->
+        <div class="stage-floating-bar" role="toolbar" aria-label="Kontrol Pratinjau">
+          <div class="segmented-control" role="tablist" aria-label="Mode Perbandingan">
             <button id="btnViewAfter" class="seg-btn active" role="tab" aria-selected="true">Hasil</button>
-            <button id="btnViewSplit" class="seg-btn" role="tab" aria-selected="false">Belah</button>
+            <button id="btnViewSplit" class="seg-btn" role="tab" aria-selected="false">Bandingkan</button>
             <button id="btnViewBefore" class="seg-btn" role="tab" aria-selected="false">Sebelum</button>
           </div>
 
-          <span class="bar-divider"></span>
+          <span class="bar-divider" aria-hidden="true"></span>
 
-          <button id="btnToggleStageSensor" class="seg-btn stage-sensor-btn" role="button" aria-pressed="false" title="Mode Sensor (Gambar kotak sensor)">
-            Sensor
+          <button id="btnToggleStageSensor" class="stage-tool-btn" role="button" aria-pressed="false" title="Mode Sensor (Gambar kotak sensor)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <span>Sensor</span>
           </button>
 
-          <span class="bar-divider"></span>
+          <span class="bar-divider" aria-hidden="true"></span>
 
           <div class="stage-bar-actions">
-            <!-- Undo / Redo -->
-            <button id="btnUndo" class="btn-icon-subtle" title="Batalkan (Ctrl+Z)" disabled aria-label="Batalkan">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+            <!-- Batalkan / Ulangi -->
+            <button id="btnUndo" class="stage-icon-btn" title="Batalkan aksi (Ctrl+Z)" disabled aria-label="Batalkan aksi sensor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
             </button>
-            <button id="btnRedo" class="btn-icon-subtle" title="Ulangi (Ctrl+Y)" disabled aria-label="Ulangi">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+            <button id="btnRedo" class="stage-icon-btn" title="Ulangi aksi (Ctrl+Y)" disabled aria-label="Ulangi aksi sensor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
             </button>
 
-            <span class="bar-divider"></span>
+            <span class="bar-divider" aria-hidden="true"></span>
 
             <!-- Zoom -->
-            <button id="btnZoomOut" class="btn-icon-subtle" title="Perkecil (-)" aria-label="Perkecil">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <button id="btnZoomOut" class="stage-icon-btn" title="Perkecil (-)" aria-label="Perkecil dokumen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <button id="btnZoomIn" class="btn-icon-subtle" title="Perbesar (+)" aria-label="Perbesar">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <button id="btnZoomIn" class="stage-icon-btn" title="Perbesar (+)" aria-label="Perbesar dokumen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
           </div>
         </div>
 
-        <!-- Canvas Stage Viewport -->
+        <!-- Kanvas Dokumen -->
         <div id="canvasViewport" class="canvas-stage-wrapper">
-          <!-- Callout aksi cepat kotak sensor terpilih -->
+          <!-- Tombol Hapus Kotak Sensor Terpilih -->
           <div id="redactFloatBar" class="selection-callout" style="display: none;">
-            <span>Kotak Sensor</span>
+            <span>Kotak sensor aktif</span>
             <button id="btnDeleteSelectedBox" class="btn-callout-delete">Hapus</button>
           </div>
           <canvas id="previewCanvas"></canvas>
         </div>
 
-        <!-- Pagination PDF Multi-halaman -->
+        <!-- Navigasi Halaman PDF Multi-halaman -->
         <div id="pdfPageNav" class="pdf-floating-pager" style="display: none;">
-          <button id="btnPrevPage" class="pager-btn">Sebelumnya</button>
+          <button id="btnPrevPage" class="pager-btn" aria-label="Halaman Sebelumnya">Sebelumnya</button>
           <span id="pageNavIndicator" class="pager-text tabular">Hal 1 dari 1</span>
-          <button id="btnNextPage" class="pager-btn">Selanjutnya</button>
+          <button id="btnNextPage" class="pager-btn" aria-label="Halaman Selanjutnya">Selanjutnya</button>
         </div>
       </div>
     </main>
 
-    <!-- Pane 3: Inspector Kanan (~300px, Inset Grouped ala Pengaturan iOS) -->
-    <aside id="inspectorPanel" class="app-inspector" aria-label="Panel Pengaturan">
-      
-      <!-- Grabber untuk Tampilan Bottom Sheet Mobile iOS -->
-      <div class="mobile-drawer-handle" aria-hidden="true">
-        <span class="drawer-pill"></span>
+    <!-- Kolom 3: Panel Pengaturan & Ekspor -->
+    <aside id="inspectorPanel" class="app-inspector" aria-label="Pengaturan Tanda Air dan Sensor">
+
+      <!-- Pilihan Tab Mobile (Ukuran Layar Kecil) -->
+      <div class="mobile-tab-switch">
+        <div class="segmented-control" role="tablist">
+          <button id="mTabWatermark" class="seg-btn active" role="tab">Watermark</button>
+          <button id="mTabSensor" class="seg-btn" role="tab">Sensor</button>
+          <button id="mTabUnduh" class="seg-btn" role="tab">Unduh</button>
+        </div>
       </div>
 
       <div class="inspector-scroll">
 
-        <!-- Tab Bar Mobile (Khusus Layar HP) -->
-        <div class="mobile-tab-switch">
-          <div class="segmented-control" role="tablist">
-            <button id="mTabWatermark" class="seg-btn active" role="tab">Watermark</button>
-            <button id="mTabSensor" class="seg-btn" role="tab">Sensor</button>
-            <button id="mTabUnduh" class="seg-btn" role="tab">Unduh</button>
-          </div>
-        </div>
-
         <!-- KONTROL WATERMARK -->
         <div id="watermarkControlsGroup" class="inspector-section">
           
-          <!-- Inset Group: Preset -->
-          <div class="inset-group">
-            <div class="inset-header">PRESET</div>
-            <div class="inset-card">
-              <div id="presetChipsContainer" class="preset-segmented-grid">
-                <!-- Terisi via presets.js -->
+          <!-- Grup Preset -->
+          <div class="control-panel-card">
+            <div class="card-header-label">PRESET CEPAT</div>
+            <div id="presetChipsContainer" class="preset-pill-grid">
+              <!-- Terisi via presets.js -->
+            </div>
+          </div>
+
+          <!-- Grup Teks Watermark -->
+          <div class="control-panel-card">
+            <div class="card-header-label">TEKS WATERMARK</div>
+            <div class="card-body-pad">
+              <label for="inputWatermarkText" class="sr-only">Teks Watermark</label>
+              <textarea id="inputWatermarkText" class="custom-textarea" rows="2" placeholder="Tuliskan tujuan dokumen, contoh: HANYA UNTUK VERIFIKASI BANK..."></textarea>
+              <div class="card-action-bar">
+                <button type="button" id="btnInsertDate" class="btn-helper-link">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span>Tambah tanggal hari ini</span>
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Inset Group: Teks Watermark -->
-          <div class="inset-group">
-            <div class="inset-header">TEKS WATERMARK</div>
-            <div class="inset-card">
-              <div class="list-row text-field-row">
-                <textarea id="inputWatermarkText" class="ios-textarea" rows="2" placeholder="Teks watermark..."></textarea>
+          <!-- Grup Tampilan Watermark -->
+          <div class="control-panel-card">
+            <div class="card-header-label">TAMPILAN STAMPEL</div>
+            <div class="card-body-pad">
+              <!-- Slider Intensitas -->
+              <div class="control-row">
+                <label for="sliderIntensity" class="control-label">Intensitas Tinta</label>
+                <span id="valIntensityLabel" class="control-val tabular">Standar</span>
               </div>
-              <div class="list-row action-row">
-                <button type="button" id="btnInsertDate" class="btn-plain">Tambah tanggal</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Inset Group: Tampilan (Intensitas & Pola) -->
-          <div class="inset-group">
-            <div class="inset-header">TAMPILAN</div>
-            <div class="inset-card">
-              <!-- Intensitas Slider -->
-              <div class="list-row">
-                <span class="row-label">Intensitas</span>
-                <span id="valIntensityLabel" class="row-value tabular">Standar</span>
-              </div>
-              <div class="list-row-slider">
-                <input type="range" id="sliderIntensity" class="ios-slider" min="1" max="5" step="1" value="3" aria-label="Intensitas Watermark" />
+              <div class="control-slider-wrap">
+                <input type="range" id="sliderIntensity" class="custom-slider" min="1" max="5" step="1" value="3" aria-label="Intensitas Watermark" />
               </div>
 
-              <!-- Pola Segmented -->
-              <div class="list-row">
-                <span class="row-label">Pola</span>
+              <!-- Pilihan Pola -->
+              <div class="control-row mt-3">
+                <span class="control-label">Pola Penempatan</span>
                 <div class="segmented-control sm">
-                  <button class="pattern-toggle-btn seg-btn active" data-pattern="tiled">Penuh</button>
+                  <button class="pattern-toggle-btn seg-btn active" data-pattern="tiled">Ubin Penuh</button>
                   <button class="pattern-toggle-btn seg-btn" data-pattern="single">Tengah</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Inset Group: Lanjutan (Disclosure) -->
-          <div class="inset-group">
-            <div class="inset-card">
-              <button id="btnToggleAccordion" class="disclosure-header" aria-expanded="false">
-                <span class="row-label">Lanjutan</span>
-                <svg id="accordionArrow" class="disclosure-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
+          <!-- Pengaturan Lanjutan (Accordion) -->
+          <div class="control-panel-card">
+            <button id="btnToggleAccordion" class="card-accordion-toggle" aria-expanded="false">
+              <span class="accordion-title">Pengaturan Lanjutan</span>
+              <svg id="accordionArrow" class="accordion-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
 
-              <div id="accordionContent" class="disclosure-content" style="display: none;">
-                <!-- Sudut -->
-                <div class="list-row sub-row">
-                  <span class="row-label-sub">Sudut</span>
-                  <span id="valAngle" class="row-value tabular">-25°</span>
-                </div>
-                <div class="list-row-slider">
-                  <input type="range" id="sliderAngle" class="ios-slider" min="-90" max="90" step="1" value="-25" aria-label="Sudut Watermark" />
-                </div>
+            <div id="accordionContent" class="card-accordion-body" style="display: none;">
+              <!-- Sudut -->
+              <div class="control-row">
+                <label for="sliderAngle" class="control-label">Sudut Kemiringan</label>
+                <span id="valAngle" class="control-val tabular">-25°</span>
+              </div>
+              <div class="control-slider-wrap">
+                <input type="range" id="sliderAngle" class="custom-slider" min="-90" max="90" step="1" value="-25" aria-label="Sudut Kemiringan Watermark" />
+              </div>
 
-                <!-- Jarak X -->
-                <div class="list-row sub-row">
-                  <span class="row-label-sub">Jarak horizontal</span>
-                  <span id="valSpacingX" class="row-value tabular">28%</span>
-                </div>
-                <div class="list-row-slider">
-                  <input type="range" id="sliderSpacingX" class="ios-slider" min="10" max="60" step="1" value="28" aria-label="Jarak Horizontal" />
-                </div>
+              <!-- Jarak Horizontal -->
+              <div class="control-row mt-3">
+                <label for="sliderSpacingX" class="control-label">Jarak Horizontal</label>
+                <span id="valSpacingX" class="control-val tabular">28%</span>
+              </div>
+              <div class="control-slider-wrap">
+                <input type="range" id="sliderSpacingX" class="custom-slider" min="10" max="60" step="1" value="28" aria-label="Jarak Horizontal" />
+              </div>
 
-                <!-- Jarak Y -->
-                <div class="list-row sub-row">
-                  <span class="row-label-sub">Jarak vertikal</span>
-                  <span id="valSpacingY" class="row-value tabular">16%</span>
-                </div>
-                <div class="list-row-slider">
-                  <input type="range" id="sliderSpacingY" class="ios-slider" min="8" max="40" step="1" value="16" aria-label="Jarak Vertikal" />
-                </div>
+              <!-- Jarak Vertikal -->
+              <div class="control-row mt-3">
+                <label for="sliderSpacingY" class="control-label">Jarak Vertikal</label>
+                <span id="valSpacingY" class="control-val tabular">16%</span>
+              </div>
+              <div class="control-slider-wrap">
+                <input type="range" id="sliderSpacingY" class="custom-slider" min="8" max="40" step="1" value="16" aria-label="Jarak Vertikal" />
+              </div>
 
-                <!-- Acak Posisi -->
-                <div class="list-row sub-row">
-                  <span class="row-label-sub">Acak posisi</span>
-                  <span id="valJitter" class="row-value tabular">12%</span>
-                </div>
-                <div class="list-row-slider">
-                  <input type="range" id="sliderJitter" class="ios-slider" min="0" max="30" step="1" value="12" aria-label="Acak Posisi" />
-                </div>
+              <!-- Variasi Posisi (Jitter) -->
+              <div class="control-row mt-3">
+                <label for="sliderJitter" class="control-label">Variasi Posisi (Jitter)</label>
+                <span id="valJitter" class="control-val tabular">12%</span>
+              </div>
+              <div class="control-slider-wrap">
+                <input type="range" id="sliderJitter" class="custom-slider" min="0" max="30" step="1" value="12" aria-label="Acak Posisi" />
+              </div>
 
-                <!-- Warna Teks -->
-                <div class="list-row sub-row">
-                  <span class="row-label-sub">Warna teks</span>
-                  <div class="color-palette-row">
-                    <button type="button" class="color-dot active" data-color="#C8372D" style="background:#C8372D;" title="Merah"></button>
-                    <button type="button" class="color-dot" data-color="#1D1D1F" style="background:#1D1D1F;" title="Hitam"></button>
-                    <button type="button" class="color-dot" data-color="#007AFF" style="background:#007AFF;" title="Biru"></button>
-                    <button type="button" class="color-dot" data-color="#FFFFFF" style="background:#FFFFFF; border:1px solid #D1D1D6;" title="Putih"></button>
-                    <input type="color" id="customColorPicker" class="custom-color-circle" value="#C8372D" title="Warna lain" />
-                  </div>
-                </div>
-
-                <!-- Garis Tepi Teks -->
-                <div class="list-row sub-row">
-                  <span class="row-label-sub">Garis tepi</span>
-                  <label class="ios-switch">
-                    <input type="checkbox" id="checkOutline" />
-                    <span class="switch-slider"></span>
-                  </label>
-                </div>
-
-                <!-- Simpan Preset -->
-                <div class="list-row action-row">
-                  <button id="btnSavePreset" type="button" class="btn-plain">Simpan sebagai preset baru</button>
+              <!-- Warna Cap / Tinta -->
+              <div class="control-row mt-3">
+                <span class="control-label">Warna Tinta</span>
+                <div class="color-palette-row" role="group" aria-label="Pilihan Warna Tinta">
+                  <button type="button" class="color-dot active" data-color="#C8372D" style="background:#C8372D;" title="Merah Cap"></button>
+                  <button type="button" class="color-dot" data-color="#1D1D1F" style="background:#1D1D1F;" title="Hitam Pekat"></button>
+                  <button type="button" class="color-dot" data-color="#007AFF" style="background:#007AFF;" title="Biru Dinas"></button>
+                  <button type="button" class="color-dot" data-color="#FFFFFF" style="background:#FFFFFF; border:1px solid #CBD5E1;" title="Putih Bersih"></button>
+                  <input type="color" id="customColorPicker" class="custom-color-circle" value="#C8372D" title="Pilih warna kustom" aria-label="Pilih warna tinta kustom" />
                 </div>
               </div>
-            </div>
-          </div>
 
-        </div>
-
-        <!-- KONTROL SENSOR (Muncul saat tab Sensor aktif) -->
-        <div id="sensorControlsGroup" class="inspector-section" style="display: none;">
-          <div class="inset-group">
-            <div class="inset-header">ALAT SENSOR</div>
-            <div class="inset-card">
-              <div class="list-row">
-                <span class="row-label">Sensor manual</span>
-                <label class="ios-switch">
-                  <input type="checkbox" id="checkSensorMode" />
-                  <span class="switch-slider"></span>
+              <!-- Garis Tepi Teks (Outline) -->
+              <div class="control-row mt-3">
+                <span class="control-label">Garis Tepi Huruf</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="checkOutline" aria-label="Garis Tepi Huruf" />
+                  <span class="toggle-track"></span>
                 </label>
               </div>
-              <div class="list-hint-box">
-                <p>Seret kursor atau jari Anda pada area pratinjau untuk membuat kotak sensor hitam di atas NIK atau data pribadi.</p>
+
+              <!-- Simpan Preset Baru -->
+              <div class="card-action-bar mt-3 pt-2">
+                <button id="btnSavePreset" type="button" class="btn-helper-link">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  <span>Simpan pengaturan ini sebagai preset baru</span>
+                </button>
               </div>
             </div>
           </div>
 
-          <div class="inset-group">
-            <div class="inset-header">AREA SENSOR AKTIF</div>
-            <div class="inset-card">
-              <div id="sensorBoxListEmpty" class="list-row text-secondary">
-                <span>Belum ada area sensor</span>
+        </div>
+
+        <!-- KONTROL SENSOR DATA PRIBADI -->
+        <div id="sensorControlsGroup" class="inspector-section" style="display: none;">
+          <div class="control-panel-card">
+            <div class="card-header-label">ALAT SENSOR MANUAL</div>
+            <div class="card-body-pad">
+              <div class="control-row">
+                <span class="control-label">Aktifkan Sensor</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="checkSensorMode" aria-label="Mode Sensor Manual" />
+                  <span class="toggle-track"></span>
+                </label>
               </div>
-              <div id="sensorChips" class="sensor-list-table"></div>
+              <div class="sensor-instruction-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p>Klik dan seret kursor pada area pratinjau dokumen untuk membuat kotak hitam penutup NIK, nomor telepon, atau data pribadi.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-panel-card">
+            <div class="card-header-label">AREA SENSOR TERSIMPAN</div>
+            <div class="card-body-pad">
+              <div id="sensorBoxListEmpty" class="text-secondary-empty">
+                <span>Belum ada area sensor pada dokumen ini.</span>
+              </div>
+              <div id="sensorChips" class="sensor-table-list"></div>
             </div>
           </div>
         </div>
 
-        <!-- INSET GROUP: UNDUH / EKSPOR -->
-        <div id="exportControlsGroup" class="inset-group export-group">
-          <div class="inset-header">UNDUH</div>
-          <div class="inset-card">
-            <!-- Format Segmented (PNG / JPG / PDF) -->
-            <div class="list-row">
-              <span class="row-label">Format</span>
-              <div class="segmented-control sm">
+        <!-- KONTROL EKSPOR / UNDUH -->
+        <div id="exportControlsGroup" class="control-panel-card export-card">
+          <div class="card-header-label">FORMAT & EKSPOR</div>
+          <div class="card-body-pad">
+            <!-- Pilihan Format Dokumen -->
+            <div class="control-row">
+              <span class="control-label">Format Berkas</span>
+              <div class="segmented-control sm" role="group" aria-label="Format Berkas Unduhan">
                 <button class="format-btn seg-btn active" data-format="png">PNG</button>
                 <button class="format-btn seg-btn" data-format="jpg">JPG</button>
                 <button class="format-btn seg-btn" data-format="pdf">PDF</button>
@@ -360,26 +411,27 @@
             </div>
 
             <!-- Nama Dokumen Aktif -->
-            <div class="list-row">
-              <span class="row-label">Berkas</span>
-              <span id="activeDocName" class="row-value ellipsis">-</span>
+            <div class="control-row mt-2">
+              <span class="control-label">Nama Dokumen</span>
+              <span id="activeDocName" class="control-val ellipsis max-w-160">-</span>
             </div>
 
             <!-- Tombol Unduh Utama -->
-            <div class="download-btn-wrap">
-              <button id="btnDownloadActive" class="btn-filled-lg" disabled>
+            <div class="export-btn-wrap mt-3">
+              <button id="btnDownloadActive" class="btn-primary-action full-width" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Unduh Dokumen (<span id="downloadFormatLabel">PNG</span>)</span>
               </button>
             </div>
 
-            <!-- Progress Bar PDF / ZIP -->
-            <div id="exportProgressBox" class="export-progress" style="display: none;">
-              <div class="progress-labels">
-                <span id="exportProgressText" class="progress-name">Memproses...</span>
-                <span id="exportProgressPercent" class="progress-num tabular">0%</span>
+            <!-- Bilah Progres Pemrosesan PDF / ZIP -->
+            <div id="exportProgressBox" class="export-progress-panel" style="display: none;">
+              <div class="progress-info-row">
+                <span id="exportProgressText" class="progress-desc">Memproses dokumen...</span>
+                <span id="exportProgressPercent" class="progress-val tabular">0%</span>
               </div>
-              <div class="progress-track">
-                <div id="exportProgressBar" class="progress-fill"></div>
+              <div class="progress-bar-bg">
+                <div id="exportProgressBar" class="progress-bar-fill"></div>
               </div>
             </div>
           </div>
@@ -390,26 +442,26 @@
 
   </div>
 
-  <!-- iOS Modal Alert: Konfirmasi Atur Ulang -->
-  <div id="resetModal" class="ios-modal-backdrop" style="display: none;">
-    <div class="ios-alert" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertDesc">
-      <div class="alert-content">
-        <h3 id="alertTitle" class="alert-title">Atur Ulang</h3>
-        <p id="alertDesc" class="alert-desc">Hapus semua dokumen dari memori?</p>
+  <!-- Dialog Konfirmasi Atur Ulang -->
+  <div id="resetModal" class="confirm-modal-backdrop" style="display: none;">
+    <div class="confirm-modal-box" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertDesc">
+      <div class="confirm-modal-header">
+        <h3 id="alertTitle" class="confirm-modal-title">Atur Ulang Dokumen</h3>
+        <p id="alertDesc" class="confirm-modal-desc">Semua dokumen yang sedang diproses akan segera dibersihkan dari memori browser Anda.</p>
       </div>
-      <div class="alert-actions">
-        <button id="btnCancelReset" class="alert-btn cancel">Batal</button>
-        <button id="btnConfirmReset" class="alert-btn destructive">Hapus</button>
+      <div class="confirm-modal-actions">
+        <button id="btnCancelReset" class="btn-dialog-secondary">Batal</button>
+        <button id="btnConfirmReset" class="btn-dialog-destructive">Hapus Semua</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notifikasi (Bawah Tengah) -->
-  <div id="toastContainer" class="toast-stack"></div>
+  <!-- Kontainer Toast Notifikasi -->
+  <div id="toastContainer" class="toast-stack" aria-live="polite"></div>
 
-  <!-- Footer Satu Baris Kecil -->
-  <footer class="app-footer">
-    <p>Tandain — 100% offline di perangkatmu. Tanpa server, tanpa pelacakan.</p>
+  <!-- Footer Ringkas & Humanis -->
+  <footer class="app-footer" role="contentinfo">
+    <p>Tandain: 100% diproses di perangkat Anda. Tanpa server, tanpa pelacakan data pribadi.</p>
   </footer>
 
   <!-- Script Aplikasi -->

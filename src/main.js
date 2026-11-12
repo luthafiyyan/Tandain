@@ -394,7 +394,9 @@ function showWorkspaceView() {
   const previewArea = document.getElementById('previewArea');
   const btnDownload = document.getElementById('btnDownloadActive');
   const btnDownloadTop = document.getElementById('btnDownloadActiveTop');
+  const workspace = document.querySelector('.app-workspace');
 
+  if (workspace) workspace.classList.add('has-documents');
   if (dropzoneCard) dropzoneCard.style.display = 'none';
   if (previewArea) previewArea.style.display = 'flex';
   if (btnDownload) btnDownload.disabled = false;
@@ -1113,7 +1115,9 @@ function resetAll() {
   const btnDownload = document.getElementById('btnDownloadActive');
   const btnDownloadTop = document.getElementById('btnDownloadActiveTop');
   const docNameLabel = document.getElementById('activeDocName');
+  const workspace = document.querySelector('.app-workspace');
 
+  if (workspace) workspace.classList.remove('has-documents');
   if (dropzoneCard) dropzoneCard.style.display = 'flex';
   if (previewArea) previewArea.style.display = 'none';
   if (btnDownload) btnDownload.disabled = true;

@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./public/icons/icon.svg" width="96" height="96" alt="Tandain Logo" style="border-radius: 22px;" />
   <h1>🛡️ Tandain</h1>
-  <p><strong>Watermark & Sensor Dokumen Kependudukan 100% Offline — <em>Tandain dokumenmu, tanpa upload</em></strong></p>
+  <p><strong>Watermark & Sensor Dokumen Kependudukan 100% Offline: <em>Tandain dokumenmu, tanpa upload</em></strong></p>
 
   <p align="center">
     <a href="#"><img src="https://img.shields.io/badge/STATUS-PRODUCTION_READY-34C759?style=for-the-badge" alt="Status" /></a>
@@ -13,7 +13,7 @@
   <p align="center">
     <a href="#"><img src="https://img.shields.io/badge/STORAGE-ZERO_PERSISTENCE-5856D6?style=for-the-badge" alt="Storage" /></a>
     <a href="#"><img src="https://img.shields.io/badge/TESTED_WITH-NODE_TESTS-30D158?style=for-the-badge" alt="Tests" /></a>
-    <a href="#"><img src="https://img.shields.io/badge/DESIGN-APPLE_HIG-007AFF?style=for-the-badge&logo=apple&logoColor=white" alt="Design Apple" /></a>
+    <a href="#"><img src="https://img.shields.io/badge/DESIGN-CRAFTED_UTILITY-0F172A?style=for-the-badge" alt="Design Crafted Utility" /></a>
     <a href="#"><img src="https://img.shields.io/badge/LICENSE-MIT-8E8E93?style=for-the-badge" alt="License" /></a>
   </p>
 </div>
@@ -70,17 +70,18 @@ Saat tombol **Atur ulang** ditekan atau dokumen dihapus:
 
 ---
 
-## 🎨 Bahasa Desain (Apple Human Interface Guidelines)
+## 🎨 Bahasa Desain (Crafted Document Studio)
 
-Antarmuka dirancang dengan estetika modern, tenang, dan presisi layaknya aplikasi bawaan macOS dan iOS:
+Antarmuka dirancang dengan estetika studio dokumen modern yang tenang, presisi, dan fungsional:
 
-| Komponen | Implementasi Desain Apple |
+| Komponen | Implementasi Desain Utilitas |
 | :--- | :--- |
-| **Tata Letak Desktop** | Model jendela 3-pane macOS: Toolbar atas transparan, Sidebar daftar dokumen Finder-style, Stage pratinjau tengah, dan Inspector Inset Grouped di kanan. |
-| **Tata Letak Mobile** | Pratinjau responsif di atas dengan kontrol yang tersimpan rapi dalam *Bottom Sheet Drawer* ber-grabber, dengan target sentuh minimal 44 piksel. |
-| **Warna Aksen Tunggal** | Biru Sistem Apple (`#007AFF` pada mode terang, `#0A84FF` pada mode gelap) untuk kontrol aktif dan aksi primer. |
-| **Tipografi Sistem** | Font stack `-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter"` dengan penomoran tabular (`tabular-nums`) untuk keselarasan angka metrik. |
-| **Material & Efek** | Material transparan (*backdrop-filter blur*) hanya diterapkan pada bilah navigasi, sementara panel kontrol menggunakan permukaan solid dengan garis tepi 1px yang bersih. |
+| **Tata Letak Desktop** | Model studio 3 kolom fleksibel: Toolbar ringkas, Sidebar daftar dokumen aktif, Kanvas dokumen sentral dengan kontras latar meja kerja, dan Panel kontrol ergonomis di kanan. |
+| **Keadaan Kosong (Empty State)** | Saat belum ada dokumen yang dimuat, dropzone menyambut pengguna dengan fokus penuh di tengah layar, lengkap dengan penjelas format dan jaminan privasi yang transparan. |
+| **Tata Letak Mobile** | Pratinjau responsif adaptif dengan kontrol berbasis kartu sentuh yang ramah jari (target sentuh minimal 44 piksel). |
+| **Warna Fungsional** | Palet slate netral dengan aksen stempel dinas merah terracotta (`#C8372D`) dan biru pengaman (`#1D4ED8` / `#3B82F6`) untuk aksi utama. |
+| **Tipografi Presisi** | Font *Inter* untuk elemen antarmuka dan *JetBrains Mono* untuk angka tabular, sudut, dan persentase metrik. |
+| **Aksesibilitas & Affordance** | Kursor pointer eksplisit pada seluruh kontrol interaktif, indikator fokus cincin kontras tinggi, dan kontras warna yang melampaui standar WCAG AA (4.5:1). |
 
 ---
 

@@ -1,168 +1,202 @@
 /**
- * main.css — Apple Human Interface Guidelines Design System
- * Bersih, tenang, presisi, beraksen biru sistem (#007AFF / #0A84FF).
+ * Tandain: Design System
+ * Desain antarmuka alami, utilitarian, tenang, dan berorientasi dokumen.
+ * Dibuat secara spesifik untuk kebutuhan pembubuhan watermark dan sensor dokumen privat.
  */
 
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
 
 /* ===================================================
-   1. DESIGN TOKENS (LIGHT & DARK MODES)
+   1. DESIGN TOKENS (LIGHT & DARK THEMES)
    =================================================== */
 :root {
-  /* Tipografi Apple */
-  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Tipografi */
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Warna Aksen Tunggal: Biru Sistem */
-  --accent: #007AFF;
-  --accent-hover: #0062CC;
-  --accent-subtle: rgba(0, 122, 255, 0.1);
-  --accent-border: rgba(0, 122, 255, 0.25);
-  --destructive: #FF3B30;
-  --destructive-hover: #D72E24;
-
-  /* Latar & Permukaan Terang (iOS / macOS Light) */
-  --bg-window: #F5F5F7;
+  /* Tema Terang (Light Theme) */
+  --bg-canvas: #F8FAFC;
   --bg-surface: #FFFFFF;
-  --bg-secondary: #EFEFF4;
-  --bg-tertiary: #E5E5EA;
-  --bg-sidebar: rgba(245, 245, 247, 0.85);
-  --bg-toolbar: rgba(245, 245, 247, 0.85);
-  --bg-stage: #EBEBF0;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-muted: #E2E8F0;
+  --bg-toolbar: #FFFFFF;
+  --bg-stage: #EDF2F7;
 
-  /* Pemisah & Garis Tepi */
-  --separator: rgba(0, 0, 0, 0.08);
-  --separator-subtle: rgba(0, 0, 0, 0.04);
-  --card-border: rgba(0, 0, 0, 0.08);
+  /* Garis Tepi & Pemisah */
+  --border: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --border-strong: #CBD5E1;
 
-  /* Teks Netral */
-  --text-primary: #1D1D1F;
-  --text-secondary: #6E6E73;
-  --text-tertiary: #8E8E93;
-  --text-on-accent: #FFFFFF;
+  /* Teks */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #64748B;
+  --text-on-dark: #FFFFFF;
+
+  /* Aksen & Aksi */
+  --accent-primary: #0F172A;
+  --accent-primary-hover: #1E293B;
+  --accent-primary-text: #FFFFFF;
+  --accent-blue: #1D4ED8;
+  --accent-blue-subtle: rgba(29, 78, 216, 0.08);
+  --stamp-red: #C2410C;
+  --destructive: #DC2626;
+  --destructive-hover: #B91C1C;
+  --destructive-subtle: #FEF2F2;
 
   /* Kontrol UI */
-  --slider-track: rgba(120, 120, 128, 0.2);
-  --segmented-bg: rgba(118, 118, 128, 0.12);
+  --control-bg: #FFFFFF;
+  --control-border: #CBD5E1;
+  --control-active: #0F172A;
+  --segmented-bg: #E2E8F0;
   --segmented-active: #FFFFFF;
-  --toast-bg: rgba(30, 30, 32, 0.85);
-  --toast-text: #FFFFFF;
+  --slider-track: #CBD5E1;
+  --slider-thumb: #0F172A;
 
-  /* Radius Konsisten Apple */
+  /* Radius & Bayangan (Konsisten, Bergradasi Alami) */
+  --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-control: 10px;
-  --radius-card: 14px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
   --radius-pill: 999px;
 
-  /* Bayangan Halus Satu Tingkat */
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-popover: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-floating: 0 12px 28px -4px rgba(15, 23, 42, 0.12), 0 4px 8px -2px rgba(15, 23, 42, 0.06);
 }
 
-/* Otomatis Mengikuti prefers-color-scheme: dark */
+/* Tema Gelap Otomatis / Manual */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --accent: #0A84FF;
-    --accent-hover: #409CFF;
-    --accent-subtle: rgba(10, 132, 255, 0.15);
-    --accent-border: rgba(10, 132, 255, 0.3);
-    --destructive: #FF453A;
-    --destructive-hover: #FF6961;
+    --bg-canvas: #0B0F19;
+    --bg-surface: #111827;
+    --bg-surface-elevated: #1E293B;
+    --bg-subtle: #1E293B;
+    --bg-muted: #334155;
+    --bg-toolbar: #111827;
+    --bg-stage: #070B12;
 
-    --bg-window: #000000;
-    --bg-surface: #2C2C2E;
-    --bg-secondary: #3A3A3C;
-    --bg-tertiary: #48484A;
-    --bg-sidebar: rgba(28, 28, 30, 0.85);
-    --bg-toolbar: rgba(28, 28, 30, 0.85);
-    --bg-stage: #111215;
+    --border: rgba(255, 255, 255, 0.1);
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.2);
 
-    --separator: rgba(255, 255, 255, 0.12);
-    --separator-subtle: rgba(255, 255, 255, 0.06);
-    --card-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-tertiary: #94A3B8;
+    --text-on-dark: #FFFFFF;
 
-    --text-primary: #F5F5F7;
-    --text-secondary: #98989D;
-    --text-tertiary: #636366;
+    --accent-primary: #F8FAFC;
+    --accent-primary-hover: #E2E8F0;
+    --accent-primary-text: #0F172A;
+    --accent-blue: #3B82F6;
+    --accent-blue-subtle: rgba(59, 130, 246, 0.15);
+    --stamp-red: #EA580C;
+    --destructive: #EF4444;
+    --destructive-hover: #DC2626;
+    --destructive-subtle: rgba(239, 68, 68, 0.15);
 
-    --slider-track: rgba(120, 120, 128, 0.35);
-    --segmented-bg: rgba(118, 118, 128, 0.24);
-    --segmented-active: #636366;
-    --toast-bg: rgba(50, 50, 54, 0.85);
+    --control-bg: #1E293B;
+    --control-border: #475569;
+    --control-active: #3B82F6;
+    --segmented-bg: #1E293B;
+    --segmented-active: #334155;
+    --slider-track: #475569;
+    --slider-thumb: #3B82F6;
 
-    --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-popover: 0 12px 28px rgba(0, 0, 0, 0.45);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+    --shadow-floating: 0 14px 32px rgba(0, 0, 0, 0.65);
   }
 }
 
-/* Override Manual Gelap via data-theme="dark" */
 [data-theme="dark"] {
-  --accent: #0A84FF;
-  --accent-hover: #409CFF;
-  --accent-subtle: rgba(10, 132, 255, 0.15);
-  --accent-border: rgba(10, 132, 255, 0.3);
-  --destructive: #FF453A;
-  --destructive-hover: #FF6961;
+  --bg-canvas: #0B0F19;
+  --bg-surface: #111827;
+  --bg-surface-elevated: #1E293B;
+  --bg-subtle: #1E293B;
+  --bg-muted: #334155;
+  --bg-toolbar: #111827;
+  --bg-stage: #070B12;
 
-  --bg-window: #000000;
-  --bg-surface: #2C2C2E;
-  --bg-secondary: #3A3A3C;
-  --bg-tertiary: #48484A;
-  --bg-sidebar: rgba(28, 28, 30, 0.85);
-  --bg-toolbar: rgba(28, 28, 30, 0.85);
-  --bg-stage: #111215;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.2);
 
-  --separator: rgba(255, 255, 255, 0.12);
-  --separator-subtle: rgba(255, 255, 255, 0.06);
-  --card-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-tertiary: #94A3B8;
+  --text-on-dark: #FFFFFF;
 
-  --text-primary: #F5F5F7;
-  --text-secondary: #98989D;
-  --text-tertiary: #636366;
+  --accent-primary: #F8FAFC;
+  --accent-primary-hover: #E2E8F0;
+  --accent-primary-text: #0F172A;
+  --accent-blue: #3B82F6;
+  --accent-blue-subtle: rgba(59, 130, 246, 0.15);
+  --stamp-red: #EA580C;
+  --destructive: #EF4444;
+  --destructive-hover: #DC2626;
+  --destructive-subtle: rgba(239, 68, 68, 0.15);
 
-  --slider-track: rgba(120, 120, 128, 0.35);
-  --segmented-bg: rgba(118, 118, 128, 0.24);
-  --segmented-active: #636366;
-  --toast-bg: rgba(50, 50, 54, 0.85);
+  --control-bg: #1E293B;
+  --control-border: #475569;
+  --control-active: #3B82F6;
+  --segmented-bg: #1E293B;
+  --segmented-active: #334155;
+  --slider-track: #475569;
+  --slider-thumb: #3B82F6;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-floating: 0 14px 32px rgba(0, 0, 0, 0.65);
 }
 
-/* Override Manual Terang via data-theme="light" */
 [data-theme="light"] {
-  --accent: #007AFF;
-  --accent-hover: #0062CC;
-  --accent-subtle: rgba(0, 122, 255, 0.1);
-  --accent-border: rgba(0, 122, 255, 0.25);
-  --destructive: #FF3B30;
-  --destructive-hover: #D72E24;
-
-  --bg-window: #F5F5F7;
+  --bg-canvas: #F8FAFC;
   --bg-surface: #FFFFFF;
-  --bg-secondary: #EFEFF4;
-  --bg-tertiary: #E5E5EA;
-  --bg-sidebar: rgba(245, 245, 247, 0.85);
-  --bg-toolbar: rgba(245, 245, 247, 0.85);
-  --bg-stage: #EBEBF0;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-muted: #E2E8F0;
+  --bg-toolbar: #FFFFFF;
+  --bg-stage: #EDF2F7;
 
-  --separator: rgba(0, 0, 0, 0.08);
-  --separator-subtle: rgba(0, 0, 0, 0.04);
-  --card-border: rgba(0, 0, 0, 0.08);
+  --border: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --border-strong: #CBD5E1;
 
-  --text-primary: #1D1D1F;
-  --text-secondary: #6E6E73;
-  --text-tertiary: #8E8E93;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #64748B;
+  --text-on-dark: #FFFFFF;
 
-  --slider-track: rgba(120, 120, 128, 0.2);
-  --segmented-bg: rgba(118, 118, 128, 0.12);
+  --accent-primary: #0F172A;
+  --accent-primary-hover: #1E293B;
+  --accent-primary-text: #FFFFFF;
+  --accent-blue: #1D4ED8;
+  --accent-blue-subtle: rgba(29, 78, 216, 0.08);
+  --stamp-red: #C2410C;
+  --destructive: #DC2626;
+  --destructive-hover: #B91C1C;
+  --destructive-subtle: #FEF2F2;
+
+  --control-bg: #FFFFFF;
+  --control-border: #CBD5E1;
+  --control-active: #0F172A;
+  --segmented-bg: #E2E8F0;
   --segmented-active: #FFFFFF;
-  --toast-bg: rgba(30, 30, 32, 0.85);
+  --slider-track: #CBD5E1;
+  --slider-thumb: #0F172A;
 }
 
 /* ===================================================
-   2. RESET & BASE TYPOGRAPHY
+   2. RESET & BASE ACCESSIBILITY (antislop-human)
    =================================================== */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -173,30 +207,52 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  background-color: var(--bg-window);
+  background-color: var(--bg-canvas);
   color: var(--text-primary);
-  font-family: var(--font-system);
+  font-family: var(--font-ui);
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-button, input, textarea, select {
-  font-family: inherit;
-  color: inherit;
-  font-size: inherit;
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* Aksesibilitas: Fokus Cincin Biru Sistem */
+/* Affordance Interaktif Wajib (R-39) */
+button,
+a,
+summary,
+select,
+input[type="range"],
+input[type="checkbox"],
+input[type="color"],
+label[for],
+.seg-btn,
+.color-dot,
+.preset-chip-btn {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Fokus Ring Aksesibel (R-32) */
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
-/* Angka Tabular untuk Penomoran & Slider */
+/* Format Angka Tabular */
 .tabular {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -206,219 +262,327 @@ button, input, textarea, select {
   white-space: nowrap;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.pt-2 { padding-top: 8px; }
+.max-w-160 { max-width: 160px; }
+.full-width { width: 100%; }
+
 /* ===================================================
-   3. TOOLBAR ATAS (macOS TRANSLUCENT TOOLBAR)
+   3. BILAH TOOLBAR ATAS (HEADER)
    =================================================== */
 .app-toolbar {
-  height: 52px;
+  height: 54px;
   width: 100%;
-  background: var(--bg-toolbar);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--separator);
+  background-color: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  z-index: 50;
-  position: relative;
+  padding: 0 18px;
+  flex-shrink: 0;
+  z-index: 40;
 }
 
 .toolbar-left {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-width: 240px;
+  gap: 16px;
+  min-width: 250px;
 }
 
 .app-branding {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   user-select: none;
 }
 
 .app-logo-icon {
-  color: var(--accent);
+  color: var(--stamp-red);
   flex-shrink: 0;
 }
 
 .app-title {
+  font-weight: 700;
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
 }
 
-/* Label Privasi Tunggal & Popover */
+/* Label Status Privasi yang Jujur (Tanpa fake pulse / dot) */
 .popover-anchor {
   position: relative;
 }
 
-.privacy-label {
+.privacy-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: transparent;
-  border: none;
-  font-size: 12px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 4px 8px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  transition: background-color 0.15s ease;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
 }
 
-.privacy-label:hover {
-  background: var(--bg-secondary);
+.privacy-badge:hover {
+  background-color: var(--border);
   color: var(--text-primary);
 }
 
-.status-indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #34C759; /* Green active status */
+.privacy-icon {
+  color: var(--accent-blue);
+  flex-shrink: 0;
 }
 
-.ios-popover {
+.privacy-popover {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  width: 280px;
-  background: var(--bg-surface);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-card);
+  width: 290px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
   padding: 14px 16px;
-  box-shadow: var(--shadow-popover);
+  box-shadow: var(--shadow-floating);
   z-index: 100;
   display: none;
-  animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.ios-popover.visible {
+.privacy-popover.visible {
   display: block;
 }
 
-.popover-lead {
+.popover-header {
   font-size: 13px;
-  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 6px;
 }
 
-.popover-detail {
+.popover-lead {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.popover-detail {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
   line-height: 1.4;
 }
 
-/* Toolbar Tengah: Segmented Control Mode */
+/* Mode Switcher Toolbar Tengah */
 .toolbar-center {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Toolbar Kanan: Aksi & Tombol Unduh */
+/* Segmented Control Presisi */
+.segmented-control {
+  display: inline-flex;
+  background-color: var(--segmented-bg);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  gap: 2px;
+}
+
+.segmented-control.sm {
+  padding: 2px;
+}
+
+.seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.segmented-control.sm .seg-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.seg-btn:hover:not(.active) {
+  color: var(--text-primary);
+}
+
+.seg-btn.active {
+  background-color: var(--segmented-active);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+/* Toolbar Kanan */
 .toolbar-right {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 240px;
+  min-width: 250px;
   justify-content: flex-end;
 }
 
-.toolbar-icon-btn {
-  width: 32px;
-  height: 32px;
+.toolbar-action-btn {
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-sm);
-  border: none;
-  background: transparent;
+  border: 1px solid var(--border);
+  background-color: var(--bg-surface);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.toolbar-icon-btn:hover {
-  background: var(--bg-secondary);
+.toolbar-action-btn:hover {
+  background-color: var(--bg-subtle);
   color: var(--text-primary);
+  border-color: var(--border-strong);
 }
 
 .toolbar-text-btn {
-  background: transparent;
   border: none;
+  background: transparent;
   font-size: 13px;
   font-weight: 500;
   padding: 6px 10px;
   border-radius: var(--radius-sm);
-  cursor: pointer;
+  color: var(--text-secondary);
   transition: all 0.15s ease;
 }
 
-.toolbar-text-btn.destructive {
-  color: var(--destructive);
+.toolbar-text-btn:hover {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
 }
 
 .toolbar-text-btn.destructive:hover {
-  background: rgba(255, 59, 48, 0.08);
+  background-color: var(--destructive-subtle);
+  color: var(--destructive);
+}
+
+.btn-primary-sm {
+  background-color: var(--accent-primary);
+  color: var(--accent-primary-text);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-primary-sm:hover:not(:disabled) {
+  background-color: var(--accent-primary-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ===================================================
-   4. TAMPILAN 3 AREA (macOS 3-PANE WORKSPACE)
+   4. TATA LETAK WORKSPACE & POLA RHYTHM (R-05)
    =================================================== */
 .app-workspace {
-  display: grid;
-  grid-template-columns: 240px 1fr 320px;
-  height: calc(100vh - 52px - 28px);
-  width: 100%;
+  flex: 1;
+  display: flex;
   overflow: hidden;
+  position: relative;
+  background-color: var(--bg-canvas);
 }
 
-/* PANE 1: SIDEBAR DOKUMEN (~240px, Finder Style) */
+/* Mode Kosong: Sidebar dan Inspector beristirahat, Dropzone mengambil panggung */
+.app-workspace:not(.has-documents) .app-sidebar,
+.app-workspace:not(.has-documents) .app-inspector {
+  display: none;
+}
+
+.app-workspace:not(.has-documents) .app-stage {
+  flex: 1;
+  width: 100%;
+}
+
+/* ===================================================
+   5. KOLOM 1: SIDEBAR DOKUMEN (KIRI)
+   =================================================== */
 .app-sidebar {
-  background: var(--bg-sidebar);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid var(--separator);
+  width: 250px;
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 20;
 }
 
 .sidebar-header {
-  padding: 14px 16px 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+.sidebar-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .sidebar-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 
 .sidebar-badge {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
   font-size: 11px;
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-  padding: 2px 7px;
+  font-weight: 600;
+  padding: 1px 7px;
   border-radius: var(--radius-pill);
 }
 
 .doc-list-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 0 8px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .doc-list-item {
@@ -426,22 +590,22 @@ button, input, textarea, select {
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  border: 1px solid transparent;
   cursor: pointer;
+  transition: all 0.15s ease;
   user-select: none;
-  font-size: 13px;
-  color: var(--text-primary);
-  transition: background-color 0.12s ease;
 }
 
 .doc-list-item:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-subtle);
+  border-color: var(--border-subtle);
 }
 
 .doc-list-item.active {
-  background-color: var(--accent-subtle);
-  color: var(--accent);
-  font-weight: 500;
+  background-color: var(--bg-subtle);
+  border-color: var(--border-strong);
 }
 
 .doc-item-left {
@@ -449,25 +613,23 @@ button, input, textarea, select {
   align-items: center;
   gap: 8px;
   min-width: 0;
-  flex: 1;
 }
 
 .doc-format-pill {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 1px 4px;
-  border-radius: 4px;
-  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background-color: var(--border);
   color: var(--text-secondary);
-  letter-spacing: 0.03em;
-}
-
-.doc-list-item.active .doc-format-pill {
-  background: var(--accent);
-  color: var(--text-on-accent);
+  flex-shrink: 0;
 }
 
 .doc-title-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -477,235 +639,407 @@ button, input, textarea, select {
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-xs);
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.6;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
 }
 
 .btn-doc-remove:hover {
-  opacity: 1;
+  background-color: var(--destructive-subtle);
   color: var(--destructive);
 }
 
 .sidebar-footer {
-  padding: 12px 14px;
-  border-top: 1px solid var(--separator);
+  padding: 12px;
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-/* PANE 2: AREA TENGAH (STAGE DOKUMEN) */
-.app-stage {
-  background: var(--bg-stage);
-  position: relative;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-}
-
-/* Keadaan Kosong (Dropzone Polos ala Apple) */
-.empty-dropzone {
+.btn-outline-full {
   width: 100%;
-  max-width: 440px;
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-card);
-  padding: 40px 28px;
-  text-align: center;
-  background: var(--bg-surface);
-  box-shadow: var(--shadow-card);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-  margin: auto;
+  padding: 8px 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
 }
 
-.empty-dropzone:hover, .empty-dropzone.drag-over {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-subtle), var(--shadow-popover);
+.btn-outline-full:hover {
+  background-color: var(--bg-subtle);
+  border-color: var(--text-primary);
+}
+
+.btn-secondary-full {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary-full:hover {
+  background-color: var(--border);
+  color: var(--text-primary);
+}
+
+/* ===================================================
+   6. KOLOM 2: KANVAS DOKUMEN (STAGE TENGAH)
+   =================================================== */
+.app-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-stage);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Keadaan Kosong (Dropzone Sambutan Alami) */
+.empty-dropzone {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  overflow-y: auto;
 }
 
 .dropzone-box {
+  max-width: 580px;
+  width: 100%;
+  background-color: var(--bg-surface);
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.dropzone-box:hover,
+.empty-dropzone.drag-over .dropzone-box {
+  border-color: var(--accent-blue);
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.dropzone-stamp-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--stamp-red);
+  margin-bottom: 20px;
 }
 
 .dropzone-title {
   font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
 .dropzone-sub {
   font-size: 14px;
   color: var(--text-secondary);
+  line-height: 1.5;
   margin-bottom: 24px;
-  line-height: 1.4;
+  max-width: 460px;
 }
 
 .dropzone-actions {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 12px;
-  width: 100%;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-/* Stage Pratinjau Dokumen */
-.stage-viewport {
-  min-width: 100%;
-  min-height: 100%;
-  margin: auto;
+.btn-primary-action {
+  background-color: var(--accent-primary);
+  color: var(--accent-primary-text);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-primary-action:hover:not(:disabled) {
+  background-color: var(--accent-primary-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary-action {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 18px;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary-action:hover {
+  background-color: var(--border);
+}
+
+.dropzone-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+
+.meta-tag {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+}
+
+.privacy-guarantee-bar {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.guarantee-item {
+  display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.guarantee-item svg {
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.guarantee-item strong {
+  color: var(--text-primary);
+}
+
+/* Area Pratinjau Dokumen Aktif */
+.stage-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   position: relative;
-  padding: 68px 24px 68px 24px;
-  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Floating Subtoolbar Pratinjau */
 .stage-floating-bar {
   position: absolute;
-  top: 16px;
-  z-index: 20;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 4px 6px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--bg-surface);
-  padding: 4px;
-  border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--card-border);
+  gap: 6px;
+  box-shadow: var(--shadow-md);
+  z-index: 30;
 }
 
-.stage-sensor-btn {
+.bar-divider {
+  width: 1px;
+  height: 18px;
+  background-color: var(--border-strong);
+}
+
+.stage-tool-btn {
+  border: 1px solid var(--border);
+  background-color: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
   font-weight: 500;
-  padding: 5px 12px;
-  border-radius: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   transition: all 0.15s ease;
 }
 
-.stage-sensor-btn.active {
-  background: var(--accent);
-  color: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+.stage-tool-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--border);
+}
+
+.stage-tool-btn.active,
+.stage-tool-btn[aria-pressed="true"] {
+  background-color: var(--accent-primary);
+  color: var(--accent-primary-text);
+  border-color: var(--accent-primary);
 }
 
 .stage-bar-actions {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 0 4px;
+  gap: 4px;
 }
 
-.bar-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--separator);
-  margin: 0 4px;
-}
-
-.btn-icon-subtle {
+.stage-icon-btn {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--radius-xs);
   border: none;
   background: transparent;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.12s ease;
+  transition: all 0.15s ease;
 }
 
-.btn-icon-subtle:hover:not(:disabled) {
-  background: var(--bg-secondary);
+.stage-icon-btn:hover:not(:disabled) {
+  background-color: var(--bg-subtle);
   color: var(--text-primary);
 }
 
-.btn-icon-subtle:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-/* Canvas Stage Wrapper */
+/* Canvas Viewport */
 .canvas-stage-wrapper {
-  position: relative;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: auto;
+  overflow: auto;
+  padding: 64px 24px 32px 24px;
+  position: relative;
 }
 
 #previewCanvas {
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  max-width: 100%;
+  max-height: 100%;
   display: block;
-  border-radius: 4px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  touch-action: none;
-  user-select: none;
+}
+
+/* Efek Cap Menempel Alami */
+.stamp-applied {
+  animation: stampImpact 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes stampImpact {
+  0% { transform: scale(1.015); }
+  100% { transform: scale(1.0); }
 }
 
 /* Callout Kotak Sensor Terpilih */
 .selection-callout {
   position: absolute;
-  top: 16px;
-  background: var(--bg-surface);
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-popover);
-  border: 1px solid var(--card-border);
+  top: 76px;
+  right: 24px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
   z-index: 25;
 }
 
 .btn-callout-delete {
-  background: transparent;
-  border: none;
+  background-color: var(--destructive-subtle);
+  border: 1px solid var(--destructive);
   color: var(--destructive);
+  font-size: 11px;
   font-weight: 600;
-  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  transition: all 0.15s ease;
 }
 
-/* Floating Pager PDF */
+.btn-callout-delete:hover {
+  background-color: var(--destructive);
+  color: #FFFFFF;
+}
+
+/* Pager PDF Multi-halaman */
 .pdf-floating-pager {
   position: absolute;
-  bottom: 16px;
-  background: var(--bg-surface);
-  border: 1px solid var(--card-border);
-  box-shadow: var(--shadow-card);
-  padding: 4px 12px;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
+  padding: 4px 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-  z-index: 20;
+  box-shadow: var(--shadow-md);
+  z-index: 30;
 }
 
 .pager-btn {
-  background: transparent;
   border: none;
+  background: transparent;
+  color: var(--text-primary);
   font-size: 12px;
-  color: var(--accent);
-  cursor: pointer;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  transition: background-color 0.15s ease;
 }
 
-.pager-btn:disabled {
-  color: var(--text-tertiary);
-  cursor: not-allowed;
+.pager-btn:hover:not(:disabled) {
+  background-color: var(--bg-subtle);
 }
 
 .pager-text {
@@ -713,13 +1047,17 @@ button, input, textarea, select {
   color: var(--text-secondary);
 }
 
-/* PANE 3: INSPECTOR KANAN (~300px, Inset Grouped ala Pengaturan iOS) */
+/* ===================================================
+   7. KOLOM 3: INSPECTOR PENGATURAN (KANAN)
+   =================================================== */
 .app-inspector {
-  background: var(--bg-window);
-  border-left: 1px solid var(--separator);
+  width: 340px;
+  background-color: var(--bg-surface);
+  border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 20;
 }
 
 .inspector-scroll {
@@ -731,305 +1069,206 @@ button, input, textarea, select {
   gap: 16px;
 }
 
-.mobile-drawer-handle, .mobile-tab-switch {
+.mobile-tab-switch {
   display: none;
+  padding: 12px 16px 0 16px;
 }
 
-/* ===================================================
-   5. KOMPONEN INSET GROUPED (GAYA PENGATURAN iOS)
-   =================================================== */
-.inset-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.inset-header {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  letter-spacing: 0.05em;
-  padding-left: 14px;
-}
-
-.inset-card {
-  background: var(--bg-surface);
-  border-radius: var(--radius-card);
-  border: 1px solid var(--card-border);
+/* Kartu Panel Kontrol Ergonomis */
+.control-panel-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
-.list-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 11px 14px;
-  min-height: 44px;
-  position: relative;
-}
-
-.list-row:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 0;
-  bottom: 0;
-  height: 0.5px;
-  background-color: var(--separator);
-}
-
-.row-label {
-  font-size: 14px;
-  color: var(--text-primary);
-  font-weight: 400;
-}
-
-.row-label-sub {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.row-value {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.text-field-row {
-  padding: 8px 14px;
-}
-
-.list-row-slider {
-  padding: 4px 14px 12px;
-  position: relative;
-}
-
-.list-row-slider::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 0;
-  bottom: 0;
-  height: 0.5px;
-  background-color: var(--separator);
-}
-
-.action-row {
-  justify-content: flex-start;
-}
-
-.list-hint-box {
-  padding: 10px 14px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.4;
-  background: var(--bg-secondary);
-}
-
-/* Textarea iOS Style */
-.ios-textarea {
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 14px;
-  line-height: 1.4;
-  resize: vertical;
-  min-height: 48px;
-  outline: none;
-}
-
-.ios-textarea::placeholder {
+.card-header-label {
+  padding: 10px 14px 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-tertiary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Disclosure (Accordion) Lanjutan */
-.disclosure-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.card-body-pad {
   padding: 12px 14px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
 }
 
-.disclosure-chevron {
-  color: var(--text-tertiary);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.disclosure-chevron.open {
-  transform: rotate(90deg);
-}
-
-.disclosure-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.sub-row {
-  padding: 9px 14px;
-}
-
-/* ===================================================
-   6. ATOM KOMPONEN (SEGMENTED, SLIDER, SWITCH, BUTTONS)
-   =================================================== */
-
-/* SEGMENTED CONTROL */
-.segmented-control {
-  display: flex;
-  background: var(--segmented-bg);
-  padding: 2px;
-  border-radius: var(--radius-sm);
-  user-select: none;
-}
-
-.segmented-control.sm {
-  border-radius: var(--radius-sm);
-}
-
-.seg-btn {
-  flex: 1;
-  padding: 5px 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.seg-btn:hover:not(.active) {
-  color: var(--text-primary);
-}
-
-.seg-btn.active {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-/* PRESET SEGMENTED GRID */
-.preset-segmented-grid {
+/* Preset Chips */
+.preset-pill-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--separator);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  padding: 10px 12px;
 }
 
 .preset-chip-btn {
-  background: var(--bg-surface);
-  border: none;
-  padding: 10px 12px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
   font-size: 12px;
-  color: var(--text-secondary);
-  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-primary);
   text-align: left;
-  transition: all 0.12s ease;
+  transition: all 0.15s ease;
+  line-height: 1.3;
 }
 
 .preset-chip-btn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background-color: var(--border);
+  border-color: var(--border-strong);
 }
 
 .preset-chip-btn.active {
-  color: var(--accent);
+  background-color: var(--accent-blue-subtle);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
   font-weight: 600;
-  background: var(--accent-subtle);
 }
 
-/* SLIDER iOS STYLE */
-.ios-slider {
-  -webkit-appearance: none;
-  appearance: none;
+/* Textarea Teks Watermark */
+.custom-textarea {
   width: 100%;
-  height: 4px;
-  background: var(--slider-track);
-  border-radius: 2px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--control-bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  padding: 8px 10px;
+  resize: vertical;
+  min-height: 60px;
   outline: none;
-  cursor: pointer;
+  transition: border-color 0.15s ease;
 }
 
-.ios-slider::-webkit-slider-thumb {
+.custom-textarea:focus {
+  border-color: var(--accent-blue);
+}
+
+.card-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.btn-helper-link {
+  border: none;
+  background: transparent;
+  color: var(--accent-blue);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: var(--radius-xs);
+  transition: background-color 0.15s ease;
+}
+
+.btn-helper-link:hover {
+  background-color: var(--accent-blue-subtle);
+}
+
+/* Baris Kontrol (Label + Nilai) */
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.control-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.control-val {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Slider Kontrol */
+.control-slider-wrap {
+  margin-top: 6px;
+}
+
+.custom-slider {
+  width: 100%;
+  height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #FFFFFF;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 1px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  transition: transform 0.12s ease;
+  background: var(--slider-track);
+  border-radius: var(--radius-pill);
+  outline: none;
 }
 
-.ios-slider::-webkit-slider-thumb:active {
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  border: 2px solid var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.custom-slider::-webkit-slider-thumb:hover {
   transform: scale(1.1);
 }
 
-.ios-slider::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
+.custom-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #FFFFFF;
+  background: var(--slider-thumb);
+  border: 2px solid var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+/* Accordion Pengaturan Lanjutan */
+.card-accordion-toggle {
+  width: 100%;
   border: none;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 1px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
+  background: transparent;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
 }
 
-/* TOGGLE SWITCH iOS STYLE */
-.ios-switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 26px;
-  flex-shrink: 0;
+.card-accordion-toggle:hover {
+  background-color: var(--bg-subtle);
 }
 
-.ios-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+.accordion-chevron {
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
 }
 
-.switch-slider {
-  position: absolute;
-  inset: 0;
-  cursor: pointer;
-  background-color: var(--slider-track);
-  border-radius: 26px;
-  transition: background-color 0.25s ease;
+.card-accordion-toggle[aria-expanded="true"] .accordion-chevron {
+  transform: rotate(180deg);
 }
 
-.switch-slider::before {
-  position: absolute;
-  content: "";
-  height: 22px;
-  width: 22px;
-  left: 2px;
-  bottom: 2px;
-  background-color: #FFFFFF;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+.card-accordion-body {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background-color: var(--bg-subtle);
 }
 
-.ios-switch input:checked + .switch-slider {
-  background-color: var(--accent);
-}
-
-.ios-switch input:checked + .switch-slider::before {
-  transform: translateX(18px);
-}
-
-/* PALET WARNA TEKS */
+/* Palet Warna Cap */
 .color-palette-row {
   display: flex;
   align-items: center;
@@ -1037,283 +1276,251 @@ button, input, textarea, select {
 }
 
 .color-dot {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: none;
-  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s ease;
   position: relative;
-  transition: transform 0.15s ease;
 }
 
-.color-dot.active::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
+.color-dot.active {
+  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--accent-blue);
 }
 
 .custom-color-circle {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  border: 1px solid var(--separator);
-  cursor: pointer;
-  background: transparent;
+  border: 1px dashed var(--border-strong);
   padding: 0;
-}
-
-/* TOMBOL BUTTON STYLES */
-.btn-filled {
-  height: 36px;
-  padding: 0 20px;
-  background: var(--accent);
-  color: var(--text-on-accent);
-  border: none;
-  border-radius: var(--radius-control);
-  font-size: 14px;
-  font-weight: 600;
+  background: transparent;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: background-color 0.15s ease;
 }
 
-.btn-filled:hover {
-  background: var(--accent-hover);
+/* Toggle Switch Alami & Standar */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
 }
 
-.btn-filled-sm {
-  height: 30px;
-  padding: 0 12px;
-  background: var(--accent);
-  color: var(--text-on-accent);
-  border: none;
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--slider-track);
+  border-radius: var(--radius-pill);
+  transition: background-color 0.2s ease;
+}
+
+.toggle-track::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background-color: var(--accent-blue);
+}
+
+.toggle-switch input:checked + .toggle-track::before {
+  transform: translateX(18px);
+}
+
+/* Kotak Instruksi Sensor */
+.sensor-instruction-box {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  transition: opacity 0.15s ease;
-}
-
-.btn-filled-sm:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.btn-filled-lg {
-  width: 100%;
-  height: 42px;
-  background: var(--accent);
-  color: var(--text-on-accent);
-  border: none;
-  border-radius: var(--radius-control);
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
+  padding: 10px 12px;
+  margin-top: 10px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s ease;
-}
-
-.btn-filled-lg:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.btn-filled-lg:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.btn-tinted-full {
-  width: 100%;
-  height: 34px;
-  background: var(--accent-subtle);
-  color: var(--accent);
-  border: none;
-  border-radius: var(--radius-control);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: background-color 0.12s ease;
-}
-
-.btn-tinted-full:hover {
-  background: rgba(0, 122, 255, 0.16);
-}
-
-.btn-plain {
-  background: transparent;
-  border: none;
-  color: var(--accent);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn-plain:hover {
-  text-decoration: underline;
-}
-
-.btn-plain-sm {
-  background: transparent;
-  border: none;
-  color: var(--accent);
+  gap: 8px;
   font-size: 12px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.download-btn-wrap {
-  padding: 12px 14px;
-}
-
-/* PROGRESS BAR PDF/ZIP */
-.export-progress {
-  padding: 0 14px 12px;
-}
-
-.progress-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  line-height: 1.45;
 }
 
-.progress-track {
-  height: 4px;
-  background: var(--slider-track);
-  border-radius: 2px;
-  overflow: hidden;
+.sensor-instruction-box svg {
+  color: var(--accent-blue);
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--accent);
-  transition: width 0.15s linear;
+.text-secondary-empty {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  padding: 8px 0;
 }
 
-/* ===================================================
-   7. SENSOR LIST TABLE (INSET GROUPED)
-   =================================================== */
-.sensor-list-table {
+.sensor-table-list {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .sensor-row-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  font-size: 13px;
-  position: relative;
-  cursor: pointer;
+  padding: 6px 10px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
 }
 
-.sensor-row-item:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 0;
-  bottom: 0;
-  height: 0.5px;
-  background: var(--separator);
-}
-
+.sensor-row-item:hover,
 .sensor-row-item.active {
-  background: var(--accent-subtle);
-  color: var(--accent);
+  border-color: var(--accent-blue);
+  background-color: var(--accent-blue-subtle);
 }
 
 .btn-row-del {
   border: none;
   background: transparent;
   color: var(--destructive);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
-  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.btn-row-del:hover {
+  background-color: var(--destructive-subtle);
+}
+
+/* Bilah Progres Ekspor */
+.export-progress-panel {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.progress-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background-color: var(--accent-blue);
+  transition: width 0.15s ease;
 }
 
 /* ===================================================
-   8. MODAL ALERT (iOS STYLE ALERT DIALOG)
+   8. DIALOG MODAL KONFIRMASI (CLEAN WEB DIALOG)
    =================================================== */
-.ios-modal-backdrop {
+.confirm-modal-backdrop {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: modalFadeIn 0.18s ease-out;
+  padding: 20px;
 }
 
-.ios-alert {
-  width: 270px;
-  background: var(--bg-surface);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  animation: alertPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+.confirm-modal-box {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-floating);
+  animation: modalEnter 0.15s ease-out;
 }
 
-.alert-content {
-  padding: 20px 16px 16px;
+@keyframes modalEnter {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.alert-title {
+.confirm-modal-title {
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
-.alert-desc {
-  font-size: 13px;
+.confirm-modal-desc {
+  font-size: 13.5px;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.5;
+  margin-bottom: 20px;
 }
 
-.alert-actions {
+.confirm-modal-actions {
   display: flex;
-  border-top: 0.5px solid var(--separator);
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
-.alert-btn {
-  flex: 1;
-  height: 44px;
-  background: transparent;
-  border: none;
-  font-size: 17px;
-  cursor: pointer;
+.btn-dialog-secondary {
+  border: 1px solid var(--border-strong);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
 }
 
-.alert-btn.cancel {
-  color: var(--accent);
-  font-weight: 400;
-  border-right: 0.5px solid var(--separator);
+.btn-dialog-secondary:hover {
+  background-color: var(--bg-subtle);
 }
 
-.alert-btn.destructive {
-  color: var(--destructive);
+.btn-dialog-destructive {
+  border: 1px solid transparent;
+  background-color: var(--destructive);
+  color: #FFFFFF;
+  font-size: 13px;
   font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.btn-dialog-destructive:hover {
+  background-color: var(--destructive-hover);
 }
 
 /* ===================================================
@@ -1327,405 +1534,135 @@ button, input, textarea, select {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 999;
+  align-items: center;
+  z-index: 1000;
   pointer-events: none;
 }
 
 .toast {
-  padding: 8px 18px;
-  background: var(--toast-bg);
-  color: var(--toast-text);
+  background-color: #0F172A;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   font-size: 13px;
   font-weight: 500;
+  padding: 8px 18px;
   border-radius: var(--radius-pill);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
-  animation: toastSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: toastIn 0.15s ease-out;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ===================================================
-   10. FOOTER SATU BARIS KECIL
+   10. FOOTER APLIKASI
    =================================================== */
 .app-footer {
   height: 28px;
-  background: var(--bg-window);
-  border-top: 1px solid var(--separator);
+  background-color: var(--bg-toolbar);
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
   font-size: 11px;
   color: var(--text-tertiary);
-  user-select: none;
+  padding: 0 16px;
+  flex-shrink: 0;
 }
 
 /* ===================================================
-   11. ANIMASI & TRANSISI
+   11. RESPONSIVITAS MOBILE (R-03)
    =================================================== */
-@keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes alertPopIn {
-  from { opacity: 0; transform: scale(1.08); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes popoverFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes toastSlideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ===================================================
-   12. RESPONSIVE LAYOUT (DESKTOP, TABLET & MOBILE iOS)
-   =================================================== */
-
-/* 1. Large Desktop (min-width: 1201px) */
-@media (min-width: 1201px) {
-  .app-workspace {
-    grid-template-columns: 240px 1fr 320px;
-  }
-}
-
-/* 2. Standard Desktop & Laptop (1025px - 1200px) */
-@media (max-width: 1200px) and (min-width: 1025px) {
-  .app-workspace {
-    grid-template-columns: 220px 1fr 300px;
-  }
-}
-
-/* 3. Small Laptop & Tablet Landscape (901px - 1024px) */
-@media (max-width: 1024px) and (min-width: 901px) {
-  .toolbar-left, .toolbar-right {
-    min-width: auto;
-  }
-
-  .app-workspace {
-    grid-template-columns: 190px 1fr 280px;
-  }
-}
-
-/* 4. Tablet Portrait (769px - 900px) */
-@media (max-width: 900px) and (min-width: 769px) {
-  .toolbar-left, .toolbar-right {
-    min-width: auto;
-  }
-
-  /* 2-Pane Layout di Tablet Portrait: Stage luas (~500px+) + Inspector (280px) */
-  .app-workspace {
-    display: grid;
-    grid-template-columns: 1fr 280px;
-    height: calc(100vh - 52px - 28px);
-    overflow: hidden;
-  }
-
-  /* Di tablet portrait, sidebar hanya aktif bila berkas > 1 sebagai tab bar horizontal */
-  .app-sidebar {
-    display: none;
-    grid-column: 1 / -1;
-    border-right: none;
-    border-bottom: 1px solid var(--separator);
-    background: var(--bg-surface);
-    padding: 6px 14px;
-    height: 48px;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .app-sidebar.has-docs {
-    display: flex;
-  }
-
-  .sidebar-header, .sidebar-footer {
-    display: none;
-  }
-
-  .doc-list-scroll {
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-    overflow-x: auto;
-    padding: 0;
-    flex: 1;
-  }
-
-  .doc-list-item {
-    flex-shrink: 0;
-    padding: 4px 10px;
-    font-size: 12px;
-    height: 32px;
-  }
-}
-
-/* 5. Mobile iOS & Smartphone (<= 768px) */
-@media (max-width: 768px) {
-  html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  /* Sembunyikan footer di mobile agar tidak menutupi bottom sheet & safe-area */
-  .app-footer {
-    display: none !important;
-  }
-
-  /* Toolbar ringkas ala iOS Navigation Bar */
-  .app-toolbar {
-    height: 50px;
-    padding: 0 12px;
-    padding-top: env(safe-area-inset-top);
-  }
-
-  .toolbar-left {
-    min-width: auto;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .app-title {
-    font-size: 15px;
-  }
-
-  .privacy-label {
-    padding: 3px 6px;
-    font-size: 11px;
-    gap: 4px;
-  }
-
-  /* Popover Privasi Adaptif di Layar Kecil */
-  .popover-anchor {
-    position: static;
-  }
-
-  .ios-popover {
-    left: 12px;
-    right: 12px;
-    width: auto;
-    max-width: 320px;
-    top: 54px;
-  }
-
-  .toolbar-center {
-    display: none; /* Pindah ke tab bar segmented di bottom sheet */
-  }
-
-  .toolbar-right {
-    min-width: auto;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  #btnDownloadActiveTop {
-    display: none;
-  }
-
-  .toolbar-text-btn {
-    padding: 4px 8px;
-    font-size: 12px;
-  }
-
-  /* Toast mengambang di atas seperti iOS Dynamic Island / Notification Banner */
-  .toast-stack {
-    top: calc(58px + env(safe-area-inset-top));
-    bottom: auto;
-    width: auto;
-    max-width: calc(100vw - 32px);
-  }
-
-  .toast {
-    font-size: 12px;
-    padding: 7px 14px;
-  }
-
-  /* Workspace satu kolom: Stage di atas, Inspector di bottom sheet */
-  .app-workspace {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 50px);
-    height: calc(100dvh - 50px);
-    overflow: hidden;
-    position: relative;
-  }
-
-  /* Sidebar Dokumen Horizontal saat berkas > 1 */
-  .app-sidebar {
-    display: none;
-    border-right: none;
-    border-bottom: 1px solid var(--separator);
-    background: var(--bg-surface);
-    padding: 6px 12px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    flex-shrink: 0;
-  }
-
-  .app-sidebar.has-docs {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    height: 44px;
-  }
-
-  .sidebar-header, .sidebar-footer {
-    display: none;
-  }
-
-  .doc-list-scroll {
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-    overflow-x: auto;
-    padding: 0;
-    flex: 1;
-  }
-
-  .doc-list-item {
-    flex-shrink: 0;
-    padding: 4px 8px;
-    font-size: 11px;
-    height: 30px;
-  }
-
-  /* Stage pratinjau dokumen di atas sheet */
-  .app-stage {
-    flex: 1;
-    min-height: 0;
-    overflow: auto;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .stage-viewport {
-    padding: 56px 10px 20px 10px;
+@media (max-width: 900px) {
+  body {
+    overflow-y: auto;
+    height: auto;
     min-height: 100%;
   }
 
-  .empty-dropzone {
-    padding: 24px 16px;
-    max-width: 320px;
+  .app-toolbar {
+    height: auto;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
-  .dropzone-title {
-    font-size: 17px;
+  .toolbar-left {
+    min-width: 0;
   }
 
-  .dropzone-sub {
-    font-size: 12px;
-    margin-bottom: 16px;
-  }
-
-  /* Floating Bar Pratinjau Kompak agar pas di layar 360-390px */
-  .stage-floating-bar {
-    top: 10px;
-    padding: 2px 4px;
-    gap: 4px;
-    max-width: calc(100vw - 20px);
-  }
-
-  .stage-floating-bar .seg-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-    min-height: 32px;
-  }
-
-  .btn-icon-subtle {
-    width: 26px;
-    height: 26px;
-  }
-
-  .bar-divider {
-    height: 12px;
-    margin: 0 2px;
-  }
-
-  /* Bottom Sheet Drawer iOS Mobile dengan Detents (Half: 46vh, Expanded: 84vh) */
-  .app-inspector {
-    position: relative;
-    border-left: none;
-    border-top: 1px solid var(--separator);
-    border-top-left-radius: var(--radius-card);
-    border-top-right-radius: var(--radius-card);
-    background: var(--bg-surface);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
-    display: flex;
-    flex-direction: column;
-    height: 46vh;
-    max-height: 46vh;
-    flex-shrink: 0;
-    transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 30;
-  }
-
-  .app-inspector.expanded {
-    height: 84vh;
-    max-height: 84vh;
-  }
-
-  .mobile-drawer-handle {
-    display: flex;
+  .toolbar-center {
+    order: 3;
+    width: 100%;
     justify-content: center;
-    padding: 10px 0 6px;
-    cursor: pointer;
-    touch-action: none;
-    flex-shrink: 0;
+    padding-top: 4px;
   }
 
-  .drawer-pill {
-    width: 36px;
-    height: 5px;
-    border-radius: 2.5px;
-    background: var(--slider-track);
-    transition: background-color 0.15s ease;
+  .toolbar-right {
+    min-width: 0;
   }
 
-  .mobile-drawer-handle:hover .drawer-pill {
-    background: var(--text-tertiary);
+  .app-workspace {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: 180px;
+  }
+
+  .app-stage {
+    min-height: 380px;
+  }
+
+  .canvas-stage-wrapper {
+    padding: 56px 12px 24px 12px;
+  }
+
+  .app-inspector {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
   }
 
   .mobile-tab-switch {
-    display: block;
-    padding: 2px 14px 10px;
-    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
   }
 
-  .mobile-tab-switch .segmented-control {
-    background: var(--bg-secondary);
+  .dropzone-box {
+    padding: 24px 16px;
   }
 
-  .inspector-scroll {
-    padding: 12px 14px calc(24px + env(safe-area-inset-bottom));
-    gap: 14px;
+  .dropzone-title {
+    font-size: 18px;
   }
 
-  /* Target sentuh minimal 44px sesuai panduan Apple HIG */
-  .btn-filled, .btn-filled-lg, .mobile-tab-switch .seg-btn {
-    min-height: 44px;
-  }
-
-  .list-row {
-    min-height: 44px;
-  }
-
-  /* Tombol unduh penuh di mobile */
-  .download-btn-wrap .btn-filled-lg {
+  .dropzone-actions {
+    flex-direction: column;
     width: 100%;
+  }
+
+  .btn-primary-action,
+  .btn-secondary-action {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+/* Dukungan Pengurangan Animasi (antislop-human) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
