@@ -71,50 +71,7 @@
   --shadow-floating: 0 12px 28px -4px rgba(15, 23, 42, 0.12), 0 4px 8px -2px rgba(15, 23, 42, 0.06);
 }
 
-/* Tema Gelap Otomatis / Manual */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg-canvas: #0B0F19;
-    --bg-surface: #111827;
-    --bg-surface-elevated: #1E293B;
-    --bg-subtle: #1E293B;
-    --bg-muted: #334155;
-    --bg-toolbar: #111827;
-    --bg-stage: #070B12;
-
-    --border: rgba(255, 255, 255, 0.1);
-    --border-subtle: rgba(255, 255, 255, 0.06);
-    --border-strong: rgba(255, 255, 255, 0.2);
-
-    --text-primary: #F8FAFC;
-    --text-secondary: #CBD5E1;
-    --text-tertiary: #94A3B8;
-    --text-on-dark: #FFFFFF;
-
-    --accent-primary: #F8FAFC;
-    --accent-primary-hover: #E2E8F0;
-    --accent-primary-text: #0F172A;
-    --accent-blue: #3B82F6;
-    --accent-blue-subtle: rgba(59, 130, 246, 0.15);
-    --stamp-red: #EA580C;
-    --destructive: #EF4444;
-    --destructive-hover: #DC2626;
-    --destructive-subtle: rgba(239, 68, 68, 0.15);
-
-    --control-bg: #1E293B;
-    --control-border: #475569;
-    --control-active: #3B82F6;
-    --segmented-bg: #1E293B;
-    --segmented-active: #334155;
-    --slider-track: #475569;
-    --slider-thumb: #3B82F6;
-
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-    --shadow-floating: 0 14px 32px rgba(0, 0, 0, 0.65);
-  }
-}
+/* Tema Gelap (Aktif saat [data-theme="dark"]) */
 
 [data-theme="dark"] {
   --bg-canvas: #0B0F19;
@@ -330,14 +287,6 @@ input:disabled,
   display: block;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .app-logo-img.app-logo-light {
-    display: none;
-  }
-  :root:not([data-theme="light"]) .app-logo-img.app-logo-dark {
-    display: block;
-  }
-}
 
 .app-logo-icon {
   color: var(--stamp-red);
@@ -1632,6 +1581,18 @@ input:disabled,
   color: var(--text-tertiary);
   padding: 0 16px;
   flex-shrink: 0;
+}
+
+.app-footer a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.app-footer a:hover {
+  color: var(--accent-blue);
 }
 
 /* ===================================================

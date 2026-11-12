@@ -1,32 +1,16 @@
 /**
  * theme.js
- * Manajemen tema Apple Human Interface Guidelines:
- * Otomatis mengikuti prefers-color-scheme dengan dukungan toggle manual.
+ * Manajemen tema Tandain:
+ * Default selalu terang (light mode) dengan dukungan toggle manual ke mode gelap.
  */
 
 const THEME_KEY = 'tandain_theme';
 
 export function initTheme() {
   const savedTheme = localStorage.getItem(THEME_KEY);
-  let theme = savedTheme;
-  
-  if (theme !== 'dark' && theme !== 'light') {
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    theme = prefersDark ? 'dark' : 'light';
-  }
-  
+  // Default selalu 'light' saat pertama kali dibuka, kecuali pernah diatur ke 'dark'
+  const theme = savedTheme === 'dark' ? 'dark' : 'light';
   applyTheme(theme);
-
-  // Dengarkan perubahan prefers-color-scheme otomatis
-  if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      // Jika pengguna belum mengunci preferensi manual, ikuti sistem
-      if (!localStorage.getItem(THEME_KEY)) {
-        applyTheme(e.matches ? 'dark' : 'light');
-      }
-    });
-  }
-
   return theme;
 }
 

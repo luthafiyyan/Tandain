@@ -222,10 +222,10 @@ test('Audit CSP & Dist: Tidak ada external script, CDN, atau Google Fonts di dis
   assert(cspContent.includes("object-src 'none'"), "CSP harus object-src 'none'");
   assert(cspContent.includes("base-uri 'none'"), "CSP harus base-uri 'none'");
 
-  // 2. Verifikasi tidak ada URL eksternal (http:// atau https://)
+  // 2. Verifikasi tidak ada URL aset/skrip eksternal (http:// atau https://)
   const externalUrls = html.match(/https?:\/\/[^"'\s>]+/g) || [];
-  // Filter out XML namespaces like http://www.w3.org/2000/svg
-  const externalHttp = externalUrls.filter(u => !u.includes('w3.org'));
+  // Filter out XML namespaces like http://www.w3.org/2000/svg dan link profil pengembang
+  const externalHttp = externalUrls.filter(u => !u.includes('w3.org') && !u.includes('threads.com'));
   assert.strictEqual(externalHttp.length, 0, `Tidak boleh ada URL eksternal di HTML: ${externalHttp.join(', ')}`);
 
   // 3. Verifikasi file CSS dist tidak memuat url eksternal
